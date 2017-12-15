@@ -65,13 +65,12 @@ class Unit(TopLevel):
         self.symbol = symbol if symbol is not None else TextProperty(OM_NS + "symbol", self.this)
         self.register_extension_class(Measure, 'om')
 
-class XDocument(Document):
+class self.Document):
 
     def __init__(self):
-        super(XDocument, self).__init__()
+        super(self. self).__init__()
 
-    @staticmethod
-    def generate_uri(display_id):
+    def generate_uri(self, display_id):
         uri_arr = [getHomespace()]
         uri_arr.append('/')
         uri_arr.append(display_id)
@@ -87,8 +86,7 @@ class XDocument(Document):
             except:
                 pass
 
-    @staticmethod
-    def configure_options(homespace, is_validated, is_typed):
+    def configure_options(self, homespace, is_validated, is_typed):
         setHomespace(homespace)
         Config.setOption('validate', is_validated)
         Config.setOption('sbol_typed_uris', is_typed)
@@ -127,29 +125,25 @@ class XDocument(Document):
         except:
             return self.getModuleDefinition(generate_uri(display_id))
 
-    @staticmethod
-    def create_module(mod_def, parent_mod_def):
+    def create_module(self, mod_def, parent_mod_def):
         mod = parent_mod_def.modules.create(mod_def.displayId.get())
         mod.definition.set(mod_def.identity.get())
 
         return mod
 
-    @staticmethod
-    def create_functional_component(comp_def, mod_def):
+    def create_functional_component(self, comp_def, mod_def):
         fc = mod_def.functionalComponents.create(comp_def.displayId.get())
         fc.definition.set(comp_def.identity.get())
 
         return fc
 
-    @staticmethod
-    def create_input_component(comp_def, mod_def):
-        fc = XDocument.create_functional_component(comp_def, mod_def)
+    def create_input_component(self, comp_def, mod_def):
+        fc = self.create_functional_component(comp_def, mod_def)
         fc.direction.set(SBOL_DIRECTION_IN)
 
         return fc
 
-    @staticmethod
-    def create_measure(mag, fc, unit=None, display_id=None, name=None):
+    def create_measure(self, mag, fc, unit=None, display_id=None, name=None):
         if display_id is not None:
             ms_id = display_id
         else:
@@ -167,8 +161,7 @@ class XDocument(Document):
         
         return ms
 
-    @staticmethod
-    def create_unit(symbol, om, description=None, display_id=None, name=None):
+    def create_unit(self, symbol, om, description=None, display_id=None, name=None):
         if display_id is not None:
             unit_id = display_id
         else:
@@ -214,14 +207,14 @@ class XDocument(Document):
         system = self.create_module_definition(system_id, system_id)
 
         for device in devices:
-            XDocument.create_functional_component(device, system)
+            self.create_functional_component(device, system)
 
         for sub_system in sub_systems:
-            XDocument.create_module(sub_system, system)
+            self.create_module(sub_system, system)
 
         for i in range(0, len(inputs)):
-            fc = XDocument.create_input_component(inputs[i], system)
-            XDocument.create_measure(mags[i], fc, units[i])
+            fc = self.create_input_component(inputs[i], system)
+            self.create_measure(mags[i], fc, units[i])
 
         return system
 
@@ -280,8 +273,7 @@ class XDocument(Document):
             
         return act
 
-    @staticmethod
-    def create_attachment(source, attach_format=None, display_id=None, name=None):
+    def create_attachment(self, source, attach_format=None, display_id=None, name=None):
         if display_id is not None:
             attach_id = display_id
         else:
@@ -335,8 +327,7 @@ class XDocument(Document):
         
         return exp_datum
 
-    @staticmethod
-    def create_implementation(display_id, name, imp_dict, parents=[], built=None):
+    def create_implementation(self, display_id, name, imp_dict, parents=[], built=None):
         try:
             imp = imp_dict[display_id]
         except:
@@ -365,8 +356,7 @@ class XDocument(Document):
 
     #     return stock
 
-    @staticmethod
-    def create_sample(sample_id, sample_dict, parents=[], built=None, well_id=None, plate_id=None):
+    def create_sample(self, sample_id, sample_dict, parents=[], built=None, well_id=None, plate_id=None):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -377,7 +367,7 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        sample = XDocument.create_implementation(sample_id, sample_id, sample_dict, parents, built)
+        sample = self.create_implementation(sample_id, sample_id, sample_dict, parents, built)
 
         return sample
 
@@ -387,8 +377,7 @@ class XDocument(Document):
     #     if operator is not None:
     #         create_activity(operator, replicate_id, parents, sample)
 
-    @staticmethod
-    def create_experiment(display_id, name):
+    def create_experiment(self, display_id, name):
         exp = Experiment(display_id)
         exp.name.set(name)
 
@@ -428,14 +417,13 @@ class XDocument(Document):
         return parent_entities
 
     def read(self, sbol_path):
-        super(XDocument, self).read(sbol_path)
+        super(self. self).read(sbol_path)
 
-    @staticmethod
-    def read_om(om_path):
+    def read_om(self, om_path):
         om = rdflib.Graph()
         om.parse(om_path)
 
         return om
 
     def write(self, sbol_path):
-        super(XDocument, self).write(sbol_path)
+        super(self. self).write(sbol_path)
