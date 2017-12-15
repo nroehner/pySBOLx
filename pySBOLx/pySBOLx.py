@@ -412,7 +412,7 @@ class XDocument(Document):
 
             for uri in curr_act.wasInformedBy.getAll():
                 if len(uri) > 0:
-                    acts.append(activities.get(uri))
+                    acts.append(self.activities.get(uri))
 
         return parent_entities
 
