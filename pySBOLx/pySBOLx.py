@@ -80,13 +80,14 @@ class XDocument(Document):
     
         return ''.join(uri_arr)
 
-    def add_top_levels(top_levels):
+    def add_top_levels(self, top_levels):
         for top_level in top_levels:
             try:
                 top_level.addToDocument(self)
             except:
                 pass
 
+    @staticmethod
     def configure_options(homespace, is_validated, is_typed):
         setHomespace(homespace)
         Config.setOption('validate', is_validated)
@@ -99,9 +100,9 @@ class XDocument(Document):
 
 #     return doc
 
-    def create_component_definition(display_id, name, comp_type=None, comp_role=None):
+    def create_component_definition(self, display_id, name, comp_type=None, comp_role=None):
         try:
-            comp_def = componentDefinitions.create(display_id)
+            comp_def = self.componentDefinitions.create(display_id)
             comp_def.name.set(name)
             if comp_type is not None:
                 comp_def.types.set(comp_type)
@@ -110,21 +111,21 @@ class XDocument(Document):
     
             return comp_def
         except:
-            return getComponentDefinition(generate_uri(display_id))
+            return self.getComponentDefinition(generate_uri(display_id))
 
-    def create_inducer(display_id, name):
-        return create_component_definition(display_id, name, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224')
+    def create_inducer(self, display_id, name):
+        return self.create_component_definition(display_id, name, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224')
 
-    def create_module_definition(display_id, name, mod_role=None):
+    def create_module_definition(self, display_id, name, mod_role=None):
         try:
-            mod_def = moduleDefinitions.create(display_id)
+            mod_def = self.moduleDefinitions.create(display_id)
             mod_def.name.set(name)
             if mod_role is not None:
                 mod_def.roles.set(mod_role)
 
             return mod_def
         except:
-            return getModuleDefinition(generate_uri(display_id))
+            return self.getModuleDefinition(generate_uri(display_id))
 
     @staticmethod
     def create_module(mod_def, parent_mod_def):
@@ -142,7 +143,7 @@ class XDocument(Document):
 
     @staticmethod
     def create_input_component(comp_def, mod_def):
-        fc = create_functional_component(comp_def, mod_def)
+        fc = XDocument.create_functional_component(comp_def, mod_def)
         fc.direction.set(SBOL_DIRECTION_IN)
 
         return fc
@@ -193,7 +194,7 @@ class XDocument(Document):
         
         return unit
 
-    def create_system(devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
+    def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -210,21 +211,21 @@ class XDocument(Document):
                 id_arr.append(mag.replace('.', 'p'))
         system_id = ''.join(id_arr)
 
-        system = create_module_definition(system_id, system_id)
+        system = self.create_module_definition(system_id, system_id)
 
         for device in devices:
-            create_functional_component(device, system)
+            XDocument.create_functional_component(device, system)
 
         for sub_system in sub_systems:
-            create_module(sub_system, system)
+            XDocument.create_module(sub_system, system)
 
         for i in range(0, len(inputs)):
-            fc = create_input_component(inputs[i], system)
-            create_measure(mags[i], fc, units[i])
+            fc = XDocument.create_input_component(inputs[i], system)
+            XDocument.create_measure(mags[i], fc, units[i])
 
         return system
 
-    def create_activity(operator, replicate_id=None, parents=[], child=None, display_id=None, name=None):
+    def create_activity(self, operator, replicate_id=None, parents=[], child=None, display_id=None, name=None):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -236,7 +237,7 @@ class XDocument(Document):
             parent_id_arr = []
             for parent in parents:
                 if isinstance(parent, Activity):
-                    for entity in get_parent_entities(parent):
+                    for entity in self.get_parent_entities(parent):
                         parent_id_arr.append('_')
                         parent_id_arr.append(entity.displayId.get())
                 else:
@@ -251,7 +252,7 @@ class XDocument(Document):
                 id_arr.append(child.displayId.get())
         act_id = ''.join(id_arr)
 
-        act = activities.create(act_id)
+        act = self.activities.create(act_id)
         if name is not None:
             act.name.set(name)
         else:
@@ -303,7 +304,7 @@ class XDocument(Document):
         
         return attach
 
-    def create_experimental_data(attachs, imp, exp, operator=None, replicate_id=None, display_id=None, name=None):
+    def create_experimental_data(self, attachs, imp, exp, operator=None, replicate_id=None, display_id=None, name=None):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -328,7 +329,7 @@ class XDocument(Document):
 
         exp_datum.wasDerivedFrom.add(imp.identity.get())
         if operator is not None:
-            create_activity(operator, replicate_id, [imp], exp_datum)
+            self.create_activity(operator, replicate_id, [imp], exp_datum)
         
         exp.experimentalData.add(exp_datum.identity.get())
         
@@ -376,7 +377,7 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        sample = create_implementation(sample_id, sample_id, sample_dict, parents, built)
+        sample = XDocument.create_implementation(sample_id, sample_id, sample_dict, parents, built)
 
         return sample
 
@@ -393,17 +394,17 @@ class XDocument(Document):
 
         return exp
 
-    def get_devices(uris):
+    def get_devices(self, uris):
         devices = []
         for uri in uris:
             try:
-                devices.append(getComponentDefinition(uri))
+                devices.append(self.getComponentDefinition(uri))
             except:
                 pass
 
         return devices
 
-    def get_parent_entities(act):
+    def get_parent_entities(self, act):
         parent_entities = []
 
         acts = [act]
@@ -426,7 +427,7 @@ class XDocument(Document):
 
         return parent_entities
 
-    def read(sbol_path):
+    def read(self, sbol_path):
         super(XDocument, self).read(sbol_path)
 
     @staticmethod
@@ -436,5 +437,5 @@ class XDocument(Document):
 
         return om
 
-    def write(sbol_path):
+    def write(self, sbol_path):
         super(XDocument, self).write(sbol_path)
