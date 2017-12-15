@@ -406,7 +406,7 @@ class XDocument(Document):
 
             try:
                 for uri in curr_act.getPropertyValues(PROV_NS + 'used'):
-                    parent_entities.append(getTopLevel(uri))
+                    parent_entities.append(self.getTopLevel(uri))
             except:
                 pass
 
