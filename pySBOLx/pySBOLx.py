@@ -65,10 +65,10 @@ class Unit(TopLevel):
         self.symbol = symbol if symbol is not None else TextProperty(OM_NS + "symbol", self.this)
         self.register_extension_class(Measure, 'om')
 
-class self.Document):
+class XDocument(Document):
 
     def __init__(self):
-        super(self. self).__init__()
+        super(XDocument, self).__init__()
 
     def generate_uri(self, display_id):
         uri_arr = [getHomespace()]
@@ -417,7 +417,7 @@ class self.Document):
         return parent_entities
 
     def read(self, sbol_path):
-        super(self. self).read(sbol_path)
+        super(XDocument, self).read(sbol_path)
 
     def read_om(self, om_path):
         om = rdflib.Graph()
@@ -426,4 +426,4 @@ class self.Document):
         return om
 
     def write(self, sbol_path):
-        super(self. self).write(sbol_path)
+        super(XDocument, self).write(sbol_path)
