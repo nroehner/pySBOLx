@@ -126,14 +126,20 @@ class XDocument(Document):
             return self.getModuleDefinition(self.generate_uri(display_id))
 
     def create_module(self, mod_def, parent_mod_def):
-        mod = parent_mod_def.modules.create(mod_def.displayId.get())
-        mod.definition.set(mod_def.identity.get())
+        try:
+            mod = parent_mod_def.modules.create(mod_def.displayId.get())
+            mod.definition.set(mod_def.identity.get())
+        except:
+            mod = parent_mod_def.modules.get(mod_def.displayId.get())
 
         return mod
 
     def create_functional_component(self, comp_def, mod_def):
-        fc = mod_def.functionalComponents.create(comp_def.displayId.get())
-        fc.definition.set(comp_def.identity.get())
+        try:
+            fc = mod_def.functionalComponents.create(comp_def.displayId.get())
+            fc.definition.set(comp_def.identity.get())
+        except:
+            fc = mod_def.functionalComponents.get(comp_def.displayId.get())
 
         return fc
 
@@ -161,31 +167,36 @@ class XDocument(Document):
         
         return ms
 
-    def create_unit(self, symbol, om, description=None, display_id=None, name=None):
-        if display_id is not None:
-            unit_id = display_id
-        else:
-            try:
-                result = next(iter(om.query(''.join(["SELECT ?x ?description WHERE {?x om:symbol '", symbol, "' . ?x rdfs:comment ?description}"]))))
+    def create_unit(self, symbol, om, unit_dict, description=None, display_id=None, name=None):
+        try:
+            return unit_dict[symbol]
+        except:
+            if display_id is not None:
+                unit_id = display_id
+            else:
+                try:
+                    result = next(iter(om.query(''.join(["SELECT ?x ?description WHERE {?x om:symbol '", symbol, "' . ?x rdfs:comment ?description}"]))))
                 
-                unit_id = result.x.split('/')[-1]
+                    unit_id = result.x.split('/')[-1]
 
-                unit_description = result.description
-            except:
-                unit_id = symbol.replace('/', '_per_')
+                    unit_description = result.description
+                except:
+                    unit_id = symbol.replace('/', '_per_')
 
-                unit_description = description
+                    unit_description = description
 
-        unit = Unit(unit_id)
-        if name is not None:
-            unit.name.set(name)
-        else:
-            unit.name.set(unit_id)
-        if description is not None:
-            unit.description.set(description)
-        unit.symbol.set(symbol)
-        
-        return unit
+            unit = Unit(unit_id)
+            if name is not None:
+                unit.name.set(name)
+            else:
+                unit.name.set(unit_id)
+            if description is not None:
+                unit.description.set(description)
+            unit.symbol.set(symbol)
+            
+            unit_dict[symbol] = unit
+                
+            return unit
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
