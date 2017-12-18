@@ -214,7 +214,8 @@ class XDocument(Document):
 
         for i in range(0, len(inputs)):
             fc = self.create_input_component(inputs[i], system)
-            self.create_measure(mags[i], fc, units[i])
+            if i < len(mags) and i < len(units):
+                self.create_measure(mags[i], fc, units[i])
 
         return system
 
