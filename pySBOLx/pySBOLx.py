@@ -109,7 +109,7 @@ class XDocument(Document):
     
             return comp_def
         except:
-            return self.getComponentDefinition(generate_uri(display_id))
+            return self.getComponentDefinition(self.generate_uri(display_id))
 
     def create_inducer(self, display_id, name):
         return self.create_component_definition(display_id, name, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224')
@@ -123,7 +123,7 @@ class XDocument(Document):
 
             return mod_def
         except:
-            return self.getModuleDefinition(generate_uri(display_id))
+            return self.getModuleDefinition(self.generate_uri(display_id))
 
     def create_module(self, mod_def, parent_mod_def):
         mod = parent_mod_def.modules.create(mod_def.displayId.get())
