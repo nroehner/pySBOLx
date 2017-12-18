@@ -165,11 +165,11 @@ class XDocument(Document):
             ms.hasNumericalValue.set(mag)
             if unit is not None:
                 ms.hasUnit.add(unit.identity.get())
-        except:
-            ms = fc.measure.get(ms_id)
-        
-        return ms
 
+            return ms
+        except:
+            return None
+        
     def create_unit(self, symbol, om, unit_dict, description=None, display_id=None, name=None):
         try:
             unit = unit_dict[symbol]
