@@ -107,9 +107,10 @@ class XDocument(Document):
             if comp_role is not None:
                 comp_def.roles.set(comp_role)
     
-            return comp_def
         except:
-            return self.getComponentDefinition(self.generate_uri(display_id))
+            comp_def = self.getComponentDefinition(self.generate_uri(display_id))
+
+        return comp_def
 
     def create_inducer(self, display_id, name):
         return self.create_component_definition(display_id, name, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224')
@@ -120,10 +121,10 @@ class XDocument(Document):
             mod_def.name.set(name)
             if mod_role is not None:
                 mod_def.roles.set(mod_role)
-
-            return mod_def
         except:
-            return self.getModuleDefinition(self.generate_uri(display_id))
+            mod_def = self.getModuleDefinition(self.generate_uri(display_id))
+
+        return mod_def
 
     def create_module(self, mod_def, parent_mod_def):
         try:
@@ -155,21 +156,23 @@ class XDocument(Document):
         else:
             ms_id = fc.displayId.get() + '_measure'
 
-        fc.measure = OwnedPythonObject(Measure, OM_NS + 'measure', fc)
-        ms = fc.measure.create(ms_id)
-        if name is not None:
-            ms.name.set(name)
-        else:
-            ms.name.set(ms_id)
-        ms.hasNumericalValue.set(mag)
-        if unit is not None:
-            ms.hasUnit.add(unit.identity.get())
+        try:
+            ms = fc.measure.create(ms_id)
+            if name is not None:
+                ms.name.set(name)
+            else:
+                ms.name.set(ms_id)
+            ms.hasNumericalValue.set(mag)
+            if unit is not None:
+                ms.hasUnit.add(unit.identity.get())
+        except:
+            ms = fc.measure.get(ms_id)
         
         return ms
 
     def create_unit(self, symbol, om, unit_dict, description=None, display_id=None, name=None):
         try:
-            return unit_dict[symbol]
+            unit = unit_dict[symbol]
         except:
             if display_id is not None:
                 unit_id = display_id
@@ -196,7 +199,7 @@ class XDocument(Document):
             
             unit_dict[symbol] = unit
                 
-            return unit
+        return unit
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
@@ -226,6 +229,8 @@ class XDocument(Document):
         for i in range(0, len(inputs)):
             fc = self.create_input_component(inputs[i], system)
             if i < len(mags):
+                if not hasattr(fc, 'measure'):
+                    fc.measure = OwnedPythonObject(Measure, OM_NS + 'measure', fc)
                 if i < len(units):
                     self.create_measure(mags[i], fc, units[i])
                 else:
@@ -260,31 +265,34 @@ class XDocument(Document):
                 id_arr.append(child.displayId.get())
         act_id = ''.join(id_arr)
 
-        act = self.activities.create(act_id)
-        if name is not None:
-            act.name.set(name)
-        else:
-            act.name.set(act_id)
-
-        for parent in parents:
-            if isinstance(parent, Activity):
-                try:
-                    act.wasInformedBy.add(parent.identity.get())
-                except:
-                    act.wasInformedBy = URIProperty(PROV_NS + 'wasInformedBy', act)
-                    act.wasInformedBy.add(parent.identity.get())
+        try:
+            act = self.activities.create(act_id)
+            if name is not None:
+                act.name.set(name)
             else:
-                try:
-                    act.used.add(parent.identity.get())
-                except:
-                    act.used = URIProperty(PROV_NS + 'used', act)
-                    act.used.add(parent.identity.get())
+                act.name.set(act_id)
 
-        act.operator = URIProperty(SD2_NS + 'operator', act)
-        act.operator.add(SD2_NS + operator)
-        
-        if child is not None:
-            child.wasGeneratedBy.add(act.identity.get())
+            for parent in parents:
+                if isinstance(parent, Activity):
+                    try:
+                        act.wasInformedBy.add(parent.identity.get())
+                    except:
+                        act.wasInformedBy = URIProperty(PROV_NS + 'wasInformedBy', act)
+                        act.wasInformedBy.add(parent.identity.get())
+                else:
+                    try:
+                        act.used.add(parent.identity.get())
+                    except:
+                        act.used = URIProperty(PROV_NS + 'used', act)
+                        act.used.add(parent.identity.get())
+
+            act.operator = URIProperty(SD2_NS + 'operator', act)
+            act.operator.add(SD2_NS + operator)
+            
+            if child is not None:
+                child.wasGeneratedBy.add(act.identity.get())
+        except:
+            act = self.activities.get(act_id)
             
         return act
 
