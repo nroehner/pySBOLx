@@ -325,8 +325,9 @@ class XDocument(Document):
             id_arr.append(display_id)
         else:
             id_arr.append(imp.displayId.get())
-            id_arr.append('_')
-            id_arr.append(operator)
+            if operator is not None:
+                id_arr.append('_')
+                id_arr.append(operator)
             id_arr.append('_')
             if replicate_id is not None:
                 id_arr.append(replicate_id)
@@ -350,13 +351,8 @@ class XDocument(Document):
         
         return exp_datum
 
-    def create_implementation(self, display_id, name, imp_dict, parents=[], built=None):
-        try:
-            imp = imp_dict[display_id]
-        except:
-            imp = Implementation(display_id)
-
-            imp_dict[display_id] = imp
+    def create_implementation(self, display_id, name, parents=[], built=None):
+        imp = Implementation(display_id)
 
         imp.name.set(name)
         if built is not None:
@@ -379,7 +375,7 @@ class XDocument(Document):
 
     #     return stock
 
-    def create_sample(self, sample_id, sample_dict, parents=[], built=None, well_id=None, plate_id=None):
+    def create_sample(self, sample_id, parents=[], built=None, well_id=None, plate_id=None):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -390,7 +386,7 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        sample = self.create_implementation(sample_id, sample_id, sample_dict, parents, built)
+        sample = self.create_implementation(sample_id, sample_id, parents, built)
 
         return sample
 
