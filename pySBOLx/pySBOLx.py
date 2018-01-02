@@ -300,19 +300,15 @@ class XDocument(Document):
         if display_id is not None:
             attach_id = display_id
         else:
+            attach_id = source.split('/')[-1].replace('.', '_')
+
+        if name is not None:
+            attach_name = name
+        else:
             attach_name = source.split('/')[-1]
-            attach_id = attach_name.replace('.', '_')
-        
-        attach_name = source.split('/')[-1]
-        attach_name.replace('.', '_')
 
         attach = Attachment(attach_id)
-        if name is not None:
-            attach.name.set(name)
-        elif display_id is not None:
-            attach.name.set(display_id)
-        else:
-            attach.name.set(attach_name)
+        attach.name.set(attach_name)
         attach.source.add(source)
         if attach_format is not None:
             attach.format.add(attach_format)
