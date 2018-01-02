@@ -296,11 +296,16 @@ class XDocument(Document):
             
         return act
 
-    def create_attachment(self, source, attach_format=None, display_id=None, name=None):
+    def create_attachment(self, source, attach_format=None, replicate_id=None, display_id=None, name=None):
+        id_arr = []
         if display_id is not None:
-            attach_id = display_id
+            id_arr.append(display_id)
         else:
-            attach_id = source.split('/')[-1].replace('.', '_')
+            if replicate_id is not None:
+                id_arr.append(replicate_id)
+                id_arr.append('_')
+            id_arr.append(source.split('/')[-1].replace('.', '_'))
+        attach_id = ''.join(id_arr)
 
         if name is not None:
             attach_name = name
