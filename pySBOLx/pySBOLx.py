@@ -344,8 +344,6 @@ class XDocument(Document):
             exp_datum.attachments.add(attach.identity.get())
 
         exp_datum.wasDerivedFrom.add(imp.identity.get())
-        if operator is not None:
-            self.create_activity(operator, replicate_id, [imp], exp_datum)
         
         exp.experimentalData.add(exp_datum.identity.get())
         
