@@ -22,7 +22,7 @@ class ExperimentalData(TopLevel):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', displayId, version)
         self.identity.set(self.identity.get().replace('/ExperimentalData', ''))
         self.persistentIdentity.set(self.persistentIdentity.get().replace('/ExperimentalData', ''))
-        self.attachments = attachments if attachments is not None else URIProperty(SD2_NS + 'attachments', self.this)
+        self.attachments = attachments if attachments is not None else URIProperty(SD2_NS + 'attachment', self.this)
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Attachment(TopLevel):
@@ -304,7 +304,7 @@ class XDocument(Document):
             if replicate_id is not None:
                 id_arr.append(replicate_id)
                 id_arr.append('_')
-            id_arr.append(source.split('/')[-1].replace('.', '_'))
+            id_arr.append(source.split('/')[-1].replace('.', '_').replace('-', '_'))
         attach_id = ''.join(id_arr)
 
         if name is not None:
@@ -325,15 +325,14 @@ class XDocument(Document):
         if display_id is not None:
             id_arr.append(display_id)
         else:
+            if replicate_id is not None:
+                id_arr.append(replicate_id)
+                id_arr.append('_')
             id_arr.append(imp.displayId.get())
             if operator is not None:
                 id_arr.append('_')
                 id_arr.append(operator)
-            id_arr.append('_')
-            if replicate_id is not None:
-                id_arr.append(replicate_id)
-            else:
-                id_arr.append('data')
+            
         exp_datum_id = ''.join(id_arr)
 
         exp_datum = ExperimentalData(exp_datum_id)
