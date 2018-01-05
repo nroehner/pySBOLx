@@ -106,7 +106,6 @@ class XDocument(Document):
                 comp_def.types.set(comp_type)
             if comp_role is not None:
                 comp_def.roles.set(comp_role)
-    
         except:
             comp_def = self.getComponentDefinition(self.generate_uri(display_id))
 
@@ -114,6 +113,15 @@ class XDocument(Document):
 
     def create_inducer(self, display_id, name):
         return self.create_component_definition(display_id, name, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224')
+
+    def create_plasmid(self, display_id, name):
+        plasmid = self.create_component_definition(display_id, name, BIOPAX_DNA)
+        plasmid.types.add('http://identifiers.org/so/SO:0000988')
+
+        return plasmid
+
+    def create_strain(self, display_id, name):
+        return self.create_component_definition(display_id, name, BIOPAX_DNA)
 
     def create_module_definition(self, display_id, name, mod_role=None):
         try:
