@@ -170,34 +170,29 @@ class XDocument(Document):
         except:
             return None
         
-    def create_unit(self, symbol, om, unit_dict, description=None, display_id=None, name=None):
-        try:
-            unit = unit_dict[symbol]
-        except:
-            if display_id is not None:
-                unit_id = display_id
-            else:
-                try:
-                    result = next(iter(om.query(''.join(["SELECT ?x ?description WHERE {?x om:symbol '", symbol, "' . ?x rdfs:comment ?description}"]))))
-                
-                    unit_id = result.x.split('/')[-1]
-
-                    unit_description = result.description
-                except:
-                    unit_id = symbol.replace('/', '_per_')
-
-                    unit_description = description
-
-            unit = Unit(unit_id)
-            if name is not None:
-                unit.name.set(name)
-            else:
-                unit.name.set(unit_id)
-            if description is not None:
-                unit.description.set(description)
-            unit.symbol.set(symbol)
+    def create_unit(self, symbol, om, description=None, display_id=None, name=None):
+        if display_id is not None:
+            unit_id = display_id
+        else:
+            try:
+                result = next(iter(om.query(''.join(["SELECT ?x ?description WHERE {?x om:symbol '", symbol, "' . ?x rdfs:comment ?description}"]))))
             
-            unit_dict[symbol] = unit
+                unit_id = result.x.split('/')[-1]
+
+                unit_description = result.description
+            except:
+                unit_id = symbol.replace('/', '_per_')
+
+                unit_description = description
+
+        unit = Unit(unit_id)
+        if name is not None:
+            unit.name.set(name)
+        else:
+            unit.name.set(unit_id)
+        if description is not None:
+            unit.description.set(description)
+        unit.symbol.set(symbol)
                 
         return unit
 
