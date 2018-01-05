@@ -201,12 +201,18 @@ class XDocument(Document):
         if display_id is not None:
             id_arr.append(display_id)
         else:
-            for device in devices:
-                id_arr.append(device.displayId.get())
-                id_arr.append('_')
-            for sub_system in sub_systems:
-                id_arr.append(sub_system.displayId.get().replace('_system', ''))
-                id_arr.append('_')
+            if len(devices) > 0:
+                for device in devices:
+                    id_arr.append(device.displayId.get())
+                    id_arr.append('_')
+            elif len(sub_systems) > 0:
+                for sub_system in sub_systems:
+                    id_arr.append(sub_system.displayId.get().replace('_system', ''))
+                    id_arr.append('_')
+            else:
+                for inpt in inputs:
+                    id_arr.append(inpt.displayId.get())
+                    id_arr.append('_')
             id_arr.append('system')
             for mag in mags:
                 id_arr.append('_')
