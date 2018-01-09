@@ -365,10 +365,8 @@ class XDocument(Document):
         if built is not None:
             imp.built.add(built.identity.get())
         
-        if len(parents) > 0:
-            for parent in parents:
-                if not isinstance(parent, Activity):
-                    imp.wasDerivedFrom.add(parent.identity.get())
+        for parent in parents:
+            imp.wasDerivedFrom.add(parent.identity.get())
 
         return imp
 
@@ -382,7 +380,7 @@ class XDocument(Document):
 
     #     return stock
 
-    def create_sample(self, sample_id, parents=[], built=None, well_id=None, plate_id=None):
+    def create_sample(self, sample_id, parent_samples=[], built=None, well_id=None, plate_id=None):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -393,7 +391,7 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        sample = self.create_implementation(sample_id, sample_id, parents, built)
+        sample = self.create_implementation(sample_id, sample_id, parent_samples, built)
 
         return sample
 
@@ -411,6 +409,7 @@ class XDocument(Document):
 
     def get_devices(self, uris):
         devices = []
+
         for uri in uris:
             try:
                 devices.append(self.getComponentDefinition(uri))
@@ -418,6 +417,17 @@ class XDocument(Document):
                 pass
 
         return devices
+
+    def get_systems(self, uris):
+        systems = []
+
+        for uri in uris:
+            try:
+                systems.append(self.getModuleDefinition(uri))
+            except:
+                pass
+
+        return systems
 
     def get_parent_entities(self, act):
         parent_entities = []
