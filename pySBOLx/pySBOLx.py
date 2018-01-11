@@ -205,11 +205,11 @@ class XDocument(Document):
             if fc.direction.get() == SBOL_DIRECTION_IN:
                 inputs.append(comp_def)
 
-                measure = fc.getPropertyValue(SD2_NS + 'measure')
+                # measure = fc.getPropertyValue(SD2_NS + 'measure')
 
-                mags.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
+                # mags.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
 
-                units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
+                # units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
             else:
                 devices.append(comp_def)
 
