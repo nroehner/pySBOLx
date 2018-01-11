@@ -70,12 +70,13 @@ class XDocument(Document):
     def __init__(self):
         super(XDocument, self).__init__()
 
-    def generate_uri(self, display_id):
-        uri_arr = [getHomespace()]
+    def generate_uri(self, display_id, prefix, version=None):
+        uri_arr = [prefix]
         uri_arr.append('/')
         uri_arr.append(display_id)
-        uri_arr.append('/')
-        uri_arr.append('1.0.0')
+        if version is not None:
+            uri_arr.append('/')
+            uri_arr.append(version)
     
         return ''.join(uri_arr)
 
@@ -107,7 +108,7 @@ class XDocument(Document):
             if comp_role is not None:
                 comp_def.roles.set(comp_role)
         except:
-            comp_def = self.getComponentDefinition(self.generate_uri(display_id))
+            comp_def = self.getComponentDefinition(self.generate_uri(getHomespace(), display_id, '1.0.0'))
 
         return comp_def
 
@@ -130,7 +131,7 @@ class XDocument(Document):
             if mod_role is not None:
                 mod_def.roles.set(mod_role)
         except:
-            mod_def = self.getModuleDefinition(self.generate_uri(display_id))
+            mod_def = self.getModuleDefinition(self.generate_uri(getHomespace(), display_id, '1.0.0'))
 
         return mod_def
 
@@ -204,6 +205,60 @@ class XDocument(Document):
                 
         return unit
 
+    def reidentify_system(self, system):
+        input_ids = []
+        mags = []
+        device_ids = []
+        sub_system_ids = []
+
+        for fc in system.functionalComponents:
+            if fc.direction == SBOL_DIRECTION_IN:
+                input_ids.append(fc.displayId.get())
+                mags.append(fc.measure.hasNumericalValue)
+            else:
+                device_ids.append(fc.displayId.get())
+
+        for mod in system.modules:
+            sub_system_ids.append(mod.displayId.get())
+
+        id_arr = []
+
+        if len(device_ids) > 0:
+            for device_id in device_ids:
+                id_arr.append(device_id)
+                id_arr.append('_')
+        elif len(sub_system_ids) > 0:
+            for sub_system_id in sub_system_ids:
+                id_arr.append(sub_system_id.replace('_system', ''))
+                id_arr.append('_')
+        
+        for input_id in input_ids:
+            id_arr.append(input_id)
+            id_arr.append('_')
+
+        id_arr.append('system')
+
+        for mag in mags:
+            id_arr.append('_')
+            id_arr.append(mag.replace('.', 'p'))
+        
+        system_id = ''.join(id_arr)
+
+        system_identity = generate_uri(getHomespace(), system_id, '1.0.0')
+        system_p_identity = generate_uri(getHomespace(), system_id)
+
+        system.displayId.set(system_id)
+        system.identity.set(system_identity)
+        system.persistentIdentity.set(system_identity)
+
+        for fc in system.functionalComponents:
+            fc.identity.set(generate_uri(system_identity, fc.displayId.get(), '1.0.0'))
+            fc.persistentIdentity.set(generate_uri(system_identity, fc.displayId.get()))
+
+        for mod in system.modules:
+            mod.identity.set(generate_uri(system_identity, mod.displayId.get(), '1.0.0'))
+            mod.persistentIdentity.set(generate_uri(system_identity, mod.displayId.get()))
+
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
         if display_id is not None:
@@ -217,10 +272,9 @@ class XDocument(Document):
                 for sub_system in sub_systems:
                     id_arr.append(sub_system.displayId.get().replace('_system', ''))
                     id_arr.append('_')
-            else:
-                for inpt in inputs:
-                    id_arr.append(inpt.displayId.get())
-                    id_arr.append('_')
+            for inpt in inputs:
+                id_arr.append(inpt.displayId.get())
+                id_arr.append('_')
             id_arr.append('system')
             for mag in mags:
                 id_arr.append('_')
