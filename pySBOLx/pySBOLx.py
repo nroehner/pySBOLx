@@ -63,7 +63,7 @@ class Unit(TopLevel):
         self.identity.set(self.identity.get().replace('/Unit', ''))
         self.persistentIdentity.set(self.persistentIdentity.get().replace('/Unit', ''))
         self.symbol = symbol if symbol is not None else TextProperty(OM_NS + "symbol", self.this)
-        self.register_extension_class(Measure, 'om')
+        self.register_extension_class(Unit, 'om')
 
 class XDocument(Document):
 
