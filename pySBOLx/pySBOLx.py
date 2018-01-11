@@ -205,61 +205,61 @@ class XDocument(Document):
                 
         return unit
 
-    def reidentify_system(self, system):
-        input_ids = []
-        mags = []
-        device_ids = []
-        sub_system_ids = []
+    # def reidentify_system(self, system):
+    #     input_ids = []
+    #     mags = []
+    #     device_ids = []
+    #     sub_system_ids = []
 
-        for fc in system.functionalComponents:
-            if fc.direction.get() == SBOL_DIRECTION_IN:
-                input_ids.append(fc.displayId.get())
-                mags.append(fc.measure.hasNumericalValue)
-            else:
-                device_ids.append(fc.displayId.get())
+    #     for fc in system.functionalComponents:
+    #         if fc.direction.get() == SBOL_DIRECTION_IN:
+    #             input_ids.append(fc.displayId.get())
+    #             mags.append(fc.measure.hasNumericalValue)
+    #         else:
+    #             device_ids.append(fc.displayId.get())
 
-        for mod in system.modules:
-            sub_system_ids.append(mod.displayId.get())
+    #     for mod in system.modules:
+    #         sub_system_ids.append(mod.displayId.get())
 
-        id_arr = []
+    #     id_arr = []
 
-        if len(device_ids) > 0:
-            for device_id in device_ids:
-                id_arr.append(device_id)
-                id_arr.append('_')
-        elif len(sub_system_ids) > 0:
-            for sub_system_id in sub_system_ids:
-                id_arr.append(sub_system_id.replace('_system', ''))
-                id_arr.append('_')
+    #     if len(device_ids) > 0:
+    #         for device_id in device_ids:
+    #             id_arr.append(device_id)
+    #             id_arr.append('_')
+    #     elif len(sub_system_ids) > 0:
+    #         for sub_system_id in sub_system_ids:
+    #             id_arr.append(sub_system_id.replace('_system', ''))
+    #             id_arr.append('_')
         
-        for input_id in input_ids:
-            id_arr.append(input_id)
-            id_arr.append('_')
+    #     for input_id in input_ids:
+    #         id_arr.append(input_id)
+    #         id_arr.append('_')
 
-        id_arr.append('system')
+    #     id_arr.append('system')
 
-        for mag in mags:
-            id_arr.append('_')
-            id_arr.append(mag.replace('.', 'p'))
+    #     for mag in mags:
+    #         id_arr.append('_')
+    #         id_arr.append(mag.replace('.', 'p'))
         
-        system_id = ''.join(id_arr)
+    #     system_id = ''.join(id_arr)
 
-        system_identity = generate_uri(getHomespace(), system_id, '1.0.0')
-        system_p_identity = generate_uri(getHomespace(), system_id)
+    #     system_identity = generate_uri(getHomespace(), system_id, '1.0.0')
+    #     system_p_identity = generate_uri(getHomespace(), system_id)
 
-        print(system_p_identity)
+    #     print(system_p_identity)
 
-        system.displayId.set(system_id)
-        system.identity.set(system_identity)
-        system.persistentIdentity.set(system_identity)
+    #     system.displayId.set(system_id)
+    #     system.identity.set(system_identity)
+    #     system.persistentIdentity.set(system_identity)
 
-        for fc in system.functionalComponents:
-            fc.identity.set(generate_uri(system_identity, fc.displayId.get(), '1.0.0'))
-            fc.persistentIdentity.set(generate_uri(system_identity, fc.displayId.get()))
+    #     for fc in system.functionalComponents:
+    #         fc.identity.set(generate_uri(system_identity, fc.displayId.get(), '1.0.0'))
+    #         fc.persistentIdentity.set(generate_uri(system_identity, fc.displayId.get()))
 
-        for mod in system.modules:
-            mod.identity.set(generate_uri(system_identity, mod.displayId.get(), '1.0.0'))
-            mod.persistentIdentity.set(generate_uri(system_identity, mod.displayId.get()))
+    #     for mod in system.modules:
+    #         mod.identity.set(generate_uri(system_identity, mod.displayId.get(), '1.0.0'))
+    #         mod.persistentIdentity.set(generate_uri(system_identity, mod.displayId.get()))
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
