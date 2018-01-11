@@ -92,13 +92,6 @@ class XDocument(Document):
         Config.setOption('validate', is_validated)
         Config.setOption('sbol_typed_uris', is_typed)
 
-# def create_document(homespace, is_validated, is_typed):
-#     doc = Document()
-
-#     configure_document(homespace, is_validated, is_typed)
-
-#     return doc
-
     def create_component_definition(self, display_id, name, comp_type=None, comp_role=None):
         try:
             comp_def = self.componentDefinitions.create(display_id)
@@ -205,6 +198,26 @@ class XDocument(Document):
                 
         return unit
 
+    def copy_system(self, system, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
+        for fc in system.functionalComponents:
+            comp_def = self.getComponentDefinition(fc.definition.get())
+
+            if fc.direction.get() == SBOL_DIRECTION_IN:
+                inputs.append(comp_def)
+
+                measure = fc.getPropertyValue(SD2_NS + 'measure')
+
+                mags.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
+
+                units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
+            else:
+                devices.append(comp_def)
+
+        for mod in system.modules:
+            sub_systems.append(mod)
+
+        return self.create_system(devices, sub_systems, inputs, mags, units, display_id, name)
+
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
         if display_id is not None:
@@ -239,7 +252,7 @@ class XDocument(Document):
             fc = self.create_input_component(inputs[i], system)
             if i < len(mags):
                 if not hasattr(fc, 'measure'):
-                    fc.measure = OwnedPythonObject(Measure, OM_NS + 'measure', fc)
+                    fc.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
                 if i < len(units):
                     self.create_measure(mags[i], fc, units[i])
                 else:
