@@ -212,7 +212,7 @@ class XDocument(Document):
         sub_system_ids = []
 
         for fc in system.functionalComponents:
-            if fc.direction == SBOL_DIRECTION_IN:
+            if fc.direction.get() == SBOL_DIRECTION_IN:
                 input_ids.append(fc.displayId.get())
                 mags.append(fc.measure.hasNumericalValue)
             else:
