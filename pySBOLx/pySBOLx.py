@@ -247,6 +247,8 @@ class XDocument(Document):
         system_identity = generate_uri(getHomespace(), system_id, '1.0.0')
         system_p_identity = generate_uri(getHomespace(), system_id)
 
+        print(system_p_identity)
+
         system.displayId.set(system_id)
         system.identity.set(system_identity)
         system.persistentIdentity.set(system_identity)
