@@ -226,7 +226,7 @@ class XDocument(Document):
 
                 mags.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
 
-                units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
+                # units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
             else:
                 devices_copy.append(comp_def)
 
