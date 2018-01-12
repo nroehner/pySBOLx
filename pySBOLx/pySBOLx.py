@@ -232,6 +232,7 @@ class XDocument(Document):
                     id_arr.append(sub_system.displayId.get().replace('_system', ''))
                     id_arr.append('_')
             for inpt in inputs:
+                print(inpt.displayId.get())
                 id_arr.append(inpt.displayId.get())
                 id_arr.append('_')
             id_arr.append('system')
