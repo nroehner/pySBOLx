@@ -199,44 +199,41 @@ class XDocument(Document):
         return unit
 
     def copy_inducible_system(self, system, devices=[], sub_systems=[], inducers=[], mags=[], units=[], display_id=None, name=None):
-        copy_devices = []
-        copy_sub_systems = []
-        copy_inducers = []
-        copy_mags = []
-        copy_units = []
+        devices_copy = []
+        sub_systems_copy = []
+        inducers_copy = []
+        mags_copy = []
+        units_copy = []
 
         for device in devices:
-            copy_devices.append(device)
+            devices_copy.append(device)
         for sub_system in sub_systems:
-            copy_sub_systems.append(sub_system)
+            sub_systems_copy.append(sub_system)
         for inducer in inducers:
-            copy_inducers.append(inducer)
+            inducers_copy.append(inducer)
         for mag in mags:
-            copy_mags.append(mag)
+            mags_copy.append(mag)
         for unit in units:
-            copy_units.append(unit)
+            units_copy.append(unit)
 
         for fc in system.functionalComponents:
             comp_def = self.getComponentDefinition(fc.definition.get())
 
             if fc.direction.get() == SBOL_DIRECTION_IN:
-                copy_inducers.append(comp_def)
+                inducers_copy.append(comp_def)
 
-
-                gu = self.generate_uri(fc.identity.get(), fc.displayId.get() + '_measure', '1.0.0')
-                print(gu)
-                measure = fc.find(gu)
+                measure = fc.find(self.generate_uri(fc.persistentIdentity.get(), fc.displayId.get() + '_measure', '1.0.0'))
 
                 mags.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
 
                 units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
             else:
-                copy_devices.append(comp_def)
+                devices_copy.append(comp_def)
 
         for mod in system.modules:
-            copy_sub_systems.append(self.getModuleDefinition(mod.definition.get()))
+            sub_systems_copy.append(self.getModuleDefinition(mod.definition.get()))
 
-        return self.create_system(copy_devices, copy_sub_systems, copy_inducers, copy_mags, copy_units, display_id, name)
+        return self.create_system(devices_copy, sub_systems_copy, inducers_copy, mags_copy, units_copy, display_id, name)
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
