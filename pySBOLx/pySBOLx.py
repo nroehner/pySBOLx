@@ -198,10 +198,10 @@ class XDocument(Document):
                 
         return unit
 
-    def copy_system(self, system, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
+    def copy_inducible_system(self, system, devices=[], sub_systems=[], inducers=[], mags=[], units=[], display_id=None, name=None):
         copy_devices = []
         copy_sub_systems = []
-        copy_inputs = []
+        copy_inducers = []
         copy_mags = []
         copy_units = []
 
@@ -209,8 +209,8 @@ class XDocument(Document):
             copy_devices.append(device)
         for sub_system in sub_systems:
             copy_sub_systems.append(sub_system)
-        for inpt in inputs:
-            copy_inputs.append(inpt)
+        for inducer in inducers:
+            copy_inducers.append(inducer)
         for mag in mags:
             copy_mags.append(mag)
         for unit in units:
@@ -220,20 +220,20 @@ class XDocument(Document):
             comp_def = self.getComponentDefinition(fc.definition.get())
 
             if fc.direction.get() == SBOL_DIRECTION_IN:
-                copy_inputs.append(comp_def)
+                copy_inducers.append(comp_def)
 
-                # measure = fc.getPropertyValue(SD2_NS + 'measure')
+                measure = fc.find(generate_uri(fc.identity.get(), fc.displayId.get() + '_measure', '1.0.0'))
 
-                # mags.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
+                mags.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
 
-                # units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
+                units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
             else:
                 copy_devices.append(comp_def)
 
         for mod in system.modules:
             copy_sub_systems.append(self.getModuleDefinition(mod.definition.get()))
 
-        return self.create_system(copy_devices, copy_sub_systems, copy_inputs, copy_mags, copy_units, display_id, name)
+        return self.create_system(copy_devices, copy_sub_systems, copy_inducers, copy_mags, copy_units, display_id, name)
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
