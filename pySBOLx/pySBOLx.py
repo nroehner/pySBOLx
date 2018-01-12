@@ -214,7 +214,7 @@ class XDocument(Document):
                 devices.append(comp_def)
 
         for mod in system.modules:
-            sub_systems.append(mod)
+            sub_systems.append(self.getModuleDefinition(mod.definition.get()))
 
         return self.create_system(devices, sub_systems, inputs, mags, units, display_id, name)
 
