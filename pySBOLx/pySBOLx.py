@@ -115,7 +115,7 @@ class XDocument(Document):
         return plasmid
 
     def create_strain(self, display_id, name):
-        return self.create_component_definition(display_id, name, BIOPAX_DNA)
+        return self.create_component_definition(display_id, name, 'http://purl.obolibrary.org/obo/OBI_0100060')
 
     def create_module_definition(self, display_id, name, mod_role=None):
         try:
@@ -197,43 +197,6 @@ class XDocument(Document):
         unit.symbol.set(symbol)
                 
         return unit
-
-    def copy_inducible_system(self, system, devices=[], sub_systems=[], inducers=[], mags=[], units=[], display_id=None, name=None):
-        devices_copy = []
-        sub_systems_copy = []
-        inducers_copy = []
-        mags_copy = []
-        units_copy = []
-
-        for device in devices:
-            devices_copy.append(device)
-        for sub_system in sub_systems:
-            sub_systems_copy.append(sub_system)
-        for inducer in inducers:
-            inducers_copy.append(inducer)
-        for mag in mags:
-            mags_copy.append(mag)
-        for unit in units:
-            units_copy.append(unit)
-
-        for fc in system.functionalComponents:
-            comp_def = self.getComponentDefinition(fc.definition.get())
-
-            if fc.direction.get() == SBOL_DIRECTION_IN:
-                inducers_copy.append(comp_def)
-
-                measure = fc.find(self.generate_uri(fc.persistentIdentity.get(), fc.displayId.get() + '_measure', '1.0.0'))
-
-                mags_copy.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
-
-                # units_copy.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
-            else:
-                devices_copy.append(comp_def)
-
-        for mod in system.modules:
-            sub_systems_copy.append(self.getModuleDefinition(mod.definition.get()))
-
-        return self.create_system(devices_copy, sub_systems_copy, inducers_copy, mags_copy, units_copy, display_id, name)
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
@@ -400,16 +363,6 @@ class XDocument(Document):
 
         return imp
 
-    # def create_stock(design, replicate_id=None, operator=None):
-    #     stock_id = design.displayId.get() + '_stock'
-
-    #     stock = create_implementation(stock_id, stock_id, doc, [design])
-
-    #     if operator is not None:
-    #         create_activity(operator, doc, replicate_id, [design], stock)
-
-    #     return stock
-
     def create_sample(self, sample_id, parent_samples=[], built=None, well_id=None, plate_id=None):
         id_arr = []
         if plate_id is not None:
@@ -424,12 +377,6 @@ class XDocument(Document):
         sample = self.create_implementation(sample_id, sample_id, parent_samples, built)
 
         return sample
-
-    # def create_output_sample(sample_id, replicate_id=None, operator=None, parents=[], built=None, well_id=None, plate_id=None):
-    #     sample = create_sample(sample_id, parents, well_id, plate_id, built)
-
-    #     if operator is not None:
-    #         create_activity(operator, replicate_id, parents, sample)
 
     def create_experiment(self, display_id, name):
         exp = Experiment(display_id)
