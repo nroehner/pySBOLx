@@ -224,9 +224,9 @@ class XDocument(Document):
 
                 measure = fc.find(self.generate_uri(fc.persistentIdentity.get(), fc.displayId.get() + '_measure', '1.0.0'))
 
-                mags.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
+                mags_copy.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
 
-                # units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
+                # units_copy.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
             else:
                 devices_copy.append(comp_def)
 
