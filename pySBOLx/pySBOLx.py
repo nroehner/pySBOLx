@@ -233,7 +233,7 @@ class XDocument(Document):
         for mod in system.modules:
             copy_sub_systems.append(self.getModuleDefinition(mod.definition.get()))
 
-        return self.create_system(copy_devices, copy_sub_systems, copy_inputs, copy_mags, copy_units, copy_display_id, copy_name)
+        return self.create_system(copy_devices, copy_sub_systems, copy_inputs, copy_mags, copy_units, display_id, name)
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
