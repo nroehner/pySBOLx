@@ -199,11 +199,28 @@ class XDocument(Document):
         return unit
 
     def copy_system(self, system, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
+        copy_devices = []
+        copy_sub_systems = []
+        copy_inputs = []
+        copy_mags = []
+        copy_units = []
+
+        for device in devices:
+            copy_devices.append(device)
+        for sub_system in sub_systems:
+            copy_sub_systems.append(sub_system)
+        for inpt in inputs:
+            copy_inputs.append(inpt)
+        for mag in mags:
+            copy_mags.append(mag)
+        for unit in units:
+            copy_units.append(unit)
+
         for fc in system.functionalComponents:
             comp_def = self.getComponentDefinition(fc.definition.get())
 
             if fc.direction.get() == SBOL_DIRECTION_IN:
-                inputs.append(comp_def)
+                copy_inputs.append(comp_def)
 
                 # measure = fc.getPropertyValue(SD2_NS + 'measure')
 
@@ -211,12 +228,12 @@ class XDocument(Document):
 
                 # units.append(self.getTopLevel(measure.getPropertyValue(OM_NS + 'hasUnit')))
             else:
-                devices.append(comp_def)
+                copy_devices.append(comp_def)
 
         for mod in system.modules:
-            sub_systems.append(self.getModuleDefinition(mod.definition.get()))
+            copy_sub_systems.append(self.getModuleDefinition(mod.definition.get()))
 
-        return self.create_system(devices, sub_systems, inputs, mags, units, display_id, name)
+        return self.create_system(copy_devices, copy_sub_systems, copy_inputs, copy_mags, copy_units, copy_display_id, copy_name)
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
         id_arr = []
@@ -232,7 +249,6 @@ class XDocument(Document):
                     id_arr.append(sub_system.displayId.get().replace('_system', ''))
                     id_arr.append('_')
             for inpt in inputs:
-                print(inpt.displayId.get())
                 id_arr.append(inpt.displayId.get())
                 id_arr.append('_')
             id_arr.append('system')
