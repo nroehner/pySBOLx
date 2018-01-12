@@ -222,7 +222,10 @@ class XDocument(Document):
             if fc.direction.get() == SBOL_DIRECTION_IN:
                 copy_inducers.append(comp_def)
 
-                measure = fc.find(self.generate_uri(fc.identity.get(), fc.displayId.get() + '_measure', '1.0.0'))
+
+                gu = self.generate_uri(fc.identity.get(), fc.displayId.get() + '_measure', '1.0.0')
+                print(gu)
+                measure = fc.find(gu)
 
                 mags.append(measure.getPropertyValue(OM_NS + 'hasNumericalValue'))
 
