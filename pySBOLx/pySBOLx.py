@@ -295,7 +295,7 @@ class XDocument(Document):
 
             for i in range(0, len(custom) - 1, 2):
                 setattr(act, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], act))
-                getattr(act, custom[i + 1]).add(SD2_NS + custom[i])
+                getattr(act, custom[i + 1]).add(custom[i])
             
             if child is not None:
                 child.wasGeneratedBy.add(act.identity.get())
