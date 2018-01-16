@@ -351,7 +351,7 @@ class XDocument(Document):
         
         return exp_datum
 
-    def create_implementation(self, display_id, name, parents=[], built=None):
+    def create_implementation(self, display_id, name, built=None, parents=[]):
         imp = Implementation(display_id)
 
         imp.name.set(name)
