@@ -240,7 +240,7 @@ class XDocument(Document):
 
         return system
 
-    def create_activity(self, operator, replicate_id=None, parents=[], child=None, display_id=None, name=None):
+    def create_activity(self, operator, replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -273,6 +273,8 @@ class XDocument(Document):
                 act.name.set(name)
             else:
                 act.name.set(act_id)
+            if description is not None:
+                act.description.set(description)
 
             for parent in parents:
                 if isinstance(parent, Activity):
@@ -288,8 +290,12 @@ class XDocument(Document):
                         act.used = URIProperty(PROV_NS + 'used', act)
                         act.used.add(parent.identity.get())
 
-            act.operator = URIProperty(SD2_NS + 'operator', act)
+            act.operator = URIProperty(SD2_NS + 'operatorType', act)
             act.operator.add(SD2_NS + operator)
+
+            for i in range(0, len(custom) - 1, 2):
+                setattr(act, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], act))
+                getattr(act, custom[i + 1]).add(SD2_NS + custom[i])
             
             if child is not None:
                 child.wasGeneratedBy.add(act.identity.get())
