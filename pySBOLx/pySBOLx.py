@@ -363,7 +363,7 @@ class XDocument(Document):
 
         return imp
 
-    def create_sample(self, sample_id, parent_samples=[], built=None, well_id=None, plate_id=None):
+    def create_sample(self, sample_id, built=None, parent_samples=[], well_id=None, plate_id=None):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -374,7 +374,7 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        sample = self.create_implementation(sample_id, sample_id, parent_samples, built)
+        sample = self.create_implementation(sample_id, sample_id, built, parent_samples)
 
         return sample
 
