@@ -355,19 +355,23 @@ class XDocument(Document):
         
         return exp_datum
 
-    def create_implementation(self, display_id, name, built=None, parents=[]):
+    def create_implementation(self, display_id, name, built=None, custom=[], parents=[]):
         imp = Implementation(display_id)
 
         imp.name.set(name)
         if built is not None:
             imp.built.add(built.identity.get())
+
+        for i in range(0, len(custom) - 1, 2):
+            setattr(imp, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], imp))
+            getattr(imp, custom[i + 1]).add(custom[i])
         
         for parent in parents:
             imp.wasDerivedFrom.add(parent.identity.get())
 
         return imp
 
-    def create_sample(self, sample_id, built=None, parent_samples=[], well_id=None, plate_id=None):
+    def create_sample(self, sample_id, built=None, custom=[], parent_samples=[], well_id=None, plate_id=None):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -378,7 +382,7 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        sample = self.create_implementation(sample_id, sample_id, built, parent_samples)
+        sample = self.create_implementation(sample_id, sample_id, built, custom, parent_samples)
 
         return sample
 
