@@ -89,7 +89,7 @@ class XDocument(Document):
 
     def add_custom(self, sbol_obj, custom):
         for i in range(0, len(custom) - 1, 2):
-            if repr(custom[i]).replace('.', '_').isnumeric():
+            if repr(custom[i]).replace('.', '').isnumeric():
                 setattr(sbol_obj, custom[i + 1], FloatProperty(SD2_NS + custom[i + 1], sbol_obj))
                 getattr(sbol_obj, custom[i + 1]).set(custom[i])
             else:
