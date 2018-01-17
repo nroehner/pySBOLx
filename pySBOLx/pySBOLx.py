@@ -87,6 +87,15 @@ class XDocument(Document):
             except:
                 pass
 
+    def add_custom(self, sbol_obj, custom):
+        for i in range(0, len(custom) - 1, 2):
+            if repr(custom[i]).replace('.', '_').isnumeric():
+                setattr(sbol_obj, custom[i + 1], FloatProperty(SD2_NS + custom[i + 1], sbol_obj))
+                getattr(sbol_obj, custom[i + 1]).set(custom[i])
+            else:
+                setattr(sbol_obj, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], sbol_obj))
+                getattr(sbol_obj, custom[i + 1]).add(custom[i])
+
     def configure_options(self, homespace, is_validated, is_typed):
         setHomespace(homespace)
         Config.setOption('validate', is_validated)
@@ -293,9 +302,7 @@ class XDocument(Document):
             act.operator = URIProperty(SD2_NS + 'operatorType', act)
             act.operator.add(SD2_NS + operator)
 
-            for i in range(0, len(custom) - 1, 2):
-                setattr(act, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], act))
-                getattr(act, custom[i + 1]).add(custom[i])
+            self.add_custom(act, custom)
             
             if child is not None:
                 child.wasGeneratedBy.add(act.identity.get())
@@ -362,9 +369,7 @@ class XDocument(Document):
         if built is not None:
             imp.built.add(built.identity.get())
 
-        for i in range(0, len(custom) - 1, 2):
-            setattr(imp, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], imp))
-            getattr(imp, custom[i + 1]).add(custom[i])
+        self.add_custom(imp, custom)
         
         for parent in parents:
             imp.wasDerivedFrom.add(parent.identity.get())
