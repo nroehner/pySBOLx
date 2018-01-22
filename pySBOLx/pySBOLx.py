@@ -65,6 +65,15 @@ class Unit(TopLevel):
         self.symbol = symbol if symbol is not None else TextProperty(OM_NS + "symbol", self.this)
         self.register_extension_class(Unit, 'om')
 
+class Channel(Identified):
+    
+    def __init__(self, displayId, calibrationFile=None):
+        Identified.__init__(self, SD2_NS + 'Channel', displayId)
+        self.identity.set(self.identity.get().replace('/Channel', ''))
+        self.persistentIdentity.set(self.persistentIdentity.get().replace('/Channel', ''))
+        self.calibrationFile = calibrationFile if calibrationFile is not None else URIProperty(SD2_NS + 'calibrationFile', self.this)
+        self.register_extension_class(Channel, 'sd2')
+
 class XDocument(Document):
 
     def __init__(self):
@@ -167,19 +176,16 @@ class XDocument(Document):
         else:
             ms_id = fc.displayId.get() + '_measure'
 
-        try:
-            ms = fc.measure.create(ms_id)
-            if name is not None:
-                ms.name.set(name)
-            else:
-                ms.name.set(ms_id)
-            ms.hasNumericalValue.set(mag)
-            if unit is not None:
-                ms.hasUnit.add(unit.identity.get())
+        ms = fc.measure.create(ms_id)
+        if name is not None:
+            ms.name.set(name)
+        else:
+            ms.name.set(ms_id)
+        ms.hasNumericalValue.set(mag)
+        if unit is not None:
+            ms.hasUnit.add(unit.identity.get())
 
-            return ms
-        except:
-            return None
+        return ms
         
     def create_unit(self, symbol, om, description=None, display_id=None, name=None):
         if display_id is not None:
@@ -249,6 +255,15 @@ class XDocument(Document):
 
         return system
 
+    def create_flow_cytometry_activity(self, operator, channels=[], replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
+        act = create_activity(operator, replicate_id, parents, name, description, custom, child, display_id)
+
+        if len(channels) > 0 and not hasattr(act, 'channel'):
+            act.channels = OwnedPythonObject(Channel, SD2_NS + 'channel', act)
+
+        for channel in channels:
+            self.create_channel(channel.display_id, channel.calibration_file, act, channel.name)
+
     def create_activity(self, operator, replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
         id_arr = []
         if display_id is not None:
@@ -310,6 +325,19 @@ class XDocument(Document):
             act = self.activities.get(act_id)
             
         return act
+
+    def create_channel(self, channel_id, calibration_file, act, name=None, display_id=None):
+        if display_id is not None:
+            channel = act.channels.create(display_id, calibration_file)
+        else:
+            channel = act.channels.create(channel_id, calibration_file)
+
+        if name is not None:
+            channel.name.set(name)
+        else:
+            channel.name.set(channel.displayId.get())
+
+        return channel
 
     def create_attachment(self, attach_id, attach_name, source, replicate_id=None, attach_format=None, display_id=None, name=None):
         id_arr = []
