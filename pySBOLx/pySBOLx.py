@@ -186,7 +186,7 @@ class XDocument(Document):
             if unit is not None:
                 ms.hasUnit.add(unit.identity.get())
         except:
-            ms = fc.measure.get(self.generate_uri(fc.identity.get(), ms_id, '1.0.0'))
+            ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
 
         return ms
         
@@ -340,7 +340,7 @@ class XDocument(Document):
             else:
                 channel.name.set(channel.displayId.get())
         except:
-            act.channels.get(generate_uri(act.identity.get(), channel_id, '1.0.0'))
+            act.channels.get(generate_uri(act.persistentIdentity.get(), channel_id, '1.0.0'))
 
         return channel
 
