@@ -248,21 +248,21 @@ class XDocument(Document):
             if i < len(mags):
                 if not hasattr(fc, 'measure'):
                     fc.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
-                if i < len(units):
-                    self.create_measure(mags[i], fc, units[i])
-                else:
-                    self.create_measure(mags[i], fc)
+                    if i < len(units):
+                        self.create_measure(mags[i], fc, units[i])
+                    else:
+                        self.create_measure(mags[i], fc)
 
         return system
 
     def create_flow_cytometry_activity(self, operator, channels=[], replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
         act = create_activity(operator, replicate_id, parents, name, description, custom, child, display_id)
 
-        if len(channels) > 0 and not hasattr(act, 'channel'):
+        if len(channels) > 0:
             act.channels = OwnedPythonObject(Channel, SD2_NS + 'channel', act)
 
-        for channel in channels:
-            self.create_channel(channel.display_id, channel.calibration_file, act, channel.name)
+            for channel in channels:
+                self.create_channel(channel.display_id, channel.calibration_file, act, channel.name)
 
     def create_activity(self, operator, replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
         id_arr = []
