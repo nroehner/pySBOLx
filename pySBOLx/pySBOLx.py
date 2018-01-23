@@ -186,9 +186,8 @@ class XDocument(Document):
             if unit is not None:
                 ms.hasUnit.add(unit.identity.get())
         except:
-            ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
-
-        return ms
+            print(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
+            # ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
         
     def create_unit(self, symbol, om, description=None, display_id=None, name=None):
         if display_id is not None:
