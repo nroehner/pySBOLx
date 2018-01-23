@@ -186,7 +186,8 @@ class XDocument(Document):
             if unit is not None:
                 ms.hasUnit.add(unit.identity.get())
         except:
-            ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
+            pass
+            # ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
         
     def create_unit(self, symbol, om, description=None, display_id=None, name=None):
         if display_id is not None:
@@ -338,9 +339,8 @@ class XDocument(Document):
             else:
                 channel.name.set(channel.displayId.get())
         except:
-            act.channels.get(generate_uri(act.persistentIdentity.get(), channel_id, '1.0.0'))
-
-        return channel
+            pass
+            # act.channels.get(generate_uri(act.persistentIdentity.get(), channel_id, '1.0.0'))
 
     def create_attachment(self, attach_id, attach_name, source, replicate_id=None, attach_format=None, display_id=None, name=None):
         id_arr = []
