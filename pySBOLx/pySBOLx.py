@@ -440,6 +440,7 @@ class XDocument(Document):
         systems = []
 
         for uri in uris:
+            print(uri)
             try:
                 systems.append(self.getModuleDefinition(uri))
             except:
