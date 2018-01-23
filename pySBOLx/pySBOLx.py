@@ -176,14 +176,17 @@ class XDocument(Document):
         else:
             ms_id = fc.displayId.get() + '_measure'
 
-        ms = fc.measure.create(ms_id)
-        if name is not None:
-            ms.name.set(name)
-        else:
-            ms.name.set(ms_id)
-        ms.hasNumericalValue.set(mag)
-        if unit is not None:
-            ms.hasUnit.add(unit.identity.get())
+        try:
+            ms = fc.measure.create(ms_id)
+            if name is not None:
+                ms.name.set(name)
+            else:
+                ms.name.set(ms_id)
+            ms.hasNumericalValue.set(mag)
+            if unit is not None:
+                ms.hasUnit.add(unit.identity.get())
+        except:
+            ms = fc.measure.get(self.generate_uri(fc.identity.get(), ms_id, '1.0.0'))
 
         return ms
         
@@ -248,21 +251,21 @@ class XDocument(Document):
             if i < len(mags):
                 if not hasattr(fc, 'measure'):
                     fc.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
-                    if i < len(units):
-                        self.create_measure(mags[i], fc, units[i])
-                    else:
-                        self.create_measure(mags[i], fc)
+                if i < len(units):
+                    self.create_measure(mags[i], fc, units[i])
+                else:
+                    self.create_measure(mags[i], fc)
 
         return system
 
     def create_flow_cytometry_activity(self, operator, channels=[], replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
         act = create_activity(operator, replicate_id, parents, name, description, custom, child, display_id)
 
-        if len(channels) > 0:
+        if len(channels) > 0 and not hasattr(act, 'channel'):
             act.channels = OwnedPythonObject(Channel, SD2_NS + 'channel', act)
 
-            for channel in channels:
-                self.create_channel(channel.display_id, channel.calibration_file, act, channel.name)
+        for channel in channels:
+            self.create_channel(channel.display_id, channel.calibration_file, act, channel.name)
 
     def create_activity(self, operator, replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
         id_arr = []
@@ -327,15 +330,17 @@ class XDocument(Document):
         return act
 
     def create_channel(self, channel_id, calibration_file, act, name=None, display_id=None):
-        if display_id is not None:
-            channel = act.channels.create(display_id, calibration_file)
-        else:
-            channel = act.channels.create(channel_id, calibration_file)
-
-        if name is not None:
-            channel.name.set(name)
-        else:
-            channel.name.set(channel.displayId.get())
+        try:
+            if display_id is not None:
+                channel = act.channels.create(display_id, calibration_file)
+            else:
+                channel = act.channels.create(channel_id, calibration_file)
+            if name is not None:
+                channel.name.set(name)
+            else:
+                channel.name.set(channel.displayId.get())
+        except:
+            act.channels.get(generate_uri(act.identity.get(), channel_id, '1.0.0'))
 
         return channel
 
