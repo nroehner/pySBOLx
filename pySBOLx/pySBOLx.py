@@ -228,13 +228,13 @@ class XDocument(Document):
                 for sub_system in sub_systems:
                     id_arr.append(sub_system.displayId.get().replace('_system', ''))
                     id_arr.append('_')
-            for inpt in inputs:
-                id_arr.append(inpt.displayId.get())
+            for i in range(0, len(inputs)):
+                id_arr.append(inputs[i].displayId.get())
                 id_arr.append('_')
+                if i < len(mags):
+                    id_arr.append(mags[i].replace('.', 'p'))
+                    id_arr.append('_')
             id_arr.append('system')
-            for mag in mags:
-                id_arr.append('_')
-                id_arr.append(mag.replace('.', 'p'))
         system_id = ''.join(id_arr)
 
         system = self.create_module_definition(system_id, system_id)
