@@ -170,14 +170,14 @@ class XDocument(Document):
 
         return fc
 
-    def create_measure(self, mag, fc, unit=None, display_id=None, name=None):
+    def create_measure(self, mag, sbol_obj, unit=None, display_id=None, name=None):
         if display_id is not None:
             ms_id = display_id
         else:
-            ms_id = fc.displayId.get() + '_measure'
+            ms_id = sbol_obj.displayId.get() + '_measure'
 
         try:
-            ms = fc.measure.create(ms_id)
+            ms = sbol_obj.measure.create(ms_id)
             if name is not None:
                 ms.name.set(name)
             else:
@@ -215,7 +215,7 @@ class XDocument(Document):
                 
         return unit
 
-    def create_system(self, devices=[], sub_systems=[], inputs=[], mags=[], units=[], display_id=None, name=None):
+    def create_system(self, devices=[], sub_systems=[], inputs=[], measures=[], display_id=None, name=None):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -231,8 +231,8 @@ class XDocument(Document):
             for i in range(0, len(inputs)):
                 id_arr.append(inputs[i].displayId.get())
                 id_arr.append('_')
-                if i < len(mags):
-                    id_arr.append(mags[i].replace('.', 'p'))
+                if i < len(measures):
+                    id_arr.append(measures[i]['mag'].replace('.', 'p'))
                     id_arr.append('_')
             id_arr.append('system')
         system_id = ''.join(id_arr)
@@ -247,13 +247,13 @@ class XDocument(Document):
 
         for i in range(0, len(inputs)):
             fc = self.create_input_component(inputs[i], system)
-            if i < len(mags):
+            if i < len(measures):
                 if not hasattr(fc, 'measure'):
                     fc.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
                 if i < len(units):
-                    self.create_measure(mags[i], fc, units[i])
+                    self.create_measure(measures[i]['mag'], fc, measures[i]['unit'])
                 else:
-                    self.create_measure(mags[i], fc)
+                    self.create_measure(measures[i]['mag'], fc)
 
         return system
 
@@ -393,21 +393,28 @@ class XDocument(Document):
         
         return exp_datum
 
-    def create_implementation(self, display_id, name, built=None, custom=[], parents=[]):
+    def create_implementation(self, display_id, name, built=None, measures=[], parents=[]):
         imp = Implementation(display_id)
 
         imp.name.set(name)
         if built is not None:
             imp.built.add(built.identity.get())
 
-        self.add_custom(imp, custom)
+        if len(measures) > 0:
+            if not hasattr(imp, 'measure'):
+                imp.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', imp)
+            for measure in measures:
+                try:
+                    self.create_measure(measure['mag'], imp, measure['unit'], measure['name'])
+                except:
+                    self.create_measure(mag=measure['mag'], sbol_obj=imp, display_id=measure['name'])
         
         for parent in parents:
             imp.wasDerivedFrom.add(parent.identity.get())
 
         return imp
 
-    def create_sample(self, sample_id, built=None, custom=[], parent_samples=[], well_id=None, plate_id=None):
+    def create_sample(self, sample_id, built=None, measures=[], parent_samples=[], well_id=None, plate_id=None):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -418,7 +425,7 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        sample = self.create_implementation(sample_id, sample_id, built, custom, parent_samples)
+        sample = self.create_implementation(sample_id, sample_id, built, measures, parent_samples)
 
         return sample
 
