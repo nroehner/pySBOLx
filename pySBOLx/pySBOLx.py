@@ -250,9 +250,9 @@ class XDocument(Document):
             if i < len(measures):
                 if not hasattr(fc, 'measure'):
                     fc.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
-                if i < len(measures):
+                try:
                     self.create_measure(measures[i]['mag'], fc, measures[i]['unit'])
-                else:
+                except:
                     self.create_measure(measures[i]['mag'], fc)
 
         return system
