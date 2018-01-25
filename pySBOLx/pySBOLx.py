@@ -171,15 +171,17 @@ class XDocument(Document):
         return fc
 
     def create_measure(self, mag, sbol_obj, unit=None, display_id=None, name=None):
+        if display_id is not None:
+            ms_id = display_id
+        else:
+            ms_id = sbol_obj.displayId.get() + '_measure'
+
         try:
-            # if display_id is not None:
-            #     ms = sbol_obj.measure.create(display_id)
-            # else:
-            ms = sbol_obj.measure.create(sbol_obj.displayId.get() + '_measure')
+            ms = sbol_obj.measure.create(ms_id)
             if name is not None:
                 ms.name.set(name)
             else:
-                ms.name.set(ms.displayId.get())
+                ms.name.set(ms_id)
             ms.hasNumericalValue.set(mag)
             if unit is not None:
                 ms.hasUnit.add(unit.identity.get())
@@ -249,6 +251,7 @@ class XDocument(Document):
                 if not hasattr(fc, 'measure'):
                     fc.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
                 try:
+                    print(measures[i])
                     self.create_measure(measures[i]['mag'], fc, measures[i]['unit'])
                 except:
                     self.create_measure(measures[i]['mag'], fc)
@@ -402,10 +405,11 @@ class XDocument(Document):
             if not hasattr(imp, 'measure'):
                 imp.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', imp)
             for measure in measures:
-                try:
-                    self.create_measure(measure['mag'], imp, measure['unit'], measure['name'])
-                except:
-                    self.create_measure(mag=measure['mag'], sbol_obj=imp, display_id=measure['name'])
+                print(measure)
+                # try:
+                #     self.create_measure(measure['mag'], imp, measure['unit'], measure['name'])
+                # except:
+                #     self.create_measure(mag=measure['mag'], sbol_obj=imp, display_id=measure['name'])
         
         for parent in parents:
             imp.wasDerivedFrom.add(parent.identity.get())
