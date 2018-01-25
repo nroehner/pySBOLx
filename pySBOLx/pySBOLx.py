@@ -172,10 +172,10 @@ class XDocument(Document):
 
     def create_measure(self, mag, sbol_obj, unit=None, display_id=None, name=None):
         try:
-            if display_id is not None:
-                ms = sbol_obj.measure.create(display_id)
-            else:
-                ms = sbol_obj.measure.create(sbol_obj.displayId.get() + '_measure')
+            # if display_id is not None:
+            #     ms = sbol_obj.measure.create(display_id)
+            # else:
+            ms = sbol_obj.measure.create(sbol_obj.displayId.get() + '_measure')
             if name is not None:
                 ms.name.set(name)
             else:
