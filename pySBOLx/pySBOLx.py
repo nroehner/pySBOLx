@@ -177,7 +177,7 @@ class XDocument(Document):
             ms_id = sbol_obj.displayId.get() + '_measure'
 
         try:
-            ms = sbol_obj.measure.create(ms_id)
+            ms = sbol_obj.measures.create(ms_id)
             if name is not None:
                 ms.name.set(name)
             else:
@@ -248,10 +248,9 @@ class XDocument(Document):
         for i in range(0, len(inputs)):
             fc = self.create_input_component(inputs[i], system)
             if i < len(measures):
-                if not hasattr(fc, 'measure'):
-                    fc.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
+                if not hasattr(fc, 'measures'):
+                    fc.measures = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
                 try:
-                    print(measures[i])
                     self.create_measure(measures[i]['mag'], fc, measures[i]['unit'])
                 except:
                     self.create_measure(measures[i]['mag'], fc)
@@ -261,7 +260,7 @@ class XDocument(Document):
     def create_flow_cytometry_activity(self, operator, channels=[], replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
         act = create_activity(operator, replicate_id, parents, name, description, custom, child, display_id)
 
-        if len(channels) > 0 and not hasattr(act, 'channel'):
+        if len(channels) > 0 and not hasattr(act, 'channels'):
             act.channels = OwnedPythonObject(Channel, SD2_NS + 'channel', act)
 
         for channel in channels:
@@ -402,14 +401,14 @@ class XDocument(Document):
             imp.built.add(built.identity.get())
 
         if len(measures) > 0:
-            if not hasattr(imp, 'measure'):
-                imp.measure = OwnedPythonObject(Measure, SD2_NS + 'measure', imp)
+            if not hasattr(imp, 'measures'):
+                imp.measures = OwnedPythonObject(Measure, SD2_NS + 'measure', imp)
             for measure in measures:
-                print(measure)
                 # try:
                 #     self.create_measure(measure['mag'], imp, measure['unit'], measure['name'])
                 # except:
                 #     self.create_measure(mag=measure['mag'], sbol_obj=imp, display_id=measure['name'])
+                self.create_measure(measure['mag'], imp)
         
         for parent in parents:
             imp.wasDerivedFrom.add(parent.identity.get())
