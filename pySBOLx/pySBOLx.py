@@ -105,6 +105,19 @@ class XDocument(Document):
                 setattr(sbol_obj, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], sbol_obj))
                 getattr(sbol_obj, custom[i + 1]).add(custom[i])
 
+    def add_measures(self, sbol_obj, measures):
+        if len(measures) > 0:
+            if not hasattr(sbol_obj, 'measures'):
+                sbol_obj.measures = OwnedPythonObject(Measure, SD2_NS + 'measure', sbol_obj)
+            for measure in measures:
+                try:
+                    self.create_measure(measure['mag'], sbol_obj, measure['unit'], measure['name'])
+                except:
+                    try:
+                        self.create_measure(measure['mag'], sbol_obj, measure['unit'])
+                    except:
+                        self.create_measure(mag=measure['mag'], sbol_obj=sbol_obj, display_id=measure['name'])
+
     def configure_options(self, homespace, is_validated, is_typed):
         setHomespace(homespace)
         Config.setOption('validate', is_validated)
@@ -247,13 +260,15 @@ class XDocument(Document):
 
         for i in range(0, len(inputs)):
             fc = self.create_input_component(inputs[i], system)
+
             if i < len(measures):
-                if not hasattr(fc, 'measures'):
-                    fc.measures = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
-                try:
-                    self.create_measure(measures[i]['mag'], fc, measures[i]['unit'])
-                except:
-                    self.create_measure(measures[i]['mag'], fc)
+                self.add_measures(fc, [measures[i]])
+                # if not hasattr(fc, 'measures'):
+                #     fc.measures = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
+                # try:
+                #     self.create_measure(measures[i]['mag'], fc, measures[i]['unit'])
+                # except:
+                #     self.create_measure(measures[i]['mag'], fc)
 
         return system
 
@@ -393,29 +408,19 @@ class XDocument(Document):
         
         return exp_datum
 
-    def create_implementation(self, display_id, name, built=None, measures=[], parents=[]):
+    def create_implementation(self, display_id, name, built=None, parents=[]):
         imp = Implementation(display_id)
 
         imp.name.set(name)
         if built is not None:
             imp.built.add(built.identity.get())
-
-        if len(measures) > 0:
-            if not hasattr(imp, 'measures'):
-                imp.measures = OwnedPythonObject(Measure, SD2_NS + 'measure', imp)
-            for measure in measures:
-                # try:
-                #     self.create_measure(measure['mag'], imp, measure['unit'], measure['name'])
-                # except:
-                #     self.create_measure(mag=measure['mag'], sbol_obj=imp, display_id=measure['name'])
-                self.create_measure(measure['mag'], imp)
         
         for parent in parents:
             imp.wasDerivedFrom.add(parent.identity.get())
 
         return imp
 
-    def create_sample(self, sample_id, built=None, measures=[], parent_samples=[], well_id=None, plate_id=None):
+    def create_sample(self, sample_id, built=None, parent_samples=[], well_id=None, plate_id=None):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -426,7 +431,7 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        sample = self.create_implementation(sample_id, sample_id, built, measures, parent_samples)
+        sample = self.create_implementation(sample_id, sample_id, built, parent_samples)
 
         return sample
 
