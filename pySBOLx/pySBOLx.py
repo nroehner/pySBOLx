@@ -111,12 +111,12 @@ class XDocument(Document):
                 sbol_obj.measures = OwnedPythonObject(Measure, SD2_NS + 'measure', sbol_obj)
             for measure in measures:
                 try:
-                    self.create_measure(measure['mag'], sbol_obj, measure['unit'], measure['name'])
+                    self.create_measure(measure['mag'], sbol_obj, measure['unit'], measure['id'])
                 except:
                     try:
                         self.create_measure(measure['mag'], sbol_obj, measure['unit'])
                     except:
-                        self.create_measure(mag=measure['mag'], sbol_obj=sbol_obj, display_id=measure['name'])
+                        self.create_measure(mag=measure['mag'], sbol_obj=sbol_obj, display_id=measure['id'])
 
     def configure_options(self, homespace, is_validated, is_typed):
         setHomespace(homespace)
@@ -202,37 +202,48 @@ class XDocument(Document):
             pass
             # ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
         
-    def create_unit(self, symbol, om, description=None, display_id=None, name=None):
-        if display_id is not None:
-            result = display_id
-        else:
+    def create_unit(self, om, symbol=None, display_id=None, name=None, descr=None):
+        uri = ''.join([OM_NS[:-1], '/', display_id])
+
+        try:
+            result = next(iter(om.query(''.join(["SELECT ?symbol ?name ?descr WHERE { ", uri, " om:symbol ?symbol ; rdfs:label ?name . OPTIONAL { ", uri, " rdfs:comment ?descr } FILTER (lang(?name) = 'nl') FILTER (lang(?descr) = 'en') }"]))))
+        except:
             try:
-                result = next(iter(om.query(''.join(["SELECT ?x ?description WHERE { ?x om:symbol '", symbol, "' . OPTIONAL { ?x rdfs:comment ?description } }"]))))
+                result = next(iter(om.query(''.join(["SELECT ?uri ?name ?descr WHERE { ?uri om:symbol '", symbol, "' ; rdfs:label ?name . OPTIONAL { ?uri rdfs:comment ?descr } FILTER (lang(?name) = 'nl') FILTER (lang(?descr) = 'en') }"]))))
             except:
-                try:
-                    result = next(iter(om.query(''.join(["SELECT ?x ?symbol ?description WHERE { ?x rdfs:label '", symbol, "'@nl . OPTIONAL { ?x om:symbol ?symbol . ?x rdfs:comment ?description } }"]))))
-                except:
-                    result = display_id
+                result = next(iter(om.query(''.join(["SELECT ?uri ?symbol ?descr WHERE { ?uri om:symbol ?symbol ; rdfs:label '", name, "'@nl . OPTIONAL { ?uri rdfs:comment ?descr } FILTER (lang(?descr) = 'en') }"]))))
 
         try:
-            unit = Unit(result.x.split('/')[-1])
+            unit_id = result.uri.split('/')[-1]
         except:
-            unit = Unit(result.replace('/', '_per_'))
+            unit_id = display_id
 
-        if name is not None:
-            unit.name.set(name)
-        else:
-            unit.name.set(unit.displayId.get())
+        unit = Unit(unit_id)
+
         try:
-            unit.description.set(result.description)   
+            unit.name.set(result.name)
         except:
-            pass
+            if name is not None:
+                unit.name.set(name)
+            else:
+                unit.name.set(unit_id)
+        try:
+            unit.description.set(result.descr)   
+        except:
+            if descr is not None:
+                unit.description.set(descr)
 
         try:
             unit.symbol.set(result.symbol)
         except:
-            unit.symbol.set(symbol)
-                
+            if symbol is not None:
+                unit.symbol.set(symbol)
+
+        try:
+            unit.wasDerivedFrom.add(result.uri)
+        except:
+            unit.wasDerivedFrom.add(uri)
+
         return unit
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], measures=[], display_id=None, name=None):
