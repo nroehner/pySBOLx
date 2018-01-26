@@ -203,9 +203,8 @@ class XDocument(Document):
             # ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
         
     def create_unit(self, om, symbol=None, display_id=None, name=None, descr=None):
-        uri = ''.join([OM_NS[:-1], '/', display_id])
-
         try:
+            uri = ''.join([OM_NS[:-1], '/', display_id])
             result = next(iter(om.query(''.join(["SELECT ?symbol ?name ?descr WHERE { ", uri, " om:symbol ?symbol ; rdfs:label ?name . OPTIONAL { ", uri, " rdfs:comment ?descr } FILTER (lang(?name) = 'nl') FILTER (lang(?descr) = 'en') }"]))))
         except:
             try:
@@ -242,7 +241,7 @@ class XDocument(Document):
         try:
             unit.wasDerivedFrom.add(result.uri)
         except:
-            unit.wasDerivedFrom.add(uri)
+            unit.wasDerivedFrom.add(''.join([OM_NS[:-1], '/', display_id]))
 
         return unit
 
