@@ -204,13 +204,13 @@ class XDocument(Document):
         
     def create_unit(self, om, symbol=None, display_id=None, name=None, descr=None):
         try:
-            uri = ''.join([OM_NS[:-1], '/', display_id])
-            result = next(iter(om.query(''.join(["SELECT ?symbol ?name ?descr WHERE { ", uri, " om:symbol ?symbol ; rdfs:label ?name . OPTIONAL { ", uri, " rdfs:comment ?descr } FILTER (lang(?name) = 'nl') FILTER (lang(?descr) = 'en') }"]))))
+            uri = ''.join(['<', OM_NS[:-1], '/', display_id, '>'])
+            result = next(iter(om.query(''.join(["SELECT ?symbol ?name ?descr WHERE { ", uri, " om:symbol ?symbol ; rdfs:label ?name . OPTIONAL { ", uri, " rdfs:comment ?descr . FILTER (lang(?descr) = 'en') . } FILTER (lang(?name) = 'en') }"]))))
         except:
             try:
-                result = next(iter(om.query(''.join(["SELECT ?uri ?name ?descr WHERE { ?uri om:symbol '", symbol, "' ; rdfs:label ?name . OPTIONAL { ?uri rdfs:comment ?descr } FILTER (lang(?name) = 'nl') FILTER (lang(?descr) = 'en') }"]))))
+                result = next(iter(om.query(''.join(["SELECT ?uri ?name ?descr WHERE { ?uri om:symbol '", symbol, "' ; rdfs:label ?name . OPTIONAL { ?uri rdfs:comment ?descr . FILTER (lang(?descr) = 'en') . } FILTER (lang(?name) = 'en') }"]))))
             except:
-                result = next(iter(om.query(''.join(["SELECT ?uri ?symbol ?descr WHERE { ?uri om:symbol ?symbol ; rdfs:label '", name, "'@nl . OPTIONAL { ?uri rdfs:comment ?descr } FILTER (lang(?descr) = 'en') }"]))))
+                result = next(iter(om.query(''.join(["SELECT ?uri ?symbol ?descr WHERE { ?uri om:symbol ?symbol . {?uri rdfs:label '", name, "'@en . } UNION {?uri rdfs:label '", name, "'@nl } }"]))))
 
         try:
             unit_id = result.uri.split('/')[-1]
