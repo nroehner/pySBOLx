@@ -514,3 +514,7 @@ class XDocument(Document):
 
     def write(self, sbol_path):
         super(XDocument, self).write(sbol_path)
+
+    def upload(self, sbh_account, sbh_password):
+        login(sbh_account, sbh_password)
+        submit(self)
