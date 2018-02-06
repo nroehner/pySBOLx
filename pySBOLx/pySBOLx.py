@@ -289,8 +289,8 @@ class XDocument(Document):
 
         return system
 
-    def create_flow_cytometry_activity(self, operator, channels=[], replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
-        act = create_activity(operator, replicate_id, parents, name, description, custom, child, display_id)
+    def create_flow_cytometry_activity(self, operator, channels=[], parents=[], name=None, description=None, custom=[], child=None, display_id=None):
+        act = create_activity(operator, parents, name, description, custom, child, display_id)
 
         if len(channels) > 0 and not hasattr(act, 'channels'):
             act.channels = OwnedPythonObject(Channel, SD2_NS + 'channel', act)
@@ -298,14 +298,11 @@ class XDocument(Document):
         for channel in channels:
             self.create_channel(channel.display_id, channel.calibration_file, act, channel.name)
 
-    def create_activity(self, operator, replicate_id=None, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
+    def create_activity(self, operator, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
         else:
-            if replicate_id is not None:
-                id_arr.append(replicate_id)
-                id_arr.append('_')
             id_arr.append(operator)
             parent_id_arr = []
             for parent in parents:
@@ -374,22 +371,9 @@ class XDocument(Document):
             pass
             # act.channels.get(generate_uri(act.persistentIdentity.get(), channel_id, '1.0.0'))
 
-    def create_attachment(self, attach_id, attach_name, source, replicate_id=None, attach_format=None, display_id=None, name=None):
-        id_arr = []
-        if display_id is not None:
-            id_arr.append(display_id)
-        else:
-            if replicate_id is not None:
-                id_arr.append(replicate_id)
-                id_arr.append('_')
-            id_arr.append(attach_id)
-        attach_id = ''.join(id_arr)
-
-        attach = Attachment(attach_id)
-        if name is not None:
-            attach.name.set(name)
-        else:
-            attach.name.set(attach_name)
+    def create_attachment(self, display_id, name, source, attach_format=None):
+        attach = Attachment(display_id)
+        attach.name.set(name)
         attach.source.add(source)
         if attach_format is not None:
             attach.format.add(attach_format)
@@ -401,14 +385,14 @@ class XDocument(Document):
         if display_id is not None:
             id_arr.append(display_id)
         else:
-            if replicate_id is not None:
-                id_arr.append(replicate_id)
-                id_arr.append('_')
             id_arr.append(imp.displayId.get())
             if operator is not None:
                 id_arr.append('_')
                 id_arr.append(operator)
-            
+            if replicate_id is not None:
+                id_arr.append('_')
+                id_arr.append(replicate_id)
+                
         exp_datum_id = ''.join(id_arr)
 
         exp_datum = ExperimentalData(exp_datum_id)
