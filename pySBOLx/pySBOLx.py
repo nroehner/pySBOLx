@@ -121,7 +121,7 @@ class XDocument(Document):
                     except:
                         self.create_measure(mag=measure['mag'], sbol_obj=sbol_obj, display_id=measure['id'])
 
-    def add_member(self, sbol_obj, collect)
+    def add_member(self, sbol_obj, collect):
         collect.members.add(sbol_obj.identity.get())
 
     def configure_options(self, homespace, is_validated, is_typed):
