@@ -89,10 +89,13 @@ class XDocument(Document):
     
         return ''.join(uri_arr)
 
-    def add_top_levels(self, top_levels):
+    def add_top_levels(self, top_levels, collect=None):
         for top_level in top_levels:
             try:
                 top_level.addToDocument(self)
+
+                if collect is not None:
+                    self.add_member(top_level, collect)
             except:
                 pass
 
@@ -118,10 +121,22 @@ class XDocument(Document):
                     except:
                         self.create_measure(mag=measure['mag'], sbol_obj=sbol_obj, display_id=measure['id'])
 
+    def add_member(self, sbol_obj, collect)
+        collect.members.add(sbol_obj.identity.get())
+
     def configure_options(self, homespace, is_validated, is_typed):
         setHomespace(homespace)
         Config.setOption('validate', is_validated)
         Config.setOption('sbol_typed_uris', is_typed)
+
+    def create_collection(self, display_id, name):
+        try:
+            collect = self.collections.create(display_id)
+            collect.name.set(name)
+        except:
+            collect = self.collections.get(self.generate_uri(getHomespace(), display_id, '1.0.0'))
+        
+        return collect
 
     def create_component_definition(self, display_id, name, comp_type=None, comp_role=None):
         try:
@@ -463,6 +478,17 @@ class XDocument(Document):
                 pass
 
         return systems
+
+    def get_collection_members(self, collect):
+        top_levels = []
+
+        for member in collect.members:
+            try:
+                top_levels.append(self.getTopLevel(member))
+            except:
+                pass
+
+        return top_levels
 
     def get_parent_entities(self, act):
         parent_entities = []
