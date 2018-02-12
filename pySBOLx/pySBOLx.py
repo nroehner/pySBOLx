@@ -134,7 +134,7 @@ class XDocument(Document):
             collect = self.collections.create(display_id)
             collect.name.set(name)
         except:
-            collect = self.collections.get(self.generate_uri(getHomespace(), display_id, '1.0.0'))
+            collect = self.getCollection(self.generate_uri(getHomespace(), display_id, '1.0.0'))
         
         return collect
 
