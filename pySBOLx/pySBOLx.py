@@ -108,7 +108,7 @@ class XDocument(Document):
                         self.create_measure(mag=measure['mag'], sbol_obj=sbol_obj, display_id=measure['id'])
 
     def add_member(self, sbol_obj, collect):
-        collect.members.append(bol_obj.identity)
+        collect.members.append(sbol_obj.identity)
 
     def configure_options(self, homespace, is_validated, is_typed):
         setHomespace(homespace)
