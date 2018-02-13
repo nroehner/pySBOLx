@@ -41,8 +41,8 @@ class Implementation(TopLevel):
     
     def __init__(self, displayId, built=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Implementation', displayId, version)
-        self.identity = self.identity.replace('/Implementation', '')
-        self.persistentIdentity = self.persistentIdentity.replace('/Implementation', '')
+        self.identity.set(self.identity.replace('/Implementation', ''))
+        self.persistentIdentity.set(self.persistentIdentity.replace('/Implementation', ''))
         self.built = built if built is not None else URIProperty(SD2_NS + 'built', self.this)
         self.register_extension_class(Implementation, 'sd2')
 
@@ -122,7 +122,7 @@ class XDocument(Document):
                         self.create_measure(mag=measure['mag'], sbol_obj=sbol_obj, display_id=measure['id'])
 
     def add_member(self, sbol_obj, collect):
-        collect.members.add(sbol_obj.identity)
+        collect.members.append(bol_obj.identity)
 
     def configure_options(self, homespace, is_validated, is_typed):
         setHomespace(homespace)
@@ -160,7 +160,7 @@ class XDocument(Document):
 
     def create_plasmid(self, display_id, name):
         plasmid = self.create_component_definition(display_id, name, BIOPAX_DNA)
-        plasmid.types.add('http://identifiers.org/so/SO:0000988')
+        plasmid.types.append('http://identifiers.org/so/SO:0000988')
 
         return plasmid
 
@@ -218,7 +218,7 @@ class XDocument(Document):
                 ms.name = ms_id
             ms.hasNumericalValue = mag
             if unit is not None:
-                ms.hasUnit.add(unit.identity)
+                ms.hasUnit.append(unit.identity)
         except:
             pass
             # ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
@@ -260,9 +260,9 @@ class XDocument(Document):
                 unit.symbol = symbol
 
         try:
-            unit.wasDerivedFrom.add(result.uri)
+            unit.wasDerivedFrom.append(result.uri)
         except:
-            unit.wasDerivedFrom.add(''.join([OM_NS[:-1], '/', display_id]))
+            unit.wasDerivedFrom.append(''.join([OM_NS[:-1], '/', display_id]))
 
         return unit
 
@@ -372,7 +372,7 @@ class XDocument(Document):
             self.add_custom(act, custom)
             
             if child is not None:
-                child.wasGeneratedBy.add(act.identity)
+                child.wasGeneratedBy.append(act.identity)
         except:
             act = self.activities.get(act_id)
             
@@ -424,7 +424,7 @@ class XDocument(Document):
         for attach in attachs:
             exp_datum.attachments.add(attach.identity)
 
-        exp_datum.wasDerivedFrom.add(imp.identity)
+        exp_datum.wasDerivedFrom.append(imp.identity)
         
         exp.experimentalData.add(exp_datum.identity)
         
@@ -438,7 +438,7 @@ class XDocument(Document):
             imp.built.add(built.identity)
         
         for parent in parents:
-            imp.wasDerivedFrom.add(parent.identity)
+            imp.wasDerivedFrom.append(parent.identity)
 
         return imp
 
