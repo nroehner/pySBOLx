@@ -11,8 +11,6 @@ class Experiment(TopLevel):
     
     def __init__(self, displayId, experimentalData=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', displayId, version)
-        self.identity = self.identity.replace('/Experiment', '')
-        self.persistentIdentity = self.persistentIdentity.replace('/Experiment', '')
         self.experimentalData = experimentalData if experimentalData is not None else URIProperty(SD2_NS + 'experimentalData', self.this)
         self.register_extension_class(Experiment, 'sd2')
 
@@ -20,8 +18,6 @@ class ExperimentalData(TopLevel):
     
     def __init__(self, displayId, attachments=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', displayId, version)
-        self.identity = self.identity.replace('/ExperimentalData', '')
-        self.persistentIdentity = self.persistentIdentity.replace('/ExperimentalData', '')
         self.attachments = attachments if attachments is not None else URIProperty(SD2_NS + 'attachment', self.this)
         self.register_extension_class(ExperimentalData, 'sd2')
 
@@ -29,8 +25,6 @@ class Attachment(TopLevel):
     
     def __init__(self, displayId, source=None, format=None, size=None, hash=None, version = '1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Attachment', displayId, version)
-        self.identity = self.identity.replace('/Attachment', '')
-        self.persistentIdentity = self.persistentIdentity.replace('/Attachment', '')
         self.source = source if source is not None else URIProperty(SD2_NS + 'source', self.this)
         self.format = format if format is not None else URIProperty(SD2_NS + 'format', self.this)
         self.size = size
@@ -41,8 +35,6 @@ class Implementation(TopLevel):
     
     def __init__(self, displayId, built=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Implementation', displayId, version)
-        self.identity.set(self.identity.replace('/Implementation', ''))
-        self.persistentIdentity.set(self.persistentIdentity.replace('/Implementation', ''))
         self.built = built if built is not None else URIProperty(SD2_NS + 'built', self.this)
         self.register_extension_class(Implementation, 'sd2')
 
@@ -50,8 +42,6 @@ class Measure(Identified):
     
     def __init__(self, displayId, hasNumericalValue=None, hasUnit=None):
         Identified.__init__(self, OM_NS + 'Measure', displayId)
-        self.identity = self.identity.replace('/Measure', '')
-        self.persistentIdentity = self.persistentIdentity.replace('/Measure', '')
         self.hasNumericalValue = hasNumericalValue if hasNumericalValue is not None else FloatProperty(OM_NS + "hasNumericalValue", self.this)
         self.hasUnit = hasUnit if hasUnit is not None else URIProperty(OM_NS + 'hasUnit', self.this)
         self.register_extension_class(Measure, 'om')
@@ -60,8 +50,6 @@ class Unit(TopLevel):
     
     def __init__(self, displayId, symbol=None):
         TopLevel.__init__(self, OM_NS + 'Unit', displayId)
-        self.identity = self.identity.replace('/Unit', '')
-        self.persistentIdentity = self.persistentIdentity.replace('/Unit', '')
         self.symbol = symbol if symbol is not None else TextProperty(OM_NS + "symbol", self.this)
         self.register_extension_class(Unit, 'om')
 
@@ -69,8 +57,6 @@ class Channel(Identified):
     
     def __init__(self, displayId, calibrationFile=None):
         Identified.__init__(self, SD2_NS + 'Channel', displayId)
-        self.identity = self.identity.replace('/Channel', '')
-        self.persistentIdentity = self.persistentIdentity.replace('/Channel', '')
         self.calibrationFile = calibrationFile if calibrationFile is not None else URIProperty(SD2_NS + 'calibrationFile', self.this)
         self.register_extension_class(Channel, 'sd2')
 
