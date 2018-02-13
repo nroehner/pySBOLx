@@ -11,8 +11,8 @@ class Experiment(TopLevel):
     
     def __init__(self, displayId, experimentalData=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', displayId, version)
-        self.identity.set(self.identity.replace('/Experiment', ''))
-        self.persistentIdentity.set(self.persistentIdentity.replace('/Experiment', ''))
+        self.identity = self.identity.replace('/Experiment', '')
+        self.persistentIdentity = self.persistentIdentity.replace('/Experiment', '')
         self.experimentalData = experimentalData if experimentalData is not None else URIProperty(SD2_NS + 'experimentalData', self.this)
         self.register_extension_class(Experiment, 'sd2')
 
@@ -20,8 +20,8 @@ class ExperimentalData(TopLevel):
     
     def __init__(self, displayId, attachments=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', displayId, version)
-        self.identity.set(self.identity.replace('/ExperimentalData', ''))
-        self.persistentIdentity.set(self.persistentIdentity.replace('/ExperimentalData', ''))
+        self.identity = self.identity.replace('/ExperimentalData', '')
+        self.persistentIdentity = self.persistentIdentity.replace('/ExperimentalData', '')
         self.attachments = attachments if attachments is not None else URIProperty(SD2_NS + 'attachment', self.this)
         self.register_extension_class(ExperimentalData, 'sd2')
 
@@ -29,8 +29,8 @@ class Attachment(TopLevel):
     
     def __init__(self, displayId, source=None, format=None, size=None, hash=None, version = '1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Attachment', displayId, version)
-        self.identity.set(self.identity.replace('/Attachment', ''))
-        self.persistentIdentity.set(self.persistentIdentity.replace('/Attachment', ''))
+        self.identity = self.identity.replace('/Attachment', '')
+        self.persistentIdentity = self.persistentIdentity.replace('/Attachment', '')
         self.source = source if source is not None else URIProperty(SD2_NS + 'source', self.this)
         self.format = format if format is not None else URIProperty(SD2_NS + 'format', self.this)
         self.size = size
@@ -41,8 +41,8 @@ class Implementation(TopLevel):
     
     def __init__(self, displayId, built=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Implementation', displayId, version)
-        self.identity.set(self.identity.replace('/Implementation', ''))
-        self.persistentIdentity.set(self.persistentIdentity.replace('/Implementation', ''))
+        self.identity = self.identity.replace('/Implementation', '')
+        self.persistentIdentity = self.persistentIdentity.replace('/Implementation', '')
         self.built = built if built is not None else URIProperty(SD2_NS + 'built', self.this)
         self.register_extension_class(Implementation, 'sd2')
 
@@ -50,8 +50,8 @@ class Measure(Identified):
     
     def __init__(self, displayId, hasNumericalValue=None, hasUnit=None):
         Identified.__init__(self, OM_NS + 'Measure', displayId)
-        self.identity.set(self.identity.replace('/Measure', ''))
-        self.persistentIdentity.set(self.persistentIdentity.replace('/Measure', ''))
+        self.identity = self.identity.replace('/Measure', '')
+        self.persistentIdentity = self.persistentIdentity.replace('/Measure', '')
         self.hasNumericalValue = hasNumericalValue if hasNumericalValue is not None else FloatProperty(OM_NS + "hasNumericalValue", self.this)
         self.hasUnit = hasUnit if hasUnit is not None else URIProperty(OM_NS + 'hasUnit', self.this)
         self.register_extension_class(Measure, 'om')
@@ -60,8 +60,8 @@ class Unit(TopLevel):
     
     def __init__(self, displayId, symbol=None):
         TopLevel.__init__(self, OM_NS + 'Unit', displayId)
-        self.identity.set(self.identity.replace('/Unit', ''))
-        self.persistentIdentity.set(self.persistentIdentity.replace('/Unit', ''))
+        self.identity = self.identity.replace('/Unit', '')
+        self.persistentIdentity = self.persistentIdentity.replace('/Unit', '')
         self.symbol = symbol if symbol is not None else TextProperty(OM_NS + "symbol", self.this)
         self.register_extension_class(Unit, 'om')
 
@@ -69,8 +69,8 @@ class Channel(Identified):
     
     def __init__(self, displayId, calibrationFile=None):
         Identified.__init__(self, SD2_NS + 'Channel', displayId)
-        self.identity.set(self.identity.replace('/Channel', ''))
-        self.persistentIdentity.set(self.persistentIdentity.replace('/Channel', ''))
+        self.identity = self.identity.replace('/Channel', '')
+        self.persistentIdentity = self.persistentIdentity.replace('/Channel', '')
         self.calibrationFile = calibrationFile if calibrationFile is not None else URIProperty(SD2_NS + 'calibrationFile', self.this)
         self.register_extension_class(Channel, 'sd2')
 
@@ -103,10 +103,10 @@ class XDocument(Document):
         for i in range(0, len(custom) - 1, 2):
             if repr(custom[i]).replace('.', '').isnumeric():
                 setattr(sbol_obj, custom[i + 1], FloatProperty(SD2_NS + custom[i + 1], sbol_obj))
-                getattr(sbol_obj, custom[i + 1]).set(custom[i])
+                getattr(sbol_obj, custom[i + 1]) = custom[i]
             else:
                 setattr(sbol_obj, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], sbol_obj))
-                getattr(sbol_obj, custom[i + 1]).add(custom[i])
+                getattr(sbol_obj, custom[i + 1]).append(custom[i])
 
     def add_measures(self, sbol_obj, measures):
         if len(measures) > 0:
@@ -132,7 +132,7 @@ class XDocument(Document):
     def create_collection(self, display_id, name):
         try:
             collect = self.collections.create(display_id)
-            collect.name.set(name)
+            collect.name = name
         except:
             collect = self.getCollection(self.generate_uri(getHomespace(), display_id, '1.0.0'))
         
@@ -141,11 +141,15 @@ class XDocument(Document):
     def create_component_definition(self, display_id, name, comp_type=None, comp_role=None):
         try:
             comp_def = self.componentDefinitions.create(display_id)
-            comp_def.name.set(name)
+            comp_def.name = name
             if comp_type is not None:
-                comp_def.types.set(comp_type)
+                comp_def.types = [comp_type]
+            else:
+                comp_def.types = []
             if comp_role is not None:
-                comp_def.roles.set(comp_role)
+                comp_def.roles = [comp_role]
+            else:
+                comp_def.roles = []
         except:
             comp_def = self.getComponentDefinition(self.generate_uri(getHomespace(), display_id, '1.0.0'))
 
@@ -166,9 +170,11 @@ class XDocument(Document):
     def create_module_definition(self, display_id, name, mod_role=None):
         try:
             mod_def = self.moduleDefinitions.create(display_id)
-            mod_def.name.set(name)
+            mod_def.name = name
             if mod_role is not None:
-                mod_def.roles.set(mod_role)
+                mod_def.roles = [mod_role]
+            else:
+                mod_def.roles = []
         except:
             mod_def = self.getModuleDefinition(self.generate_uri(getHomespace(), display_id, '1.0.0'))
 
@@ -177,7 +183,7 @@ class XDocument(Document):
     def create_module(self, mod_def, parent_mod_def):
         try:
             mod = parent_mod_def.modules.create(mod_def.displayId)
-            mod.definition.set(mod_def.identity)
+            mod.definition = mod_def.identity
         except:
             mod = parent_mod_def.modules.get(mod_def.displayId)
 
@@ -186,7 +192,7 @@ class XDocument(Document):
     def create_functional_component(self, comp_def, mod_def):
         try:
             fc = mod_def.functionalComponents.create(comp_def.displayId)
-            fc.definition.set(comp_def.identity)
+            fc.definition = comp_def.identity
         except:
             fc = mod_def.functionalComponents.get(comp_def.displayId)
 
@@ -194,7 +200,7 @@ class XDocument(Document):
 
     def create_input_component(self, comp_def, mod_def):
         fc = self.create_functional_component(comp_def, mod_def)
-        fc.direction.set(SBOL_DIRECTION_IN)
+        fc.direction = SBOL_DIRECTION_IN
 
         return fc
 
@@ -207,10 +213,10 @@ class XDocument(Document):
         try:
             ms = sbol_obj.measures.create(ms_id)
             if name is not None:
-                ms.name.set(name)
+                ms.name = name
             else:
-                ms.name.set(ms_id)
-            ms.hasNumericalValue.set(mag)
+                ms.name = ms_id
+            ms.hasNumericalValue = mag
             if unit is not None:
                 ms.hasUnit.add(unit.identity)
         except:
@@ -235,23 +241,23 @@ class XDocument(Document):
         unit = Unit(unit_id)
 
         try:
-            unit.name.set(result.name)
+            unit.name = result.name
         except:
             if name is not None:
-                unit.name.set(name)
+                unit.name = name
             else:
-                unit.name.set(unit_id)
+                unit.name = unit_id
         try:
-            unit.description.set(result.descr)   
+            unit.description = result.descr
         except:
             if descr is not None:
-                unit.description.set(descr)
+                unit.description = descr
 
         try:
-            unit.symbol.set(result.symbol)
+            unit.symbol = result.symbol
         except:
             if symbol is not None:
-                unit.symbol.set(symbol)
+                unit.symbol = symbol
 
         try:
             unit.wasDerivedFrom.add(result.uri)
@@ -340,11 +346,11 @@ class XDocument(Document):
         try:
             act = self.activities.create(act_id)
             if name is not None:
-                act.name.set(name)
+                act.name = name
             else:
-                act.name.set(act_id)
+                act.name = act_id
             if description is not None:
-                act.description.set(description)
+                act.description = description
 
             for parent in parents:
                 if isinstance(parent, Activity):
@@ -379,17 +385,17 @@ class XDocument(Document):
             else:
                 channel = act.channels.create(channel_id, calibration_file)
             if name is not None:
-                channel.name.set(name)
+                channel.name = name
             else:
-                channel.name.set(channel.displayId)
+                channel.name = channel.displayId
         except:
             pass
             # act.channels.get(generate_uri(act.persistentIdentity.get(), channel_id, '1.0.0'))
 
     def create_attachment(self, display_id, name, source, attach_format=None):
         attach = Attachment(display_id)
-        attach.name.set(name)
-        attach.source.add(source)
+        attach.name = name
+        attach.source = source
         if attach_format is not None:
             attach.format.add(attach_format)
         
@@ -412,9 +418,9 @@ class XDocument(Document):
 
         exp_datum = ExperimentalData(exp_datum_id)
         if name is not None:
-            exp_datum.name.set(name)
+            exp_datum.name = name
         else:
-            exp_datum.name.set(exp_datum_id)
+            exp_datum.name = exp_datum_id
         for attach in attachs:
             exp_datum.attachments.add(attach.identity)
 
@@ -427,7 +433,7 @@ class XDocument(Document):
     def create_implementation(self, display_id, name, built=None, parents=[]):
         imp = Implementation(display_id)
 
-        imp.name.set(name)
+        imp.name = name
         if built is not None:
             imp.built.add(built.identity)
         
@@ -453,7 +459,7 @@ class XDocument(Document):
 
     def create_experiment(self, display_id, name):
         exp = Experiment(display_id)
-        exp.name.set(name)
+        exp.name = name
 
         return exp
 
