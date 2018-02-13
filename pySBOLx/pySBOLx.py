@@ -103,10 +103,10 @@ class XDocument(Document):
         for i in range(0, len(custom) - 1, 2):
             if repr(custom[i]).replace('.', '').isnumeric():
                 setattr(sbol_obj, custom[i + 1], FloatProperty(SD2_NS + custom[i + 1], sbol_obj))
-                getattr(sbol_obj, custom[i + 1]) = custom[i]
+                getattr(sbol_obj, custom[i + 1]).set(custom[i])
             else:
                 setattr(sbol_obj, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], sbol_obj))
-                getattr(sbol_obj, custom[i + 1]).append(custom[i])
+                getattr(sbol_obj, custom[i + 1]).add(custom[i])
 
     def add_measures(self, sbol_obj, measures):
         if len(measures) > 0:
