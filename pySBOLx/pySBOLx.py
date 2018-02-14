@@ -9,17 +9,16 @@ PROV_NS = 'http://www.w3.org/ns/prov#'
 
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, experimental_data_uri=None, version='1.0.0'):
+    def __init__(self, display_id, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
-        if experimental_data_uri is not None:
-            self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '1', experimental_data_uri)
+        self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '1')
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
-    def __init__(self, displayId, attachments=None, version='1.0.0'):
-        TopLevel.__init__(self, SD2_NS + 'ExperimentalData', displayId, version)
-        self.attachments = attachments if attachments is not None else URIProperty(SD2_NS + 'attachment', self.this)
+    def __init__(self, display_id, attachments=None, version='1.0.0'):
+        TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
+        self.attachments = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
         self.register_extension_class(ExperimentalData, 'sd2')
 
 # class Attachment(TopLevel):
@@ -41,24 +40,27 @@ class ExperimentalData(TopLevel, PythonicInterface):
 
 class Measure(Identified, PythonicInterface):
     
-    def __init__(self, displayId, hasNumericalValue=None, hasUnit=None):
-        Identified.__init__(self, OM_NS + 'Measure', displayId)
-        self.hasNumericalValue = hasNumericalValue if hasNumericalValue is not None else FloatProperty(OM_NS + "hasNumericalValue", self.this)
-        self.hasUnit = hasUnit if hasUnit is not None else URIProperty(OM_NS + 'hasUnit', self.this)
+    def __init__(self, display_id, has_numerical_value=None, has_unit=None, version='1.0.0'):
+        Identified.__init__(self, OM_NS + 'Measure', display_id, version)
+        if has_numerical_value is not None:
+            self.hasNumericalValue = FloatProperty(self.this, OM_NS + "hasNumericalValue", '0', '1', has_numerical_value)
+        if has_unit is not None:
+            self.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1', has_unit)
         self.register_extension_class(Measure, 'om')
         
 class Unit(TopLevel, PythonicInterface):
     
-    def __init__(self, displayId, symbol=None):
-        TopLevel.__init__(self, OM_NS + 'Unit', displayId)
-        self.symbol = symbol if symbol is not None else TextProperty(OM_NS + "symbol", self.this)
+    def __init__(self, display_id, symbol=None, version='1.0.0'):
+        TopLevel.__init__(self, OM_NS + 'Unit', display_id, version)
+        if symbol is not None:
+            self.symbol = TextProperty(self.this, OM_NS + "symbol", '0', '1', symbol)
         self.register_extension_class(Unit, 'om')
 
 class Channel(Identified, PythonicInterface):
     
-    def __init__(self, displayId, calibrationFile=None):
-        Identified.__init__(self, SD2_NS + 'Channel', displayId)
-        self.calibrationFile = calibrationFile if calibrationFile is not None else URIProperty(SD2_NS + 'calibrationFile', self.this)
+    def __init__(self, displayId, calibration_file=None, version='1.0.0'):
+        Identified.__init__(self, SD2_NS + 'Channel', displayId, version)
+        self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
         self.register_extension_class(Channel, 'sd2')
 
 class XDocument(Document):
