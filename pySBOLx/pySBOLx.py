@@ -9,34 +9,17 @@ PROV_NS = 'http://www.w3.org/ns/prov#'
 
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, version='1.0.0'):
+    def __init__(self, display_id, experimental_data=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
-        self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '1', 'http://examples.org/ontology_term')
+        if experimental_data is not None:
+            self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '1', experimental_data)
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
     def __init__(self, display_id, attachments=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
-        self.attachments = URIProperty(self.this, SD2_NS + 'attachment', '0', '*', 'http://examples.org/ontology_term')
         self.register_extension_class(ExperimentalData, 'sd2')
-
-# class Attachment(TopLevel):
-    
-#     def __init__(self, displayId, source=None, format=None, size=None, hash=None, version = '1.0.0'):
-#         TopLevel.__init__(self, SD2_NS + 'Attachment', displayId, version)
-#         self.source = source if source is not None else URIProperty(SD2_NS + 'source', self.this)
-#         self.format = format if format is not None else URIProperty(SD2_NS + 'format', self.this)
-#         self.size = size
-#         self.hash = hash
-#         self.register_extension_class(Attachment, 'sd2')
-        
-# class Implementation(TopLevel, PythonicInterface):
-    
-#     def __init__(self, displayId, built=None, version='1.0.0'):
-#         TopLevel.__init__(self, SD2_NS + 'Implementation', displayId, version)
-#         self.built = built
-#         self.register_extension_class(Implementation, 'sd2')
 
 class Measure(Identified, PythonicInterface):
     
@@ -60,7 +43,8 @@ class Channel(Identified, PythonicInterface):
     
     def __init__(self, displayId, calibration_file=None, version='1.0.0'):
         Identified.__init__(self, SD2_NS + 'Channel', displayId, version)
-        self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
+        if calibration_file is not None:
+            self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
         self.register_extension_class(Channel, 'sd2')
 
 class XDocument(Document):
@@ -91,16 +75,14 @@ class XDocument(Document):
     def add_custom(self, sbol_obj, custom):
         for i in range(0, len(custom) - 1, 2):
             if repr(custom[i]).replace('.', '').isnumeric():
-                setattr(sbol_obj, custom[i + 1], FloatProperty(SD2_NS + custom[i + 1], sbol_obj))
-                getattr(sbol_obj, custom[i + 1]).set(custom[i])
+                setattr(sbol_obj, custom[i + 1], FloatProperty(sbol_obj, SD2_NS + custom[i + 1], '0', '1', custom[i]))
             else:
-                setattr(sbol_obj, custom[i + 1], URIProperty(SD2_NS + custom[i + 1], sbol_obj))
-                getattr(sbol_obj, custom[i + 1]).add(custom[i])
+                setattr(sbol_obj, custom[i + 1], URIProperty(sbol_obj, SD2_NS + custom[i + 1], '0', '1', custom[i]))
 
     def add_measures(self, sbol_obj, measures):
         if len(measures) > 0:
             if not hasattr(sbol_obj, 'measures'):
-                sbol_obj.measures = OwnedPythonObject(Measure, SD2_NS + 'measure', sbol_obj)
+                sbol_obj.measures = OwnedPythonObject(sbol_obj, SD2_NS + 'measure', Measure, '0', '*')
             for measure in measures:
                 try:
                     self.create_measure(measure['mag'], sbol_obj, measure['unit'], measure['id'])
@@ -200,14 +182,14 @@ class XDocument(Document):
             ms_id = sbol_obj.displayId + '_measure'
 
         try:
-            ms = sbol_obj.measures.create(ms_id)
+            if unit is not None:
+                ms = sbol_obj.measures.create(ms_id, mag, unit.identity)
+            else:
+                ms = sbol_obj.measures.create(ms_id, mag)
             if name is not None:
                 ms.name = name
             else:
                 ms.name = ms_id
-            ms.hasNumericalValue = mag
-            if unit is not None:
-                ms.hasUnit.append(unit.identity)
         except:
             pass
             # ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
@@ -227,7 +209,13 @@ class XDocument(Document):
         except:
             unit_id = display_id
 
-        unit = Unit(unit_id)
+        try:
+            unit = Unit(unit_id, result.symbol)
+        except:
+            if symbol is not None:
+                unit = Unit(unit_id, symbol)
+            else:
+                unit = Unit(unit_id)
 
         try:
             unit.name = result.name
@@ -241,12 +229,6 @@ class XDocument(Document):
         except:
             if descr is not None:
                 unit.description = descr
-
-        try:
-            unit.symbol = result.symbol
-        except:
-            if symbol is not None:
-                unit.symbol = symbol
 
         try:
             unit.wasDerivedFrom.append(result.uri)
@@ -290,12 +272,6 @@ class XDocument(Document):
 
             if i < len(measures):
                 self.add_measures(fc, [measures[i]])
-                # if not hasattr(fc, 'measures'):
-                #     fc.measures = OwnedPythonObject(Measure, SD2_NS + 'measure', fc)
-                # try:
-                #     self.create_measure(measures[i]['mag'], fc, measures[i]['unit'])
-                # except:
-                #     self.create_measure(measures[i]['mag'], fc)
 
         return system
 
@@ -303,7 +279,7 @@ class XDocument(Document):
         act = create_activity(operator, parents, name, description, custom, child, display_id)
 
         if len(channels) > 0 and not hasattr(act, 'channels'):
-            act.channels = OwnedPythonObject(Channel, SD2_NS + 'channel', act)
+            act.channels = OwnedPythonObject(act, SD2_NS + 'channel', Channel, '0', '*')
 
         for channel in channels:
             self.create_channel(channel.display_id, channel.calibration_file, act, channel.name)
@@ -356,8 +332,7 @@ class XDocument(Document):
                     elif isinstance(parent, ExperimentalData):
                         use.roles.append(SBOL_TEST)
 
-            act.operator = URIProperty(SD2_NS + 'operatorType', act)
-            act.operator.add(SD2_NS + operator)
+            act.operator = URIProperty(act, SD2_NS + 'operatorType', '0', '1', SD2_NS + operator) 
 
             self.add_custom(act, custom)
             
@@ -391,7 +366,7 @@ class XDocument(Document):
         
         return attach
 
-    def create_experimental_data(self, attachs, imp, exp, operator=None, replicate_id=None, display_id=None, name=None):
+    def create_experimental_data(self, attachs, imp, operator=None, replicate_id=None, display_id=None, name=None):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -412,11 +387,9 @@ class XDocument(Document):
         else:
             exp_datum.name = exp_datum_id
         for attach in attachs:
-            exp_datum.attachments.add(attach.identity)
+            exp_datum.attachments.append(attach.identity)
 
         exp_datum.wasDerivedFrom.append(imp.identity)
-        
-        exp.experimentalData.add(exp_datum.identity)
         
         return exp_datum
 
