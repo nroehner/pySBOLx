@@ -31,11 +31,11 @@ class Attachment(TopLevel):
         self.hash = hash
         self.register_extension_class(Attachment, 'sd2')
         
-class Implementation(TopLevel):
+class Implementation(TopLevel, PythonicInterface):
     
     def __init__(self, displayId, built=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Implementation', displayId, version)
-        self.built = built if built is not None else URIProperty(SD2_NS + 'built', self.this)
+        self.built = built
         self.register_extension_class(Implementation, 'sd2')
 
 class Measure(Identified):
