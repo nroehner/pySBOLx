@@ -7,38 +7,38 @@ OM_NS = 'http://www.ontology-of-units-of-measure.org/resource/om-2#'
 
 PROV_NS = 'http://www.w3.org/ns/prov#'
 
-class Experiment(TopLevel):
+class Experiment(TopLevel, PythonicInterface):
     
     def __init__(self, displayId, experimentalData=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', displayId, version)
         self.experimentalData = experimentalData if experimentalData is not None else URIProperty(SD2_NS + 'experimentalData', self.this)
         self.register_extension_class(Experiment, 'sd2')
 
-class ExperimentalData(TopLevel):
+class ExperimentalData(TopLevel, PythonicInterface):
     
-    def __init__(self, displayId, attachments=None, version='1.0.0'):
+    def __init__(self, displayId, attachments=[], version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', displayId, version)
-        self.attachments = attachments if attachments is not None else URIProperty(SD2_NS + 'attachment', self.this)
+        self.attachments = attachments
         self.register_extension_class(ExperimentalData, 'sd2')
 
-class Attachment(TopLevel):
+# class Attachment(TopLevel):
     
-    def __init__(self, displayId, source=None, format=None, size=None, hash=None, version = '1.0.0'):
-        TopLevel.__init__(self, SD2_NS + 'Attachment', displayId, version)
-        self.source = source if source is not None else URIProperty(SD2_NS + 'source', self.this)
-        self.format = format if format is not None else URIProperty(SD2_NS + 'format', self.this)
-        self.size = size
-        self.hash = hash
-        self.register_extension_class(Attachment, 'sd2')
+#     def __init__(self, displayId, source=None, format=None, size=None, hash=None, version = '1.0.0'):
+#         TopLevel.__init__(self, SD2_NS + 'Attachment', displayId, version)
+#         self.source = source if source is not None else URIProperty(SD2_NS + 'source', self.this)
+#         self.format = format if format is not None else URIProperty(SD2_NS + 'format', self.this)
+#         self.size = size
+#         self.hash = hash
+#         self.register_extension_class(Attachment, 'sd2')
         
-class Implementation(TopLevel, PythonicInterface):
+# class Implementation(TopLevel, PythonicInterface):
     
-    def __init__(self, displayId, built=None, version='1.0.0'):
-        TopLevel.__init__(self, SD2_NS + 'Implementation', displayId, version)
-        self.built = built
-        self.register_extension_class(Implementation, 'sd2')
+#     def __init__(self, displayId, built=None, version='1.0.0'):
+#         TopLevel.__init__(self, SD2_NS + 'Implementation', displayId, version)
+#         self.built = built
+#         self.register_extension_class(Implementation, 'sd2')
 
-class Measure(Identified):
+class Measure(Identified, PythonicInterface):
     
     def __init__(self, displayId, hasNumericalValue=None, hasUnit=None):
         Identified.__init__(self, OM_NS + 'Measure', displayId)
@@ -46,14 +46,14 @@ class Measure(Identified):
         self.hasUnit = hasUnit if hasUnit is not None else URIProperty(OM_NS + 'hasUnit', self.this)
         self.register_extension_class(Measure, 'om')
         
-class Unit(TopLevel):
+class Unit(TopLevel, PythonicInterface):
     
     def __init__(self, displayId, symbol=None):
         TopLevel.__init__(self, OM_NS + 'Unit', displayId)
         self.symbol = symbol if symbol is not None else TextProperty(OM_NS + "symbol", self.this)
         self.register_extension_class(Unit, 'om')
 
-class Channel(Identified):
+class Channel(Identified, PythonicInterface):
     
     def __init__(self, displayId, calibrationFile=None):
         Identified.__init__(self, SD2_NS + 'Channel', displayId)
@@ -340,17 +340,18 @@ class XDocument(Document):
 
             for parent in parents:
                 if isinstance(parent, Activity):
-                    try:
-                        act.wasInformedBy.add(parent.identity)
-                    except:
-                        act.wasInformedBy = URIProperty(PROV_NS + 'wasInformedBy', act)
-                        act.wasInformedBy.add(parent.identity)
+                    act.wasInformedBy.append(parent.identity)
                 else:
-                    try:
-                        act.used.add(parent.identity)
-                    except:
-                        act.used = URIProperty(PROV_NS + 'used', act)
-                        act.used.add(parent.identity)
+                    use = act.usages.create(parent.displayId)
+                    use.entity = parent.identity
+                    if isinstance(parent, Implementation):
+                        use.roles.append(SBOL_BUILD)
+                    elif isinstance(parent, ComponentDefinition) or isinstance(parent, ModuleDefinition):
+                        use.roles.append(SBOL_DESIGN)
+                    elif isinstance(parent, Model):
+                        use.roles.append(SBOL_LEARN)
+                    elif isinstance(parent, ExperimentalData):
+                        use.roles.append(SBOL_TEST)
 
             act.operator = URIProperty(SD2_NS + 'operatorType', act)
             act.operator.add(SD2_NS + operator)
@@ -379,11 +380,11 @@ class XDocument(Document):
             # act.channels.get(generate_uri(act.persistentIdentity.get(), channel_id, '1.0.0'))
 
     def create_attachment(self, display_id, name, source, attach_format=None):
-        attach = Attachment(display_id)
+        attach = self.attachments.create(display_id)
         attach.name = name
         attach.source = source
         if attach_format is not None:
-            attach.format.add(attach_format)
+            attach.format = attach_format
         
         return attach
 
@@ -417,11 +418,11 @@ class XDocument(Document):
         return exp_datum
 
     def create_implementation(self, display_id, name, built=None, parents=[]):
-        imp = Implementation(display_id)
+        imp = self.implementations.create(display_id)
 
         imp.name = name
         if built is not None:
-            imp.built.add(built.identity)
+            imp.built = built
         
         for parent in parents:
             imp.wasDerivedFrom.append(parent.identity)
