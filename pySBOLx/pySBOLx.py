@@ -9,15 +9,17 @@ PROV_NS = 'http://www.w3.org/ns/prov#'
 
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, displayId, experimentalData=None, version='1.0.0'):
-        TopLevel.__init__(self, SD2_NS + 'Experiment', displayId, version)
-        self.experimentalData = experimentalData if experimentalData is not None else URIProperty(SD2_NS + 'experimentalData', self.this)
+    def __init__(self, display_id, experimental_data_uri=None, version='1.0.0'):
+        TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
+        if experimental_data_uri is not None:
+            self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '1', experimental_data_uri)
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
     def __init__(self, displayId, attachments=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', displayId, version)
+        self.attachments = attachments if attachments is not None else URIProperty(SD2_NS + 'attachment', self.this)
         self.register_extension_class(ExperimentalData, 'sd2')
 
 # class Attachment(TopLevel):
