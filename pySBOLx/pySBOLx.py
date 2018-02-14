@@ -11,14 +11,14 @@ class Experiment(TopLevel, PythonicInterface):
     
     def __init__(self, display_id, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
-        self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '1')
+        self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '1', 'http://examples.org/ontology_term')
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
     def __init__(self, display_id, attachments=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
-        self.attachments = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
+        self.attachments = URIProperty(self.this, SD2_NS + 'attachment', '0', '*', 'http://examples.org/ontology_term')
         self.register_extension_class(ExperimentalData, 'sd2')
 
 # class Attachment(TopLevel):
