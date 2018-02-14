@@ -18,7 +18,7 @@ class ExperimentalData(TopLevel, PythonicInterface):
     
     def __init__(self, displayId, attachments=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', displayId, version)
-        self.attachments = attachments if attachments is not None else URIProperty(SD2_NS + 'attachment', self.this)
+        self.attachments = attachments
         self.register_extension_class(ExperimentalData, 'sd2')
 
 # class Attachment(TopLevel):
