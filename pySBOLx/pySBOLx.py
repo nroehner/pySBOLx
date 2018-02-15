@@ -74,13 +74,10 @@ class XDocument(Document):
     
         return ''.join(uri_arr)
 
-    def add_top_levels(self, top_levels, collect=None):
+    def add_extension_objects(self, top_levels):
         for top_level in top_levels:
             try:
-                top_level.addToDocument(self)
-
-                if collect is not None:
-                    self.add_member(top_level, collect)
+                self.addExtensionObject(top_level)
             except:
                 pass
 
@@ -470,7 +467,7 @@ class XDocument(Document):
             try:
                 top_levels.append(self.getTopLevel(member))
             except:
-                print('jambo')
+                pass
 
         return top_levels
 
@@ -489,7 +486,7 @@ class XDocument(Document):
                 for uri in curr_act.getPropertyValues(PROV_NS + 'used'):
                     parent_entities.append(self.getTopLevel(uri))
             except:
-                print('wombo')
+                pass
 
             for uri in curr_act.wasInformedBy:
                 if len(uri) > 0:
