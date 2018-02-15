@@ -407,17 +407,17 @@ class XDocument(Document):
         return exp_datum
 
     def create_implementation(self, display_id, name, built=None, parents=[]):
-        try:
-            imp = self.implementations.create(display_id)
-            
-            imp.name = name
-            if built is not None:
-                imp.built = built
-            
-            for parent in parents:
-                imp.wasDerivedFrom.append(parent.identity)
-        except:
-            imp = self.getImplementation(self.generate_uri(getHomespace(), display_id, '1.0.0'))
+        # try:
+        imp = self.implementations.create(display_id)
+        
+        imp.name = name
+        if built is not None:
+            imp.built = built
+        
+        for parent in parents:
+            imp.wasDerivedFrom.append(parent.identity)
+        # except:
+        #     imp = self.getImplementation(self.generate_uri(getHomespace(), display_id, '1.0.0'))
 
         return imp
 
