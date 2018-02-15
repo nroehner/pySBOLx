@@ -1,6 +1,8 @@
 import rdflib
 from sbol import *
 
+SBOL_NS = 'http://sbols.org/v2#'
+
 SD2_NS = 'http://sd2e.org#'
 
 OM_NS = 'http://www.ontology-of-units-of-measure.org/resource/om-2#'
@@ -9,22 +11,28 @@ PROV_NS = 'http://www.w3.org/ns/prov#'
 
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, experimental_data=None, version='1.0.0'):
+    def __init__(self, display_id, name=None, experimental_data=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
+        if name is not None:
+            self.name = TextProperty(self.this, SBOL_NS + "name", '0', '1', name)
         if experimental_data is not None:
             self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '1', experimental_data)
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, attachments=None, version='1.0.0'):
+    def __init__(self, display_id, name=None, version='1.0.0'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
+        if name is not None:
+            self.name = TextProperty(self.this, SBOL_NS + "name", '0', '1', name)
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Measure(Identified, PythonicInterface):
     
-    def __init__(self, display_id, has_numerical_value=None, has_unit=None, version='1.0.0'):
+    def __init__(self, display_id, name=None, has_numerical_value=None, has_unit=None, version='1.0.0'):
         Identified.__init__(self, OM_NS + 'Measure', display_id, version)
+        if name is not None:
+            self.name = TextProperty(self.this, SBOL_NS + "name", '0', '1', name)
         if has_numerical_value is not None:
             self.hasNumericalValue = FloatProperty(self.this, OM_NS + "hasNumericalValue", '0', '1', has_numerical_value)
         if has_unit is not None:
@@ -33,16 +41,20 @@ class Measure(Identified, PythonicInterface):
         
 class Unit(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, symbol=None, version='1.0.0'):
+    def __init__(self, display_id, name=None, symbol=None, version='1.0.0'):
         TopLevel.__init__(self, OM_NS + 'Unit', display_id, version)
+        if name is not None:
+            self.name = TextProperty(self.this, SBOL_NS + "name", '0', '1', name)
         if symbol is not None:
             self.symbol = TextProperty(self.this, OM_NS + "symbol", '0', '1', symbol)
         self.register_extension_class(Unit, 'om')
 
 class Channel(Identified, PythonicInterface):
     
-    def __init__(self, displayId, calibration_file=None, version='1.0.0'):
+    def __init__(self, displayId, name=None, calibration_file=None, version='1.0.0'):
         Identified.__init__(self, SD2_NS + 'Channel', displayId, version)
+        if name is not None:
+            self.name = TextProperty(self.this, SBOL_NS + "name", '0', '1', name)
         if calibration_file is not None:
             self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
         self.register_extension_class(Channel, 'sd2')
@@ -182,14 +194,15 @@ class XDocument(Document):
             ms_id = sbol_obj.displayId + '_measure'
 
         try:
-            if unit is not None:
-                ms = sbol_obj.measures.create(ms_id, mag, unit.identity)
-            else:
-                ms = sbol_obj.measures.create(ms_id, mag)
             if name is not None:
-                ms.name = name
+                ms_name = name
             else:
-                ms.name = ms_id
+                ms_name = ms_id
+
+            if unit is not None:
+                ms = sbol_obj.measures.create(ms_id, ms_name, mag, unit.identity)
+            else:
+                ms = sbol_obj.measures.create(ms_id, ms_name, mag)
         except:
             pass
             # ms = fc.measure.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, '1.0.0'))
@@ -210,20 +223,21 @@ class XDocument(Document):
             unit_id = display_id
 
         try:
-            unit = Unit(unit_id, result.symbol)
-        except:
-            if symbol is not None:
-                unit = Unit(unit_id, symbol)
-            else:
-                unit = Unit(unit_id)
-
-        try:
-            unit.name = result.name
+            unit_name = result.name
         except:
             if name is not None:
-                unit.name = name
+                unit_name = name
             else:
-                unit.name = unit_id
+                unit_name = unit_id
+
+        try:
+            unit = Unit(unit_id, unit_name, result.symbol)
+        except:
+            if symbol is not None:
+                unit = Unit(unit_id, unit_name, symbol)
+            else:
+                unit = Unit(unit_id, unit_name)
+
         try:
             unit.description = result.descr
         except:
@@ -343,16 +357,12 @@ class XDocument(Document):
             
         return act
 
-    def create_channel(self, channel_id, calibration_file, act, name=None, display_id=None):
+    def create_channel(self, display_id, calibration_file, act, name=None):
         try:
-            if display_id is not None:
-                channel = act.channels.create(display_id, calibration_file)
-            else:
-                channel = act.channels.create(channel_id, calibration_file)
             if name is not None:
-                channel.name = name
+                channel = act.channels.create(display_id, name, calibration_file)
             else:
-                channel.name = channel.displayId
+                channel = act.channels.create(display_id, display_id, calibration_file)
         except:
             pass
             # act.channels.get(generate_uri(act.persistentIdentity.get(), channel_id, '1.0.0'))
@@ -381,11 +391,11 @@ class XDocument(Document):
                 
         exp_datum_id = ''.join(id_arr)
 
-        exp_datum = ExperimentalData(exp_datum_id)
+        
         if name is not None:
-            exp_datum.name = name
+            exp_datum = ExperimentalData(exp_datum_id, name)
         else:
-            exp_datum.name = exp_datum_id
+            exp_datum = ExperimentalData(exp_datum_id, exp_datum_id)
         for attach in attachs:
             exp_datum.attachments.append(attach.identity)
 
@@ -421,9 +431,8 @@ class XDocument(Document):
         return sample
 
     def create_experiment(self, display_id, name):
-        exp = Experiment(display_id)
-        exp.name = name
-
+        exp = Experiment(display_id, name)
+        
         return exp
 
     def get_devices(self, uris):
