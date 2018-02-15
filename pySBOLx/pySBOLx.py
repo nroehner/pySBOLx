@@ -410,6 +410,8 @@ class XDocument(Document):
         try:
             imp = self.implementations.create(display_id)
 
+            imp.version = '1.0.0'
+
             imp.name = name
             if built is not None:
                 imp.built = built
