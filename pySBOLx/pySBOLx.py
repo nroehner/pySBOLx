@@ -409,9 +409,7 @@ class XDocument(Document):
     def create_implementation(self, display_id, name, built=None, parents=[]):
         try:
             imp = self.implementations.create(display_id)
-
-            imp.version = '1.0.0'
-
+            
             imp.name = name
             if built is not None:
                 imp.built = built
