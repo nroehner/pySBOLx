@@ -368,11 +368,14 @@ class XDocument(Document):
             # act.channels.get(generate_uri(act.persistentIdentity.get(), channel_id, '1.0.0'))
 
     def create_attachment(self, display_id, name, source, attach_format=None):
-        attach = self.attachments.create(display_id)
-        attach.name = name
-        attach.source = source
-        if attach_format is not None:
-            attach.format = attach_format
+        try:
+            attach = self.attachments.create(display_id)
+            attach.name = name
+            attach.source = source
+            if attach_format is not None:
+                attach.format = attach_format
+        except:
+            attach = self.getAttachment(self.generate_uri(getHomespace(), display_id, '1.0.0'))
         
         return attach
 
@@ -404,14 +407,17 @@ class XDocument(Document):
         return exp_datum
 
     def create_implementation(self, display_id, name, built=None, parents=[]):
-        imp = self.implementations.create(display_id)
+        try:
+            imp = self.implementations.create(display_id)
 
-        imp.name = name
-        if built is not None:
-            imp.built = built
-        
-        for parent in parents:
-            imp.wasDerivedFrom.append(parent.identity)
+            imp.name = name
+            if built is not None:
+                imp.built = built
+            
+            for parent in parents:
+                imp.wasDerivedFrom.append(parent.identity)
+        except:
+            imp = self.getImplementation(self.generate_uri(getHomespace(), display_id, '1.0.0'))
 
         return imp
 
