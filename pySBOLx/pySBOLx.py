@@ -409,7 +409,7 @@ class XDocument(Document):
     def create_implementation(self, display_id, name, built=None, parents=[]):
         # try:
         imp = self.implementations.create(display_id)
-        
+
         imp.name = name
         if built is not None:
             imp.built = built
@@ -470,7 +470,7 @@ class XDocument(Document):
             try:
                 top_levels.append(self.getTopLevel(member))
             except:
-                pass
+                print('jambo')
 
         return top_levels
 
@@ -489,7 +489,7 @@ class XDocument(Document):
                 for uri in curr_act.getPropertyValues(PROV_NS + 'used'):
                     parent_entities.append(self.getTopLevel(uri))
             except:
-                pass
+                print('wombo')
 
             for uri in curr_act.wasInformedBy:
                 if len(uri) > 0:
