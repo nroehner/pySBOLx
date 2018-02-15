@@ -432,7 +432,7 @@ class XDocument(Document):
 
     def create_experiment(self, display_id, name):
         exp = Experiment(display_id, name)
-        
+
         return exp
 
     def get_devices(self, uris):
@@ -485,7 +485,7 @@ class XDocument(Document):
             except:
                 pass
 
-            for uri in curr_act.wasInformedBy.getAll():
+            for uri in curr_act.wasInformedBy:
                 if len(uri) > 0:
                     acts.append(self.activities.get(uri))
 
