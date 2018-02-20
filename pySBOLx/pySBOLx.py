@@ -17,7 +17,7 @@ class Implementation(TopLevel, PythonicInterface):
         TopLevel.__init__(self, SD2_NS + 'Implementation', display_id, version)
         if name is not None:
             self.name = TextProperty(self.this, DC_NS + 'title', '0', '1', name)
-        if built is None:
+        if built is not None:
             self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1', built)
         else:
             self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1')
