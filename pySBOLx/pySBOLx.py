@@ -11,7 +11,7 @@ PROV_NS = 'http://www.w3.org/ns/prov#'
 
 class Implementation(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, name=None, built=None, version='1'):
+    def __init__(self, display_id='example', name=None, built=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'Implementation', display_id, version)
         if name is not None:
             self.name = name
@@ -23,7 +23,7 @@ class Implementation(TopLevel, PythonicInterface):
 
 class Attachment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, name=None, source=None, attach_format=None, version='1'):
+    def __init__(self, display_id='example', name=None, source=None, attach_format=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'Attachment', display_id, version)
         if name is not None:
             self.name = name
@@ -39,7 +39,7 @@ class Attachment(TopLevel, PythonicInterface):
 
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, name=None, experimental_data=None, version='1'):
+    def __init__(self, display_id='example', name=None, experimental_data=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
         if name is not None:
             self.name = name
@@ -51,7 +51,7 @@ class Experiment(TopLevel, PythonicInterface):
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, name=None, version='1'):
+    def __init__(self, display_id='example', name=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
         if name is not None:
             self.name = name
@@ -59,7 +59,7 @@ class ExperimentalData(TopLevel, PythonicInterface):
 
 class Measure(Identified, PythonicInterface):
     
-    def __init__(self, display_id, name=None, has_numerical_value=None, has_unit=None, version='1'):
+    def __init__(self, display_id='example', name=None, has_numerical_value=None, has_unit=None, version='1'):
         Identified.__init__(self, OM_NS + 'Measure', display_id, version)
         if name is not None:
             self.name = name
@@ -75,7 +75,7 @@ class Measure(Identified, PythonicInterface):
         
 class Unit(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id, name=None, symbol=None, version='1'):
+    def __init__(self, display_id='example', name=None, symbol=None, version='1'):
         TopLevel.__init__(self, OM_NS + 'Unit', display_id, version)
         if name is not None:
             self.name = name
@@ -87,7 +87,7 @@ class Unit(TopLevel, PythonicInterface):
 
 class Channel(Identified, PythonicInterface):
     
-    def __init__(self, displayId, name=None, calibration_file=None, version='1'):
+    def __init__(self, display_id='example', name=None, calibration_file=None, version='1'):
         Identified.__init__(self, SD2_NS + 'Channel', displayId, version)
         if name is not None:
             self.name = name
@@ -106,9 +106,7 @@ class XDocument(Document):
         uri_arr = [prefix]
         uri_arr.append('/')
         uri_arr.append(display_id)
-        if version is None:
-            uri_arr.append('/1')
-        else:
+        if version is not None:
             uri_arr.append('/')
             uri_arr.append(version)
     
@@ -144,20 +142,29 @@ class XDocument(Document):
         Config.setOption('validate', is_validated)
         Config.setOption('sbol_typed_uris', is_typed)
 
-    def create_collection(self, display_id, name):
+    def create_collection(self, display_id, name=None, version='1'):
         try:
             collect = self.collections.create(display_id)
-            collect.name = name
-            collect.version = '1'
+            collect.version = version
+            if name is not None:
+                collect.name = name
+            else:
+                collect.name = display_id
+            
         except:
-            collect = self.getCollection(self.generate_uri(getHomespace(), display_id))
+            collect = self.getCollection(self.generate_uri(getHomespace(), display_id, version))
         
         return collect
 
-    def create_component_definition(self, display_id, name, comp_type=None, comp_role=None):
+    def create_component_definition(self, display_id, name=None, comp_type=None, comp_role=None, version='1'):
         try:
             comp_def = self.componentDefinitions.create(display_id)
-            comp_def.name = name
+            comp_def.version = version
+            if name is not None:
+                comp_def.name = name
+            else:
+                comp_def.name = display_id
+
             if comp_type is not None:
                 comp_def.types = [comp_type]
             else:
@@ -167,60 +174,91 @@ class XDocument(Document):
             else:
                 comp_def.roles = []
         except:
-            comp_def = self.getComponentDefinition(self.generate_uri(getHomespace(), display_id))
+            comp_def = self.getComponentDefinition(self.generate_uri(getHomespace(), display_id, version))
 
         return comp_def
 
-    def create_inducer(self, display_id, name):
-        return self.create_component_definition(display_id, name, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224')
+    def create_inducer(self, display_id, name=None, version='1'):
+        if name is not None:
+            return self.create_component_definition(display_id, name, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224', version)
+        else:
+            return self.create_component_definition(display_id, display_id, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224', version)
 
-    def create_plasmid(self, display_id, name):
-        plasmid = self.create_component_definition(display_id, name, BIOPAX_DNA)
-        plasmid.types.append('http://identifiers.org/so/SO:0000988')
+    def create_plasmid(self, display_id, name=None, version='1'):
+        if name is not None:
+            plasmid = self.create_component_definition(display_id, name, BIOPAX_DNA, version)
+        else:
+            plasmid = self.create_component_definition(display_id, display_id, BIOPAX_DNA, version)
+        plasmid.types = plasmid.types + ['http://identifiers.org/so/SO:0000988']
 
         return plasmid
 
-    def create_strain(self, display_id, name):
-        return self.create_component_definition(display_id, name, 'http://purl.obolibrary.org/obo/OBI_0100060')
+    def create_strain(self, display_id, name=None, version='1'):
+        if name is not None:
+            return self.create_component_definition(display_id, name, 'http://purl.obolibrary.org/obo/OBI_0100060', version)
+        else:
+            return self.create_component_definition(display_id, display_id, 'http://purl.obolibrary.org/obo/OBI_0100060', version)
 
-    def create_module_definition(self, display_id, name, mod_role=None):
+    def create_module_definition(self, display_id, name=None, version='1', mod_role=None):
         try:
             mod_def = self.moduleDefinitions.create(display_id)
-            mod_def.name = name
+            mod_def.version = version
+            if name is not None:
+                mod_def.name = name
+            else:
+                mod_def.name = display_id
+
             if mod_role is not None:
                 mod_def.roles = [mod_role]
             else:
                 mod_def.roles = []
         except:
-            mod_def = self.getModuleDefinition(self.generate_uri(getHomespace(), display_id))
+            mod_def = self.getModuleDefinition(self.generate_uri(getHomespace(), display_id, version))
 
         return mod_def
 
-    def create_module(self, mod_def, parent_mod_def):
+    def create_module(self, mod_def, parent_mod_def, name=None, version='1'):
         try:
             mod = parent_mod_def.modules.create(mod_def.displayId)
+            mod.version = version
+            if name is not None:
+                mod.name = name
+            else:
+                mod.name = display_id
+
             mod.definition = mod_def.identity
         except:
             mod = parent_mod_def.modules.get(mod_def.displayId)
 
         return mod
 
-    def create_functional_component(self, comp_def, mod_def):
+    def create_functional_component(self, comp_def, mod_def, name=None, version='1'):
         try:
             fc = mod_def.functionalComponents.create(comp_def.displayId)
+            fc.version = version
+            if name is not None:
+                fc.name = name
+            else:
+                fc.name = display_id
+
             fc.definition = comp_def.identity
         except:
             fc = mod_def.functionalComponents.get(comp_def.displayId)
 
         return fc
 
-    def create_input_component(self, comp_def, mod_def):
-        fc = self.create_functional_component(comp_def, mod_def)
+    def create_input_component(self, comp_def, mod_def, name=None, version='1'):
+        fc = self.create_functional_component(comp_def, mod_def, version)
+        if name is not None:
+            fc.name = name
+        else:
+            fc.name = display_id
+
         fc.direction = SBOL_DIRECTION_IN
 
         return fc
 
-    def create_measure(self, mag, identified, unit=None, display_id=None, name=None):
+    def create_measure(self, mag, identified, unit=None, display_id=None, name=None, version='1'):
         if not hasattr(identified, 'measures'):
             identified.measures = OwnedPythonObject(identified, SD2_NS + 'measure', Measure, '0', '*')
 
@@ -230,22 +268,20 @@ class XDocument(Document):
             ms_id = identified.displayId + '_measure'
 
         try:
-            if name is not None:
-                ms_name = name
-            else:
-                ms_name = ms_id
-
             ms = identified.measures.create(ms_id)
-            ms.name = ms_name
-
+            ms.version = version
+            if name is not None:
+                ms.name = name
+            else:
+                ms.name = ms_id
+            
             ms.hasNumericalValue = FloatProperty(ms.this, OM_NS + 'hasNumericalValue', '0', '1', mag)
             if unit is not None:
                 ms.hasUnit = URIProperty(ms.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
         except:
-            pass
-            #ms = identified.measures.get(self.generate_uri(fc.persistentIdentity.get(), ms_id))
+            ms = identified.measures.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, version))
         
-    def create_unit(self, om, symbol=None, display_id=None, name=None, descr=None):
+    def create_unit(self, om, symbol=None, display_id=None, name=None, descr=None, version='1'):
         try:
             uri = ''.join(['<', OM_NS[:-1], '/', display_id, '>'])
             result = next(iter(om.query(''.join(["SELECT ?symbol ?name ?descr WHERE { ", uri, " om:symbol ?symbol ; rdfs:label ?name . OPTIONAL { ", uri, " rdfs:comment ?descr . FILTER (lang(?descr) = 'en') . } FILTER (lang(?name) = 'en') }"]))))
@@ -261,7 +297,7 @@ class XDocument(Document):
             unit_id = display_id
 
 
-        unit = self.getTopLevel(self.generate_uri(getHomespace(), unit_id))
+        unit = self.getTopLevel(self.generate_uri(getHomespace(), unit_id, version))
 
         if unit is None:
             try:
@@ -273,13 +309,12 @@ class XDocument(Document):
                     unit_name = unit_id
 
             try:
-                unit = Unit(unit_id, unit_name, result.symbol)
+                unit = Unit(unit_id, unit_name, result.symbol, version)
             except:
                 if symbol is not None:
-                    unit = Unit(unit_id, unit_name, symbol)
+                    unit = Unit(unit_id, unit_name, symbol, version)
                 else:
-                    unit = Unit(unit_id, unit_name)
-
+                    unit = Unit(display_id=unit_id, name=unit_name, version=version)
             try:
                 unit.description = result.descr
             except:
@@ -293,7 +328,7 @@ class XDocument(Document):
 
         return unit
 
-    def create_system(self, devices=[], sub_systems=[], inputs=[], measures=[], display_id=None, name=None):
+    def create_system(self, devices=[], sub_systems=[], inputs=[], measures=[], display_id=None, name=None, version='1'):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -315,7 +350,10 @@ class XDocument(Document):
             id_arr.append('system')
         system_id = ''.join(id_arr)
 
-        system = self.create_module_definition(system_id, system_id)
+        if name is not None:
+            system = self.create_module_definition(system_id, name, version)
+        else:
+            system = self.create_module_definition(system_id, system_id, version)
 
         for device in devices:
             self.create_functional_component(device, system)
@@ -331,16 +369,19 @@ class XDocument(Document):
 
         return system
 
-    def create_flow_cytometry_activity(self, operator, channels=[], parents=[], name=None, description=None, custom=[], child=None, display_id=None):
-        act = create_activity(operator, parents, name, description, custom, child, display_id)
+    def create_flow_cytometry_activity(self, operator, channels=[], parents=[], name=None, description=None, custom=[], child=None, display_id=None, version='1'):
+        if name is not None:
+            act = create_activity(operator, parents, name, description, custom, child, display_id, version)
+        else:
+            act = create_activity(operator, parents, display_id, description, custom, child, display_id, version)
 
         if len(channels) > 0 and not hasattr(act, 'channels'):
             act.channels = OwnedPythonObject(act, SD2_NS + 'channel', Channel, '0', '*')
 
         for channel in channels:
-            self.create_channel(channel.display_id, channel.calibration_file, act, channel.name)
+            self.create_channel(channel.display_id, channel.calibration_file, act, channel.name, version)
 
-    def create_activity(self, operator, parents=[], name=None, description=None, custom=[], child=None, display_id=None):
+    def create_activity(self, operator, parents=[], name=None, description=None, custom=[], child=None, display_id=None, version='1'):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -366,6 +407,7 @@ class XDocument(Document):
 
         try:
             act = self.activities.create(act_id)
+            act.version = version
             if name is not None:
                 act.name = name
             else:
@@ -380,13 +422,13 @@ class XDocument(Document):
                     use = act.usages.create(parent.displayId)
                     use.entity = parent.identity
                     if isinstance(parent, Implementation):
-                        use.roles.append(SBOL_BUILD)
+                        use.roles = use.roles + [SBOL_BUILD]
                     elif isinstance(parent, ComponentDefinition) or isinstance(parent, ModuleDefinition):
-                        use.roles.append(SBOL_DESIGN)
+                        use.roles = use.roles + [SBOL_DESIGN]
                     elif isinstance(parent, Model):
-                        use.roles.append(SBOL_LEARN)
+                        use.roles = use.roles + [SBOL_LEARN]
                     elif isinstance(parent, ExperimentalData):
-                        use.roles.append(SBOL_TEST)
+                        use.roles = use.roles + [SBOL_TEST]
 
             act.operator = URIProperty(act, SD2_NS + 'operatorType', '0', '1', SD2_NS + operator) 
 
@@ -399,29 +441,45 @@ class XDocument(Document):
             
         return act
 
-    def create_channel(self, display_id, calibration_file, act, name=None):
+    def create_channel(self, display_id, calibration_file, act, name=None, version='1'):
         try:
+            channel = act.channels.create(display_id)
+            channel.version = version
             if name is not None:
-                channel = act.channels.create(display_id, name, calibration_file)
+                channel.name = name
             else:
-                channel = act.channels.create(display_id, display_id, calibration_file)
+                channel.name = display_id
+            
+            channel.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
         except:
-            pass
-            # act.channels.get(generate_uri(act.persistentIdentity.get(), channel_id, '1'))
+            act.channels.get(generate_uri(act.persistentIdentity.get(), display_id, version))
 
-    def create_attachment(self, display_id, name, source, attach_format=None):
-        try:
-            attach = self.attachments.create(display_id)
-            attach.name = name
-            attach.source = source
-            if attach_format is not None:
-                attach.format = attach_format
-        except:
-            attach = self.getAttachment(self.generate_uri(getHomespace(), display_id))
+    def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
+        # try:
+        #     attach = self.attachments.create(display_id)
+        #     attach.version = version
+        #     if name is not None:
+        #         attach.name = name
+        #     else:
+        #         attach.name = display_id
+        #     attach.source = source
+        #     if attach_format is not None:
+        #         attach.format = attach_format
+        # except:
+        #     attach = self.getAttachment(self.generate_uri(getHomespace(), display_id, version))
+        attach = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+
+        if attach is None:
+            if name is not None:
+                attach = Attachment(display_id, name, source, attach_format, version)
+            else:
+                attach = Attachment(display_id, display_id, source, attach_format, version)
+            
+            self.addExtensionObject(attach)
         
         return attach
 
-    def create_experimental_data(self, attachs, imp, operator=None, replicate_id=None, display_id=None, name=None):
+    def create_experimental_data(self, attachs, imp, exp=None, operator=None, replicate_id=None, display_id=None, name=None, version='1'):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -432,38 +490,58 @@ class XDocument(Document):
                 id_arr.append(operator)
             if replicate_id is not None:
                 id_arr.append('_')
-                id_arr.append(replicate_id)
-                
+                id_arr.append(replicate_id) 
         exp_datum_id = ''.join(id_arr)
-
         
-        if name is not None:
-            exp_datum = ExperimentalData(exp_datum_id, name)
-        else:
-            exp_datum = ExperimentalData(exp_datum_id, exp_datum_id)
-        for attach in attachs:
-            exp_datum.attachments.append(attach.identity)
+        exp_datum = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
-        exp_datum.wasDerivedFrom.append(imp.identity)
+        if exp_datum is None:
+            if name is not None:
+                exp_datum = ExperimentalData(exp_datum_id, name, version)
+            else:
+                exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, version)
+
+            for attach in attachs:
+                exp_datum.attachments.append(attach.identity)
+
+            exp_datum.wasDerivedFrom.append(imp.identity)
+
+            if exp is not None:
+                exp.experimentalData.add(exp_datum.identity)
+
+            self.addExtensionObject(exp_datum)
         
         return exp_datum
 
-    def create_implementation(self, display_id, name, built=None, parents=[]):
+    def create_implementation(self, display_id, built=None, parents=[], name=None, version='1'):
         # try:
-        imp = self.implementations.create(display_id)
+        #     imp = self.implementations.create(display_id)
+        #     imp.version = version
+        #     if name is not None:
+        #         imp.name = name
+        #     else:
+        #         imp.name = display_id
 
-        imp.name = name
-        if built is not None:
-            imp.built = built
-        
-        for parent in parents:
-            imp.wasDerivedFrom.append(parent.identity)
+        #     if built is not None:
+        #         imp.built = built
+            
+        #     for parent in parents:
+        #         imp.wasDerivedFrom.append(parent.identity)
         # except:
-        #     imp = self.getImplementation(self.generate_uri(getHomespace(), display_id, '1'))
+        #     imp = self.getImplementation(self.generate_uri(getHomespace(), display_id, version))
+        imp = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+
+        if imp is None:
+            if name is not None:
+                imp = Implementation(display_id, name, built, version)
+            else:
+                imp = Implementation(display_id, display_id, built, version)
+
+            self.addExtensionObject(imp)
 
         return imp
 
-    def create_sample(self, sample_id, built=None, parent_samples=[], well_id=None, plate_id=None):
+    def create_sample(self, sample_id, built=None, parent_samples=[], well_id=None, plate_id=None, name=None, version='1'):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -474,12 +552,20 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        sample = self.create_implementation(sample_id, sample_id, built, parent_samples)
+        if name is not None:
+            sample = self.create_implementation(sample_id, built, parent_samples, name, version)
+        else:
+            sample = self.create_implementation(sample_id, built, parent_samples, sample_id, version)
 
         return sample
 
-    def create_experiment(self, display_id, name):
-        exp = Experiment(display_id, name)
+    def create_experiment(self, display_id, name=None, version='1'):
+        if name is not None:
+            exp = Experiment(display_id, name, version)
+        else:
+            exp = Experiment(display_id, display_id, version)
+
+        self.addExtensionObject(exp)
 
         return exp
 
