@@ -495,7 +495,7 @@ class XDocument(Document):
                 id_arr.append(replicate_id) 
         exp_datum_id = ''.join(id_arr)
         
-        exp_datum = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+        exp_datum = self.getTopLevel(self.generate_uri(getHomespace(), exp_datum_id, version))
 
         if exp_datum is None:
             if name is not None:
