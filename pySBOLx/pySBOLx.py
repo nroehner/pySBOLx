@@ -16,9 +16,9 @@ class Implementation(TopLevel, PythonicInterface):
         if name is not None:
             self.name = TextProperty(self.this, OM_NS + 'symbol', '0', '1', name)
         if built is None:
-            self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1')
-        else:
             self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1', built)
+        else:
+            self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1')
         self.register_extension_class(Implementation, 'sd2')
 
 class Attachment(TopLevel, PythonicInterface):
@@ -27,14 +27,14 @@ class Attachment(TopLevel, PythonicInterface):
         TopLevel.__init__(self, SD2_NS + 'Attachment', display_id, version)
         if name is not None:
             self.name = TextProperty(self.this, OM_NS + 'symbol', '0', '1', name)
-        if source is None:
-            self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1')
-        else:
+        if source is not None:
             self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1', source)
-        if attach_format is None:
-            self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1')
         else:
+            self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1')
+        if attach_format is not None:
             self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1', attach_format)
+        else:
+            self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1')
         self.register_extension_class(Attachment, 'sd2')
 
 class Experiment(TopLevel, PythonicInterface):
@@ -43,10 +43,10 @@ class Experiment(TopLevel, PythonicInterface):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
         if name is not None:
             self.name = TextProperty(self.this, OM_NS + 'symbol', '0', '1', name)
-        if experimental_data is None:
-            self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
-        else:
+        if experimental_data is not None:
             self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*', experimental_data)
+        else:
+            self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
@@ -63,14 +63,14 @@ class Measure(Identified, PythonicInterface):
         Identified.__init__(self, OM_NS + 'Measure', display_id, version)
         if name is not None:
             self.name = name
-        if has_numerical_value is None:
-            self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1')
-        else:
+        if has_numerical_value is not None:
             self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1', has_numerical_value)
-        if has_unit is None:
-            self.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1')
         else:
+            self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1')
+        if has_unit is not None:
             self.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1', has_unit)
+        else:
+            self.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1')
         self.register_extension_class(Measure, 'om')
         
 class Unit(TopLevel, PythonicInterface):
@@ -79,22 +79,22 @@ class Unit(TopLevel, PythonicInterface):
         TopLevel.__init__(self, OM_NS + 'Unit', display_id, version)
         if name is not None:
             self.name = TextProperty(self.this, OM_NS + 'symbol', '0', '1', name)
-        if symbol is None:
-            self.symbol = TextProperty(self.this, OM_NS + 'symbol', '0', '1')
-        else:
+        if symbol is not None:
             self.symbol = TextProperty(self.this, OM_NS + 'symbol', '0', '1', symbol)
+        else:
+            self.symbol = TextProperty(self.this, OM_NS + 'symbol', '0', '1')
         self.register_extension_class(Unit, 'om')
 
 class Channel(Identified, PythonicInterface):
     
     def __init__(self, display_id='example', name=None, calibration_file=None, version='1'):
-        Identified.__init__(self, SD2_NS + 'Channel', displayId, version)
+        Identified.__init__(self, SD2_NS + 'Channel', display_id, version)
         if name is not None:
             self.name = name
-        if calibration_file is None:
-            self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1')
-        else:
+        if calibration_file is not None:
             self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
+        else:
+            self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1')
         self.register_extension_class(Channel, 'sd2')
 
 class XDocument(Document):
