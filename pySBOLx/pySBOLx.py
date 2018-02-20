@@ -14,7 +14,7 @@ class Implementation(TopLevel, PythonicInterface):
     def __init__(self, display_id='example', name=None, built=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'Implementation', display_id, version)
         if name is not None:
-            self.name = name
+            self.name = TextProperty(self.this, OM_NS + 'symbol', '0', '1', name)
         if built is None:
             self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1')
         else:
@@ -26,7 +26,7 @@ class Attachment(TopLevel, PythonicInterface):
     def __init__(self, display_id='example', name=None, source=None, attach_format=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'Attachment', display_id, version)
         if name is not None:
-            self.name = name
+            self.name = TextProperty(self.this, OM_NS + 'symbol', '0', '1', name)
         if source is None:
             self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1')
         else:
@@ -42,7 +42,7 @@ class Experiment(TopLevel, PythonicInterface):
     def __init__(self, display_id='example', name=None, experimental_data=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
         if name is not None:
-            self.name = name
+            self.name = TextProperty(self.this, OM_NS + 'symbol', '0', '1', name)
         if experimental_data is None:
             self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
         else:
@@ -54,7 +54,7 @@ class ExperimentalData(TopLevel, PythonicInterface):
     def __init__(self, display_id='example', name=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
         if name is not None:
-            self.name = name
+            self.name = TextProperty(self.this, OM_NS + 'symbol', '0', '1', name)
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Measure(Identified, PythonicInterface):
@@ -78,7 +78,7 @@ class Unit(TopLevel, PythonicInterface):
     def __init__(self, display_id='example', name=None, symbol=None, version='1'):
         TopLevel.__init__(self, OM_NS + 'Unit', display_id, version)
         if name is not None:
-            self.name = name
+            self.name = TextProperty(self.this, OM_NS + 'symbol', '0', '1', name)
         if symbol is None:
             self.symbol = TextProperty(self.this, OM_NS + 'symbol', '0', '1')
         else:
