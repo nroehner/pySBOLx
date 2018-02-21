@@ -49,7 +49,6 @@ class Experiment(TopLevel, PythonicInterface):
             self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*', experimental_data)
         else:
             self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
-            self.experimentalData.clear()
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
@@ -567,6 +566,8 @@ class XDocument(Document):
             exp = Experiment(display_id, name, version)
         else:
             exp = Experiment(display_id, display_id, version)
+
+        exp.experimentalData.clear()
 
         self.addExtensionObject(exp)
 
