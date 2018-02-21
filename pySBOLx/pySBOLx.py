@@ -512,7 +512,7 @@ class XDocument(Document):
 
             if len(attachs) > 0:
                 temp_attachs = URIProperty(exp_datum.this, SBOL_NS + 'attachment', '0', '*', attachs[0].identity)
-                for i in range(1, len(attachs):
+                for i in range(1, len(attachs)):
                     temp_attachs.add(attachs[i].identity)
                 exp_datum.attachments = temp_attachs
 
