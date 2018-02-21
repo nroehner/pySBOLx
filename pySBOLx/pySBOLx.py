@@ -510,8 +510,11 @@ class XDocument(Document):
             else:
                 exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, version)
 
-            for attach in attachs:
-                exp_datum.attachments.add(attach.identity)
+            if len(attachs) > 0:
+                temp_attachs = URIProperty(exp_datum.this, SBOL_NS + 'attachment', '0', '*', attachs[0].identity)
+                for i in range(1, len(attachs):
+                    temp_attachs.add(attachs[i].identity)
+                exp_datum.attachments = temp_attachs
 
             exp_datum.wasDerivedFrom = URIProperty(exp_datum.this, PROV_NS + 'wasDerivedFrom', '0', '*', imp.identity)
 
