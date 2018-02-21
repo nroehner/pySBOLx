@@ -41,32 +41,40 @@ class Attachment(TopLevel, PythonicInterface):
 
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, experimental_data=None, version='1'):
+    def __init__(self, display_id='example', name=None, exp_data=[], version='1'):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
         if name is not None:
             self.name = TextProperty(self.this, DC_NS + 'title', '0', '1', name)
-        if experimental_data is not None:
-            self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*', experimental_data)
+        if len(exp_data) > 0:
+            self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*', exp_data[0].identity)
+            for i in range(1, len(exp_data)):
+                self.experimentalData.add(exp_data[i].identity)
         else:
             self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1'):
+    def __init__(self, display_id='example', name=None, attachs=[], version='1'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
         if name is not None:
             self.name = TextProperty(self.this, DC_NS + 'title', '0', '1', name)
+        if len(attachs) > 0:
+            self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*', attachs[0].identity)
+            for i in range(1, len(attachs)):
+                self.attachs.add(attachs[i].identity)
+        else:
+            self.attachments = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Measure(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, has_numerical_value=None, has_unit=None, version='1'):
+    def __init__(self, display_id='example', name=None, has_num_value=None, has_unit=None, version='1'):
         Identified.__init__(self, OM_NS + 'Measure', display_id, version)
         if name is not None:
             self.name = name
-        if has_numerical_value is not None:
-            self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1', has_numerical_value)
+        if has_num_value is not None:
+            self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1', has_num_value)
         else:
             self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1')
         if has_unit is not None:
@@ -506,15 +514,9 @@ class XDocument(Document):
 
         if exp_datum is None:
             if name is not None:
-                exp_datum = ExperimentalData(exp_datum_id, name, version)
+                exp_datum = ExperimentalData(exp_datum_id, name, attachs, version)
             else:
-                exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, version)
-
-            if len(attachs) > 0:
-                temp_attachs = URIProperty(exp_datum.this, SBOL_NS + 'attachment', '0', '*', attachs[0].identity)
-                for i in range(1, len(attachs)):
-                    temp_attachs.add(attachs[i].identity)
-                exp_datum.attachments = temp_attachs
+                exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, attachs, version)
 
             exp_datum.wasDerivedFrom = URIProperty(exp_datum.this, PROV_NS + 'wasDerivedFrom', '0', '*', imp.identity)
 
