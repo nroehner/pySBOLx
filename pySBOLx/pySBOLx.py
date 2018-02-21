@@ -41,7 +41,7 @@ class Attachment(TopLevel, PythonicInterface):
 
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, exp_data=[], version='1'):
+    def __init__(self, display_id='example', name=None, version='1', exp_data=[]):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
         if name is not None:
             self.name = TextProperty(self.this, DC_NS + 'title', '0', '1', name)
