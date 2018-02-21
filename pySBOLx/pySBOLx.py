@@ -316,7 +316,9 @@ class XDocument(Document):
 
         unit = self.getTopLevel(self.generate_uri(getHomespace(), unit_id, version))
 
-        if unit is None:
+        if unit is not None:
+            unit = unit.cast(Unit)
+        else:
             try:
                 unit_name = result.name
             except:
@@ -486,7 +488,9 @@ class XDocument(Document):
         #     attach = self.getAttachment(self.generate_uri(getHomespace(), display_id, version))
         attach = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
-        if attach is None:
+        if attach is not None:
+            attach = attach.cast(Attachment)
+        else:
             if name is not None:
                 attach = Attachment(display_id, name, source, attach_format, version)
             else:
@@ -512,7 +516,9 @@ class XDocument(Document):
         
         exp_datum = self.getTopLevel(self.generate_uri(getHomespace(), exp_datum_id, version))
 
-        if exp_datum is None:
+        if exp_datum is not None:
+            exp_datum = exp_datum.cast(ExperimentalData)
+        else:
             if name is not None:
                 exp_datum = ExperimentalData(exp_datum_id, name, attachs, version)
             else:
@@ -545,7 +551,9 @@ class XDocument(Document):
         #     imp = self.getImplementation(self.generate_uri(getHomespace(), display_id, version))
         imp = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
-        if imp is None:
+        if imp is not None:
+            imp = imp.cast(Implementation)
+        else:
             if name is not None:
                 imp = Implementation(display_id, name, built, version)
             else:
@@ -580,14 +588,19 @@ class XDocument(Document):
         return sample
 
     def create_experiment(self, display_id, name=None, version='1'):
-        if name is not None:
-            exp = Experiment(display_id, name, version)
+        exp = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+
+        if exp is not None:
+            exp = exp.cast(Experiment)
         else:
-            exp = Experiment(display_id, display_id, version)
+            if name is not None:
+                exp = Experiment(display_id, name, version)
+            else:
+                exp = Experiment(display_id, display_id, version)
 
-        exp.experimentalData.clear()
+            exp.experimentalData.clear()
 
-        self.addExtensionObject(exp)
+            self.addExtensionObject(exp)
 
         return exp
 
