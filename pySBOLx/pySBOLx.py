@@ -137,7 +137,14 @@ class XDocument(Document):
                         self.create_measure(mag=measure['mag'], identified=identified, display_id=measure['id'])
 
     def add_member(self, identified, collect):
-        collect.members.append(identified.identity)
+        collect.members = collect.members + [identified.identity]
+
+    def add_members(self, identifieds, collect):
+        identities = []
+        for identified in identifieds:
+            identities.append(identified.identity)
+
+        collect.members = collect.members.join(identities)
 
     def configure_options(self, homespace, is_validated, is_typed):
         setHomespace(homespace)
@@ -324,9 +331,9 @@ class XDocument(Document):
                     unit.description = descr
 
             try:
-                unit.wasDerivedFrom.append(result.uri)
+                unit.wasDerivedFrom = URIProperty(unit.this, PROV_NS + 'wasDerivedFrom', '0', '*', result.uri)
             except:
-                unit.wasDerivedFrom.append(''.join([OM_NS[:-1], '/', display_id]))
+                unit.wasDerivedFrom = URIProperty(unit.this, PROV_NS + 'wasDerivedFrom', '0', '*', self.generate_uri(OM_NS[:-1], display_id))
 
         return unit
 
@@ -419,7 +426,7 @@ class XDocument(Document):
 
             for parent in parents:
                 if isinstance(parent, Activity):
-                    act.wasInformedBy.append(parent.identity)
+                    act.wasInformedBy = act.wasInformedBy + [parent.identity]
                 else:
                     use = act.usages.create(parent.displayId)
                     use.entity = parent.identity
@@ -437,7 +444,7 @@ class XDocument(Document):
             self.add_custom(act, custom)
             
             if child is not None:
-                child.wasGeneratedBy.append(act.identity)
+                child.wasGeneratedBy = child.wasGeneratedBy + [act.identity]
         except:
             act = self.activities.get(act_id)
             
@@ -504,9 +511,9 @@ class XDocument(Document):
                 exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, version)
 
             for attach in attachs:
-                exp_datum.attachments.append(attach.identity)
+                exp_datum.attachments.add(attach.identity)
 
-            exp_datum.wasDerivedFrom.append(imp.identity)
+            exp_datum.wasDerivedFrom = URIProperty(exp_datum.this, PROV_NS + 'wasDerivedFrom', '0', '*', imp.identity)
 
             if exp is not None:
                 exp.experimentalData.add(exp_datum.identity)
@@ -538,6 +545,11 @@ class XDocument(Document):
                 imp = Implementation(display_id, name, built, version)
             else:
                 imp = Implementation(display_id, display_id, built, version)
+
+            if len(parents) > 0:
+                imp.wasDerivedFrom = URIProperty(imp.this, PROV_NS + 'wasDerivedFrom', '0', '*', parents[0].identity)
+                for i in range(1, len(parents)):
+                    imp.wasDerivedFrom.add(parents[i].identity)
 
             self.addExtensionObject(imp)
 
