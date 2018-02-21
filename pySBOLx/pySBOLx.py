@@ -547,9 +547,10 @@ class XDocument(Document):
                 imp = Implementation(display_id, display_id, built, version)
 
             if len(parents) > 0:
-                imp.wasDerivedFrom = URIProperty(imp.this, PROV_NS + 'wasDerivedFrom', '0', '*', parents[0].identity)
+                temp_was_derived_from = URIProperty(imp.this, PROV_NS + 'wasDerivedFrom', '0', '*', parents[0].identity)
                 for i in range(1, len(parents)):
-                    imp.wasDerivedFrom.add(parents[i].identity)
+                    temp_was_derived_from.add(parents[i].identity)
+                imp.wasDerivedFrom = temp_was_derived_from
 
             self.addExtensionObject(imp)
 
