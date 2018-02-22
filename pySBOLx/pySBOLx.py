@@ -553,6 +553,8 @@ class XDocument(Document):
 
         if imp is not None:
             imp = imp.cast(Implementation)
+
+            print('cast')
         else:
             if name is not None:
                 imp = Implementation(display_id, name, built, version)
