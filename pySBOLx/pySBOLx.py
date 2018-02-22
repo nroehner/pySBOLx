@@ -454,7 +454,9 @@ class XDocument(Document):
             self.add_custom(act, custom)
             
             if child is not None:
+                print('wasGeneratedBy')
                 child.wasGeneratedBy = child.wasGeneratedBy + [act.identity]
+                print(child.wasGeneratedBy)
         except:
             act = self.activities.get(act_id)
             
