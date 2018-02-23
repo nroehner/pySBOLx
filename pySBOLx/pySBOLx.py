@@ -528,7 +528,6 @@ class XDocument(Document):
             print('found ' + imp.identity)
             imp = imp.cast(Implementation)
         else:
-            print('created ' + imp.identity)
             if name is not None:
                 imp = Implementation(display_id, name, built, version)
             else:
@@ -538,6 +537,8 @@ class XDocument(Document):
                 imp.wasDerivedFrom = imp.wasDerivedFrom + [parent.identity]
             
             self.addExtensionObject(imp)
+
+            print('created ' + imp.identity)
 
         return imp
 
