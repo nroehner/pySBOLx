@@ -16,11 +16,9 @@ class Implementation(TopLevel, PythonicInterface):
     def __init__(self, display_id='example', name=None, built=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'Implementation', display_id, version)
         if name is not None:
-            self.name = TextProperty(self.this, DC_NS + 'title', '0', '1', name)
+            self.name = name
         if built is not None:
-            self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1', built)
-        else:
-            self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1')
+            self.built = built
         self.register_extension_class(Implementation, 'sd2')
 
 class Attachment(TopLevel, PythonicInterface):
@@ -28,15 +26,11 @@ class Attachment(TopLevel, PythonicInterface):
     def __init__(self, display_id='example', name=None, source=None, attach_format=None, version='1'):
         TopLevel.__init__(self, SD2_NS + 'Attachment', display_id, version)
         if name is not None:
-            self.name = TextProperty(self.this, DC_NS + 'title', '0', '1', name)
+            self.name = name
         if source is not None:
-            self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1', source)
-        else:
-            self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1')
+            self.source = source
         if attach_format is not None:
-            self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1', attach_format)
-        else:
-            self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1')
+            self.format = attach_format
         self.register_extension_class(Attachment, 'sd2')
 
 class Experiment(TopLevel, PythonicInterface):
@@ -64,7 +58,7 @@ class ExperimentalData(TopLevel, PythonicInterface):
             for i in range(1, len(attachs)):
                 self.attachs.add(attachs[i].identity)
         else:
-            self.attachments = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
+            self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Measure(Identified, PythonicInterface):
@@ -454,9 +448,7 @@ class XDocument(Document):
             self.add_custom(act, custom)
             
             if child is not None:
-                print('wasGeneratedBy')
-                child.wasGeneratedBy = child.wasGeneratedBy + [act.identity]
-                print(child.wasGeneratedBy)
+                child.wasGeneratedBy = [act.identity]
         except:
             act = self.activities.get(act_id)
             
@@ -555,8 +547,6 @@ class XDocument(Document):
 
         if imp is not None:
             imp = imp.cast(Implementation)
-
-            print('cast')
         else:
             if name is not None:
                 imp = Implementation(display_id, name, built, version)
