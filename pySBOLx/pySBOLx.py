@@ -48,7 +48,8 @@ class ExperimentalData(TopLevel, PythonicInterface):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
         if name is not None:
             self.name = name
-        self.attachments = self.attachments.join(attachments)
+        for attachment in attachments:
+            self.attachments = self.attachments + [attachment]
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Measure(Identified, PythonicInterface):
@@ -123,12 +124,9 @@ class XDocument(Document):
     def add_member(self, identified, collect):
         collect.members = collect.members + [identified.identity]
 
-    def add_members(self, identifieds, collect):
-        identities = []
-        for identified in identifieds:
-            identities.append(identified.identity)
-
-        collect.members = collect.members.join(identities)
+    def add_members(self, top_levels, collect):
+        for top_level in top_levels:
+            collect.members = collect.members + [top_level.identity]
 
     def configure_options(self, homespace, is_validated, is_typed):
         setHomespace(homespace)
@@ -534,11 +532,9 @@ class XDocument(Document):
             else:
                 imp = Implementation(display_id, display_id, built, version)
 
-            temp_derived = []
             for parent in parents:
-                temp_derived.append(parent.identity)
-            imp.wasDerivedFrom = imp.wasDerivedFrom.join(temp_derived)
-
+                imp.wasDerivedFrom = imp.wasDerivedFrom + [parent.identity]
+            
             self.addExtensionObject(imp)
 
         return imp
