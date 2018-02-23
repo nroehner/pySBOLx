@@ -18,7 +18,7 @@ class Implementation(TopLevel, PythonicInterface):
         if name is not None:
             self.name = name
         if built is not None:
-            self.built = built
+            self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1', built)
         self.register_extension_class(Implementation, 'sd2')
 
 class Attachment(TopLevel, PythonicInterface):
@@ -28,9 +28,9 @@ class Attachment(TopLevel, PythonicInterface):
         if name is not None:
             self.name = name
         if source is not None:
-            self.source = source
+            self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1', source)
         if attach_format is not None:
-            self.format = attach_format
+            self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1', attach_format)
         self.register_extension_class(Attachment, 'sd2')
 
 class Experiment(TopLevel, PythonicInterface):
@@ -38,43 +38,29 @@ class Experiment(TopLevel, PythonicInterface):
     def __init__(self, display_id='example', name=None, version='1', exp_data=[]):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
         if name is not None:
-            self.name = TextProperty(self.this, DC_NS + 'title', '0', '1', name)
-        if len(exp_data) > 0:
-            self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*', exp_data[0].identity)
-            for i in range(1, len(exp_data)):
-                self.experimentalData.add(exp_data[i].identity)
-        else:
-            self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
+            self.name = name
+        self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, attachs=[], version='1'):
+    def __init__(self, display_id='example', name=None, attachments=[], version='1'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
         if name is not None:
-            self.name = TextProperty(self.this, DC_NS + 'title', '0', '1', name)
-        if len(attachs) > 0:
-            self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*', attachs[0].identity)
-            for i in range(1, len(attachs)):
-                self.attachs.add(attachs[i].identity)
-        else:
-            self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
+            self.name = name
+        self.attachments = self.attachments.join(attachments)
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Measure(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, has_num_value=None, has_unit=None, version='1'):
+    def __init__(self, display_id='example', name=None, has_numerical_value=None, has_unit=None, version='1'):
         Identified.__init__(self, OM_NS + 'Measure', display_id, version)
         if name is not None:
             self.name = name
-        if has_num_value is not None:
-            self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1', has_num_value)
-        else:
-            self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1')
+        if has_numerical_value is not None:
+            self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1', has_numerical_value)
         if has_unit is not None:
             self.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1', has_unit)
-        else:
-            self.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1')
         self.register_extension_class(Measure, 'om')
         
 class Unit(TopLevel, PythonicInterface):
@@ -82,11 +68,9 @@ class Unit(TopLevel, PythonicInterface):
     def __init__(self, display_id='example', name=None, symbol=None, version='1'):
         TopLevel.__init__(self, OM_NS + 'Unit', display_id, version)
         if name is not None:
-            self.name = TextProperty(self.this, DC_NS + 'title', '0', '1', name)
+            self.name = name
         if symbol is not None:
             self.symbol = TextProperty(self.this, OM_NS + 'symbol', '0', '1', symbol)
-        else:
-            self.symbol = TextProperty(self.this, OM_NS + 'symbol', '0', '1')
         self.register_extension_class(Unit, 'om')
 
 class Channel(Identified, PythonicInterface):
@@ -97,8 +81,6 @@ class Channel(Identified, PythonicInterface):
             self.name = name
         if calibration_file is not None:
             self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
-        else:
-            self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1')
         self.register_extension_class(Channel, 'sd2')
 
 class XDocument(Document):
@@ -279,16 +261,15 @@ class XDocument(Document):
             ms_id = identified.displayId + '_measure'
 
         try:
-            ms = identified.measures.create(ms_id)
-            ms.version = version
             if name is not None:
-                ms.name = name
+                ms_name = name
             else:
-                ms.name = ms_id
-            
-            ms.hasNumericalValue = FloatProperty(ms.this, OM_NS + 'hasNumericalValue', '0', '1', mag)
+                ms_name = ms_id
+
             if unit is not None:
-                ms.hasUnit = URIProperty(ms.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
+                ms = identified.measures.create(ms_id, ms_name, mag, unit.identity, version)
+            else:
+                ms = identified.measures.create(ms_id, name=ms_name, has_numerical_value=mag, version=version)
         except:
             ms = identified.measures.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, version))
         
@@ -335,9 +316,9 @@ class XDocument(Document):
                     unit.description = descr
 
             try:
-                unit.wasDerivedFrom = URIProperty(unit.this, PROV_NS + 'wasDerivedFrom', '0', '*', result.uri)
+                unit.wasDerivedFrom = unit.wasDerivedFrom + [result.uri]
             except:
-                unit.wasDerivedFrom = URIProperty(unit.this, PROV_NS + 'wasDerivedFrom', '0', '*', self.generate_uri(OM_NS[:-1], display_id))
+                unit.wasDerivedFrom = unit.wasDerivedFrom + [self.generate_uri(OM_NS[:-1], display_id)]
 
         return unit
 
@@ -448,7 +429,7 @@ class XDocument(Document):
             self.add_custom(act, custom)
             
             if child is not None:
-                child.wasGeneratedBy = [act.identity]
+                child.wasGeneratedBy = child.wasGeneratedBy + [act.identity]
         except:
             act = self.activities.get(act_id)
             
@@ -518,7 +499,7 @@ class XDocument(Document):
             else:
                 exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, attachs, version)
 
-            exp_datum.wasDerivedFrom = URIProperty(exp_datum.this, PROV_NS + 'wasDerivedFrom', '0', '*', imp.identity)
+            exp_datum.wasDerivedFrom = exp_datum.wasDerivedFrom + [imp.identity]
 
             if exp is not None:
                 exp.experimentalData.add(exp_datum.identity)
@@ -553,11 +534,10 @@ class XDocument(Document):
             else:
                 imp = Implementation(display_id, display_id, built, version)
 
-            if len(parents) > 0:
-                temp_was_derived_from = URIProperty(imp.this, PROV_NS + 'wasDerivedFrom', '0', '*', parents[0].identity)
-                for i in range(1, len(parents)):
-                    temp_was_derived_from.add(parents[i].identity)
-                imp.wasDerivedFrom = temp_was_derived_from
+            temp_derived = []
+            for parent in parents:
+                temp_derived.append(parent.identity)
+            imp.wasDerivedFrom = imp.wasDerivedFrom.join(temp_derived)
 
             self.addExtensionObject(imp)
 
