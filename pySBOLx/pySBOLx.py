@@ -525,8 +525,10 @@ class XDocument(Document):
         imp = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
         if imp is not None:
+            print('found ' + imp.identity)
             imp = imp.cast(Implementation)
         else:
+            print('created ' + imp.identity)
             if name is not None:
                 imp = Implementation(display_id, name, built, version)
             else:
