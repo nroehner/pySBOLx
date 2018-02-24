@@ -103,23 +103,11 @@ class XDocument(Document):
         for top_level in top_levels:
             self.addExtensionObject(top_level)
 
-    def add_custom(self, identified, custom):
-        for i in range(0, len(custom) - 1, 2):
-            if repr(custom[i]).replace('.', '').isnumeric():
-                setattr(identified, custom[i + 1], FloatProperty(identified, SD2_NS + custom[i + 1], '0', '1', custom[i]))
-            else:
-                setattr(identified, custom[i + 1], URIProperty(identified, SD2_NS + custom[i + 1], '0', '1', custom[i]))
-
-    def add_measures(self, identified, measures):
-        if len(measures) > 0:
-            for measure in measures:
-                try:
-                    self.create_measure(measure['mag'], identified, measure['unit'], measure['id'])
-                except:
-                    try:
-                        self.create_measure(measure['mag'], identified, measure['unit'])
-                    except:
-                        self.create_measure(mag=measure['mag'], identified=identified, display_id=measure['id'])
+    def create_custom_property(self, identified, namespace, name, value):
+        if repr(value).replace('.', '').isnumeric():
+            setattr(identified, name, FloatProperty(identified, namespace + name, '0', '1', value))
+        else:
+            setattr(identified, name, URIProperty(identified, namespace + name, '0', '1', value))
 
     def add_member(self, identified, collect):
         collect.members = collect.members + [identified.identity]
@@ -251,7 +239,7 @@ class XDocument(Document):
 
     def create_measure(self, mag, identified, unit=None, display_id=None, name=None, version='1'):
         if not hasattr(identified, 'measures'):
-            identified.measures = OwnedPythonObject(identified, SD2_NS + 'measure', Measure, '0', '*')
+            identified.measures = OwnedPythonObject(identified.this, OM_NS + 'measure', Measure, '0', '*')
 
         if display_id is not None:
             ms_id = display_id
@@ -422,9 +410,10 @@ class XDocument(Document):
                     elif isinstance(parent, ExperimentalData):
                         use.roles = use.roles + [SBOL_TEST]
 
-            act.operator = URIProperty(act, SD2_NS + 'operatorType', '0', '1', SD2_NS + operator) 
+            self.create_custom_property(act, SD2_NS, 'operatorType', SD2_NS + operator) 
 
-            self.add_custom(act, custom)
+            for i in range(0, len(custom) - 1, 2):
+                self.create_custom_property(act, SD2_NS, custom[i + 1], custom[i])
             
             if child is not None:
                 child.wasGeneratedBy = child.wasGeneratedBy + [act.identity]
