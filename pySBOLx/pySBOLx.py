@@ -493,10 +493,14 @@ class XDocument(Document):
         if exp_datum is not None:
             exp_datum = exp_datum.cast(ExperimentalData)
         else:
+            attach_uris = []
+            for attach in attachs:
+                attach_uris.append(attach.identity)
+
             if name is not None:
-                exp_datum = ExperimentalData(exp_datum_id, name, attachs, version)
+                exp_datum = ExperimentalData(exp_datum_id, name, attach_uris, version)
             else:
-                exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, attachs, version)
+                exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, attach_uris, version)
 
             exp_datum.wasDerivedFrom = exp_datum.wasDerivedFrom + [imp.identity]
 
