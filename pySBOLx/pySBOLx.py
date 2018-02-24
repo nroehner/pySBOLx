@@ -309,6 +309,8 @@ class XDocument(Document):
             except:
                 unit.wasDerivedFrom = unit.wasDerivedFrom + [self.generate_uri(OM_NS[:-1], display_id)]
 
+            self.addExtensionObject(unit)
+
         return unit
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], measures=[], display_id=None, name=None, version='1'):
