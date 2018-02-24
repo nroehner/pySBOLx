@@ -246,12 +246,12 @@ class XDocument(Document):
         else:
             ms_id = identified.displayId + '_measure'
 
-        try:
-            if name is not None:
-                ms_name = name
-            else:
-                ms_name = ms_id
+        if name is not None:
+            ms_name = name
+        else:
+            ms_name = ms_id
 
+        try:
             if unit is not None:
                 ms = identified.measures.create(ms_id, ms_name, mag, unit.identity, version)
             else:
@@ -345,7 +345,7 @@ class XDocument(Document):
             fc = self.create_input_component(inputs[i], system)
 
             if i < len(measures):
-                self.add_measures(fc, [measures[i]])
+                self.create_measure(measures[i]['mag'], fc, measures[i]['unit'], measures[i]['id'])
 
         return system
 
@@ -500,7 +500,7 @@ class XDocument(Document):
         
         return exp_datum
 
-    def create_implementation(self, display_id, built=None, parents=[], name=None, version='1'):
+    def create_implementation(self, display_id, built=None, parents=[], measures=[], name=None, version='1'):
         # try:
         #     imp = self.implementations.create(display_id)
         #     imp.version = version
@@ -528,12 +528,15 @@ class XDocument(Document):
 
             for parent in parents:
                 imp.wasDerivedFrom = imp.wasDerivedFrom + [parent.identity]
+
+            for measure in measures:
+                self.create_measure(measure['mag'], imp, measure['unit'], measure['id'])
             
             self.addExtensionObject(imp)
 
         return imp
 
-    def create_sample(self, sample_id, built=None, parent_samples=[], well_id=None, plate_id=None, name=None, version='1'):
+    def create_sample(self, sample_id, built=None, parent_samples=[], measures=[], well_id=None, plate_id=None, name=None, version='1'):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -545,9 +548,9 @@ class XDocument(Document):
         sample_id = ''.join(id_arr)
         
         if name is not None:
-            sample = self.create_implementation(sample_id, built, parent_samples, name, version)
+            sample = self.create_implementation(sample_id, built, parent_samples, measures, name, version)
         else:
-            sample = self.create_implementation(sample_id, built, parent_samples, sample_id, version)
+            sample = self.create_implementation(sample_id, built, parent_samples, measures, sample_id, version)
 
         return sample
 
