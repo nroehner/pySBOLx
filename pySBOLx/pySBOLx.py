@@ -260,7 +260,7 @@ class XDocument(Document):
             if unit is not None:
                 ms.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
         except:
-            ms = identified.measures.get(self.generate_uri(fc.persistentIdentity.get(), ms_id, version))
+            ms = identified.measures.get(self.generate_uri(identified.persistentIdentity.get(), ms_id, version))
         
     def create_unit(self, om, symbol=None, display_id=None, name=None, descr=None, version='1'):
         try:
