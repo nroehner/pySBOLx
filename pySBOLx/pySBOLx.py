@@ -256,9 +256,9 @@ class XDocument(Document):
             ms.name = ms_name
             ms.version = version
 
-            ms.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1', mag)
+            ms.hasNumericalValue = FloatProperty(identified.this, OM_NS + 'hasNumericalValue', '0', '1', mag)
             if unit is not None:
-                ms.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
+                ms.hasUnit = URIProperty(identified.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
         except:
             ms = identified.measures.get(self.generate_uri(identified.persistentIdentity.get(), ms_id, version))
         
