@@ -165,18 +165,18 @@ class XDocument(Document):
 
     def create_plasmid(self, display_id, name=None, version='1'):
         if name is not None:
-            plasmid = self.create_component_definition(display_id, name, BIOPAX_DNA, version)
+            plasmid = self.create_component_definition(display_id=display_id, name=name, comp_type=BIOPAX_DNA, version=version)
         else:
-            plasmid = self.create_component_definition(display_id, display_id, BIOPAX_DNA, version)
+            plasmid = self.create_component_definition(display_id=display_id, name=display_id, comp_type=BIOPAX_DNA, version=version)
         plasmid.types = plasmid.types + ['http://identifiers.org/so/SO:0000988']
 
         return plasmid
 
     def create_strain(self, display_id, name=None, version='1'):
         if name is not None:
-            return self.create_component_definition(display_id, name, 'http://purl.obolibrary.org/obo/OBI_0100060', version)
+            return self.create_component_definition(display_id=display_id, name=name, comp_type='http://purl.obolibrary.org/obo/OBI_0100060', version=version)
         else:
-            return self.create_component_definition(display_id, display_id, 'http://purl.obolibrary.org/obo/OBI_0100060', version)
+            return self.create_component_definition(display_id=display_id, name=display_id, comp_type='http://purl.obolibrary.org/obo/OBI_0100060', version=version)
 
     def create_module_definition(self, display_id, name=None, version='1', mod_role=None):
         try:
