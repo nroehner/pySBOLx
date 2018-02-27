@@ -105,9 +105,9 @@ class XDocument(Document):
 
     def create_custom_property(self, identified, namespace, name, value):
         if repr(value).replace('.', '').isnumeric():
-            setattr(identified, name, FloatProperty(identified, namespace + name, '0', '1', value))
+            setattr(identified, name, FloatProperty(identified.this, namespace + name, '0', '1', value))
         else:
-            setattr(identified, name, URIProperty(identified, namespace + name, '0', '1', value))
+            setattr(identified, name, URIProperty(identified.this, namespace + name, '0', '1', value))
 
     def add_member(self, identified, collect):
         collect.members = collect.members + [identified.identity]
@@ -256,9 +256,9 @@ class XDocument(Document):
             ms.name = ms_name
             ms.version = version
 
-            ms.hasNumericalValue = FloatProperty(identified.this, OM_NS + 'hasNumericalValue', '0', '1', mag)
+            ms.hasNumericalValue = FloatProperty(ms.this, OM_NS + 'hasNumericalValue', '0', '1', mag)
             if unit is not None:
-                ms.hasUnit = URIProperty(identified.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
+                ms.hasUnit = URIProperty(ms.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
         except:
             ms = identified.measures.get(self.generate_uri(identified.persistentIdentity.get(), ms_id, version))
         
@@ -437,7 +437,7 @@ class XDocument(Document):
             else:
                 channel.name = display_id
             
-            channel.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
+            channel.calibrationFile = URIProperty(channel.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
         except:
             act.channels.get(generate_uri(act.persistentIdentity.get(), display_id, version))
 
