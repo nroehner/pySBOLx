@@ -371,9 +371,15 @@ class XDocument(Document):
                 ms = measures[device.displayId]
 
                 try:
-                    self.create_measure(ms['mag'], fc, ms['unit'], ms['id'])
+                    unit = ms['unit']
                 except:
-                    self.create_measure(ms['mag'], fc, ms['unit'])
+                    unit = None
+                try:
+                    ms_id = ms['id']
+                except:
+                    ms_id = None
+
+                self.create_measure(ms['mag'], fc, unit, ms_id)
             except:
                 pass
 
@@ -384,9 +390,15 @@ class XDocument(Document):
                 ms = measures[sub_system.displayId]
 
                 try:
-                    self.create_measure(ms['mag'], mod, ms['unit'], ms['id'])
+                    unit = ms['unit']
                 except:
-                    self.create_measure(ms['mag'], mod, ms['unit'])
+                    unit = None
+                try:
+                    ms_id = ms['id']
+                except:
+                    ms_id = None
+
+                self.create_measure(ms['mag'], mod, unit, ms_id)
             except:
                 pass
 
@@ -397,9 +409,15 @@ class XDocument(Document):
                 ms = measures[inp.displayId]
 
                 try:
-                    self.create_measure(ms['mag'], ic, ms['unit'], ms['id'])
+                    unit = ms['unit']
                 except:
-                    self.create_measure(ms['mag'], ic, ms['unit'])
+                    unit = None
+                try:
+                    ms_id = ms['id']
+                except:
+                    ms_id = None
+
+                self.create_measure(ms['mag'], ic, unit, ms_id)
             except:
                 pass
 
