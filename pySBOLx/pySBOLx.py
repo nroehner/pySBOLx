@@ -277,11 +277,7 @@ class XDocument(Document):
             except:
                 result = next(iter(om.query(''.join(["SELECT ?uri ?symbol ?descr WHERE { ?uri om:symbol ?symbol . {?uri rdfs:label '", name, "'@en . } UNION {?uri rdfs:label '", name, "'@nl } }"]))))
 
-        try:
-            unit_id = result.uri.split('/')[-1]
-        except:
-            unit_id = display_id
-
+        unit_id = result.uri.split('/')[-1]
 
         unit = self.getTopLevel(self.generate_uri(getHomespace(), unit_id, version))
 
