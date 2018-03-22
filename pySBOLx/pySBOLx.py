@@ -135,7 +135,7 @@ class XDocument(Document):
         
         return collect
 
-    def create_component_definition(self, display_id, name=None, comp_type=None, comp_role=None, version='1'):
+    def create_component_definition(self, display_id, name=None, descr=None, comp_type=None, comp_role=None, version='1'):
         try:
             comp_def = self.componentDefinitions.create(display_id)
             comp_def.version = version
@@ -143,6 +143,8 @@ class XDocument(Document):
                 comp_def.name = name
             else:
                 comp_def.name = display_id
+            if descr is not None:
+                comp_def.description = descr
 
             if comp_type is not None:
                 comp_def.types = [comp_type]
@@ -157,28 +159,28 @@ class XDocument(Document):
 
         return comp_def
 
-    def create_inducer(self, display_id, name=None, version='1'):
+    def create_inducer(self, display_id, name=None, descr=None, version='1'):
         if name is not None:
-            return self.create_component_definition(display_id, name, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224', version)
+            return self.create_component_definition(display_id, name, descr, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224', version)
         else:
-            return self.create_component_definition(display_id, display_id, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224', version)
+            return self.create_component_definition(display_id, display_id, descr, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224', version)
 
-    def create_plasmid(self, display_id, name=None, version='1'):
+    def create_plasmid(self, display_id, name=None, descr=None, version='1'):
         if name is not None:
-            plasmid = self.create_component_definition(display_id=display_id, name=name, comp_type=BIOPAX_DNA, version=version)
+            plasmid = self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type=BIOPAX_DNA, version=version)
         else:
-            plasmid = self.create_component_definition(display_id=display_id, name=display_id, comp_type=BIOPAX_DNA, version=version)
+            plasmid = self.create_component_definition(display_id=display_id, name=display_id, descr=descr, comp_type=BIOPAX_DNA, version=version)
         plasmid.types = plasmid.types + ['http://identifiers.org/so/SO:0000988']
 
         return plasmid
 
-    def create_strain(self, display_id, name=None, version='1'):
+    def create_strain(self, display_id, name=None, descr=None, version='1'):
         if name is not None:
-            return self.create_component_definition(display_id=display_id, name=name, comp_type='http://purl.obolibrary.org/obo/OBI_0100060', version=version)
+            return self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0001185', version=version)
         else:
-            return self.create_component_definition(display_id=display_id, name=display_id, comp_type='http://purl.obolibrary.org/obo/OBI_0100060', version=version)
+            return self.create_component_definition(display_id=display_id, name=display_id, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0001185', version=version)
 
-    def create_module_definition(self, display_id, name=None, version='1', mod_role=None):
+    def create_module_definition(self, display_id, name=None, descr=None, version='1', mod_role=None):
         try:
             mod_def = self.moduleDefinitions.create(display_id)
             mod_def.version = version
@@ -186,11 +188,14 @@ class XDocument(Document):
                 mod_def.name = name
             else:
                 mod_def.name = display_id
+            if descr is not None:
+                mod_def.description = descr
 
             if mod_role is not None:
                 mod_def.roles = [mod_role]
             else:
                 mod_def.roles = []
+
         except:
             mod_def = self.getModuleDefinition(self.generate_uri(getHomespace(), display_id, version))
 
@@ -313,52 +318,102 @@ class XDocument(Document):
 
         return unit
 
-    def create_system(self, devices=[], sub_systems=[], inputs=[], measures=[], display_id=None, name=None, version='1'):
+    def create_gate(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
+        return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://edamontology.org/data_2133')
+
+    def create_media(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
+        return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://purl.obolibrary.org/obo/OBI_0000079')
+
+    def create_strain(self, display_id, name=None, descr=None, version='1'):
+        if name is not None:
+            return self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0001185', version=version)
+
+    def create_ingredient_media(self, display_id, name=None, descr=None, version='1'):
+        return self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0000079', version=version)
+
+    def create_system(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1', mod_role=None):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
         else:
-            if len(devices) > 0:
-                for device in devices:
-                    id_arr.append(device.displayId)
-                    id_arr.append('_')
-            elif len(sub_systems) > 0:
-                for sub_system in sub_systems:
-                    id_arr.append(sub_system.displayId.replace('_system', ''))
-                    id_arr.append('_')
-            for i in range(0, len(inputs)):
-                id_arr.append(inputs[i].displayId)
+            for device in devices:
+                id_arr.append(device.displayId)
                 id_arr.append('_')
-                if i < len(measures):
-                    id_arr.append(measures[i]['mag'].replace('.', 'p'))
+                try:
+                    id_arr.append(measures[device.displayId].replace('.', 'p'))
                     id_arr.append('_')
+                except:
+                    pass
+            for sub_system in sub_systems:
+                id_arr.append(sub_system.displayId.replace('_system', ''))
+                id_arr.append('_')
+                try:
+                    id_arr.append(measures[sub_system.displayId].replace('.', 'p'))
+                    id_arr.append('_')
+                except:
+                    pass
+            for inp in inputs:
+                id_arr.append(inp.displayId)
+                id_arr.append('_')
+                try:
+                    id_arr.append(measures[inp.displayId].replace('.', 'p'))
+                    id_arr.append('_')
+                except:
+                    pass
             id_arr.append('system')
         system_id = ''.join(id_arr)
 
         if name is not None:
-            system = self.create_module_definition(system_id, name, version)
+            system = self.create_module_definition(system_id, name, descr, version, mod_role)
         else:
-            system = self.create_module_definition(system_id, system_id, version)
+            system = self.create_module_definition(system_id, system_id, descr, version, mod_role)
 
         for device in devices:
-            self.create_functional_component(device, system)
+            fc = self.create_functional_component(device, system)
+
+            try:   
+                ms = measures[device.displayId]
+
+                try:
+                    self.create_measure(ms['mag'], fc, ms['unit'], ms['id'])
+                except:
+                    self.create_measure(ms['mag'], fc, ms['unit'])
+            except:
+                pass
 
         for sub_system in sub_systems:
-            self.create_module(sub_system, system)
+            mod = self.create_module(sub_system, system)
 
-        for i in range(0, len(inputs)):
-            fc = self.create_input_component(inputs[i], system)
+            try:   
+                ms = measures[sub_system.displayId]
 
-            if i < len(measures):
-                self.create_measure(measures[i]['mag'], fc, measures[i]['unit'], measures[i]['id'])
+                try:
+                    self.create_measure(ms['mag'], mod, ms['unit'], ms['id'])
+                except:
+                    self.create_measure(ms['mag'], mod, ms['unit'])
+            except:
+                pass
+
+        for inp in inputs:
+            ic = self.create_input_component(inputs[i], system)
+
+            try:   
+                ms = measures[inp.displayId]
+
+                try:
+                    self.create_measure(ms['mag'], ic, ms['unit'], ms['id'])
+                except:
+                    self.create_measure(ms['mag'], ic, ms['unit'])
+            except:
+                pass
 
         return system
 
-    def create_flow_cytometry_activity(self, operator, channels=[], parents=[], name=None, description=None, custom=[], child=None, display_id=None, version='1'):
+    def create_flow_cytometry_activity(self, operator, channels=[], parents=[], name=None, descr=None, custom=[], child=None, display_id=None, version='1'):
         if name is not None:
-            act = create_activity(operator, parents, name, description, custom, child, display_id, version)
+            act = create_activity(operator, parents, name, descr, custom, child, display_id, version)
         else:
-            act = create_activity(operator, parents, display_id, description, custom, child, display_id, version)
+            act = create_activity(operator, parents, display_id, descr, custom, child, display_id, version)
 
         if len(channels) > 0 and not hasattr(act, 'channels'):
             act.channels = OwnedPythonObject(act, SD2_NS + 'channel', Channel, '0', '*')
@@ -366,7 +421,7 @@ class XDocument(Document):
         for channel in channels:
             self.create_channel(channel.display_id, channel.calibration_file, act, channel.name, version)
 
-    def create_activity(self, operator, parents=[], name=None, description=None, custom=[], child=None, display_id=None, version='1'):
+    def create_activity(self, operator, parents=[], name=None, descr=None, custom=[], child=None, display_id=None, version='1'):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -397,8 +452,8 @@ class XDocument(Document):
                 act.name = name
             else:
                 act.name = act_id
-            if description is not None:
-                act.description = description
+            if descr is not None:
+                act.description = descr
 
             for parent in parents:
                 if isinstance(parent, Activity):
