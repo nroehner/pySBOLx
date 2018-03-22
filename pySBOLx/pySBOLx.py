@@ -395,7 +395,7 @@ class XDocument(Document):
                 pass
 
         for inp in inputs:
-            ic = self.create_input_component(inputs[i], system)
+            ic = self.create_input_component(inp, system)
 
             try:   
                 ms = measures[inp.displayId]
