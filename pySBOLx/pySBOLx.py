@@ -317,14 +317,14 @@ class XDocument(Document):
     def create_gate(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
         return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://edamontology.org/data_2133')
 
-    def create_media(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
+    def create_composite_media(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
         return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://purl.obolibrary.org/obo/OBI_0000079')
 
     def create_strain(self, display_id, name=None, descr=None, version='1'):
         if name is not None:
             return self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0001185', version=version)
 
-    def create_ingredient_media(self, display_id, name=None, descr=None, version='1'):
+    def create_media(self, display_id, name=None, descr=None, version='1'):
         return self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0000079', version=version)
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1', mod_role=None):
