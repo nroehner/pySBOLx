@@ -123,8 +123,9 @@ class XDocument(Document):
 
     def create_collection(self, display_id, name=None, version='1'):
         try:
-            collect = self.collections.create(display_id)
-            collect.version = version
+            collect = Collection(display_id, version)
+            self.addCollection(collect)
+
             if name is not None:
                 collect.name = name
             else:
@@ -137,8 +138,9 @@ class XDocument(Document):
 
     def create_component_definition(self, display_id, name=None, descr=None, comp_type=None, comp_role=None, version='1'):
         try:
-            comp_def = self.componentDefinitions.create(display_id)
-            comp_def.version = version
+            comp_def = ComponentDefinition(display_id, version)
+            self.addComponentDefinition(com_def)
+
             if name is not None:
                 comp_def.name = name
             else:
@@ -182,8 +184,9 @@ class XDocument(Document):
 
     def create_module_definition(self, display_id, name=None, descr=None, version='1', mod_role=None):
         try:
-            mod_def = self.moduleDefinitions.create(display_id)
-            mod_def.version = version
+            mod_def = ModuleDefinition(display_id, version)
+            self.addModuleDefinition(mod_def)
+
             if name is not None:
                 mod_def.name = name
             else:
@@ -201,10 +204,9 @@ class XDocument(Document):
 
         return mod_def
 
-    def create_module(self, mod_def, parent_mod_def, name=None, version='1'):
+    def create_module(self, mod_def, parent_mod_def, name=None):
         try:
             mod = parent_mod_def.modules.create(mod_def.displayId)
-            mod.version = version
             if name is not None:
                 mod.name = name
             else:
@@ -216,10 +218,9 @@ class XDocument(Document):
 
         return mod
 
-    def create_functional_component(self, comp_def, mod_def, name=None, version='1'):
+    def create_functional_component(self, comp_def, mod_def, name=None):
         try:
             fc = mod_def.functionalComponents.create(comp_def.displayId)
-            fc.version = version
             if name is not None:
                 fc.name = name
             else:
@@ -242,7 +243,7 @@ class XDocument(Document):
 
         return fc
 
-    def create_measure(self, mag, identified, unit=None, display_id=None, name=None, version='1'):
+    def create_measure(self, mag, identified, unit=None, display_id=None, name=None):
         if not hasattr(identified, 'measures'):
             identified.measures = OwnedPythonObject(identified.this, OM_NS + 'measure', Measure, '0', '*')
 
@@ -259,13 +260,12 @@ class XDocument(Document):
         try:
             ms = identified.measures.create(ms_id)
             ms.name = ms_name
-            ms.version = version
 
             ms.hasNumericalValue = FloatProperty(ms.this, OM_NS + 'hasNumericalValue', '0', '1', mag)
             if unit is not None:
                 ms.hasUnit = URIProperty(ms.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
         except:
-            ms = identified.measures.get(self.generate_uri(identified.persistentIdentity.get(), ms_id, version))
+            ms = identified.measures.get(self.generate_uri(identified.persistentIdentity.get(), ms_id, identified.version))
         
     def create_unit(self, om, symbol=None, display_id=None, name=None, descr=None, version='1'):
         try:
@@ -460,8 +460,9 @@ class XDocument(Document):
         act_id = ''.join(id_arr)
 
         try:
-            act = self.activities.create(act_id)
-            act.version = version
+            act = Activity(act_id, version)
+            self.addActivity(act)
+
             if name is not None:
                 act.name = name
             else:
@@ -500,7 +501,7 @@ class XDocument(Document):
     def create_channel(self, display_id, calibration_file, act, name=None, version='1'):
         try:
             channel = act.channels.create(display_id)
-            channel.version = version
+            
             if name is not None:
                 channel.name = name
             else:
@@ -508,7 +509,7 @@ class XDocument(Document):
             
             channel.calibrationFile = URIProperty(channel.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
         except:
-            act.channels.get(generate_uri(act.persistentIdentity.get(), display_id, version))
+            act.channels.get(generate_uri(act.persistentIdentity.get(), display_id, act.version))
 
     def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
         # try:
