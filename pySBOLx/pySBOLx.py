@@ -139,7 +139,7 @@ class XDocument(Document):
     def create_component_definition(self, display_id, name=None, descr=None, comp_type=None, comp_role=None, version='1'):
         try:
             comp_def = ComponentDefinition(display_id, version)
-            self.addComponentDefinition(com_def)
+            self.addComponentDefinition(comp_def)
 
             if name is not None:
                 comp_def.name = name
@@ -501,7 +501,7 @@ class XDocument(Document):
     def create_channel(self, display_id, calibration_file, act, name=None, version='1'):
         try:
             channel = act.channels.create(display_id)
-            
+
             if name is not None:
                 channel.name = name
             else:
