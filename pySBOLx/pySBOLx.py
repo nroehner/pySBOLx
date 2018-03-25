@@ -138,7 +138,7 @@ class XDocument(Document):
 
     def create_component_definition(self, display_id, name=None, descr=None, comp_type=None, comp_role=None, version='1'):
         try:
-            comp_def = ComponentDefinition(display_id, version)
+            comp_def = ComponentDefinition(display_id, comp_type, version)
             self.addComponentDefinition(comp_def)
 
             if name is not None:
@@ -148,10 +148,6 @@ class XDocument(Document):
             if descr is not None:
                 comp_def.description = descr
 
-            if comp_type is not None:
-                comp_def.types = [comp_type]
-            else:
-                comp_def.types = []
             if comp_role is not None:
                 comp_def.roles = [comp_role]
             else:
