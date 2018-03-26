@@ -136,9 +136,12 @@ class XDocument(Document):
         
         return collect
 
-    def create_component_definition(self, display_id, name=None, descr=None, comp_type=None, comp_role=None, version='1'):
+    def create_component_definition(self, display_id, name=None, descr=None, comp_type=None, version='1', comp_role=None):
         try:
-            comp_def = ComponentDefinition(display_id, comp_type, version)
+            if comp_type is None:
+                comp_def = ComponentDefinition(display_id, BIOPAX_DNA, version)
+            else:
+                comp_def = ComponentDefinition(display_id, comp_type, version)
             self.addComponentDefinition(comp_def)
 
             if name is not None:
@@ -157,26 +160,41 @@ class XDocument(Document):
 
         return comp_def
 
-    def create_inducer(self, display_id, name=None, descr=None, version='1'):
-        if name is not None:
-            return self.create_component_definition(display_id, name, descr, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224', version)
-        else:
-            return self.create_component_definition(display_id, display_id, descr, BIOPAX_SMALL_MOLECULE, 'http://identifiers.org/chebi/CHEBI:35224', version)
+    def create_dna(self, display_id, name=None, descr=None, version='1'):
+        return self.create_component_definition(display_id, name, descr, BIOPAX_DNA, version)
 
     def create_plasmid(self, display_id, name=None, descr=None, version='1'):
-        if name is not None:
-            plasmid = self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type=BIOPAX_DNA, version=version)
-        else:
-            plasmid = self.create_component_definition(display_id=display_id, name=display_id, descr=descr, comp_type=BIOPAX_DNA, version=version)
+        plasmid = self.create_dna(display_id, name, descr, version)
         plasmid.types = plasmid.types + ['http://identifiers.org/so/SO:0000988']
 
         return plasmid
 
+    def create_rna(self, display_id, name=None, descr=None, version='1'):
+        return self.create_component_definition(display_id, name, descr, BIOPAX_RNA, version)
+
+    def create_protein(self, display_id, name=None, descr=None, version='1'):
+        return self.create_component_definition(display_id, name, descr, BIOPAX_PROTEIN, version)
+
+    def create_enzyme(self, display_id, name=None, descr=None, version='1'):
+        enzyme = self.create_protein(display_id, name, descr, version)
+        enzyme.roles = inducer.roles + ['http://identifiers.org/biomodels.sbo/SBO:0000014']
+
+        return enzyme
+
+    def create_small_molecule(self, display_id, name=None, descr=None, version='1'):
+        return self.create_component_definition(display_id, name, descr, BIOPAX_SMALL_MOLECULE, version)
+
+    def create_inducer(self, display_id, name=None, descr=None, version='1'):
+        inducer = self.create_small_molecule(display_id, name, descr, version)
+        inducer.roles = inducer.roles + ['http://identifiers.org/chebi/CHEBI:35224']
+
+        return inducer
+
     def create_strain(self, display_id, name=None, descr=None, version='1'):
-        if name is not None:
-            return self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0001185', version=version)
-        else:
-            return self.create_component_definition(display_id=display_id, name=display_id, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0001185', version=version)
+        return self.create_component_definition(display_id, display_id, descr, 'http://purl.obolibrary.org/obo/NCIT_C14419', version)
+
+    def create_media(self, display_id, name=None, descr=None, version='1'):
+        return self.create_component_definition(display_id, name, descr, 'http://purl.obolibrary.org/obo/OBI_0000079', version)
 
     def create_module_definition(self, display_id, name=None, descr=None, version='1', mod_role=None):
         try:
@@ -315,13 +333,6 @@ class XDocument(Document):
 
     def create_composite_media(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
         return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://purl.obolibrary.org/obo/OBI_0000079')
-
-    def create_strain(self, display_id, name=None, descr=None, version='1'):
-        if name is not None:
-            return self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0001185', version=version)
-
-    def create_media(self, display_id, name=None, descr=None, version='1'):
-        return self.create_component_definition(display_id=display_id, name=name, descr=descr, comp_type='http://purl.obolibrary.org/obo/OBI_0000079', version=version)
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1', mod_role=None):
         id_arr = []
