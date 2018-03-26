@@ -1,11 +1,6 @@
 from setuptools import setup
 
-install_requires=['rdflib']
-
-if sys.platform in {'win32'}:
-  install_requires.append('sbol')
-else:
-  install_requires.append('pysbol')
+install_requires=['rdflib', 'pysbol']
 
 setup(name='pySBOLx',
       version='0.1',
@@ -15,7 +10,4 @@ setup(name='pySBOLx',
       author_email='nicholasroehner@gmail.com',
       packages=['pySBOLx'],
       install_requires=install_requires,
-      dependency_links=[
-        'git+https://git@github.com/nroehner/pySBOL_Win_64_3.git#egg=sbol'
-      ],
       zip_safe=False)
