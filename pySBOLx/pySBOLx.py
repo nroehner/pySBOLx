@@ -193,9 +193,6 @@ class XDocument(Document):
     def create_strain(self, display_id, name=None, descr=None, version='1'):
         return self.create_component_definition(display_id, display_id, descr, 'http://purl.obolibrary.org/obo/NCIT_C14419', version)
 
-    def create_media(self, display_id, name=None, descr=None, version='1'):
-        return self.create_component_definition(display_id, name, descr, 'http://purl.obolibrary.org/obo/OBI_0000079', version)
-
     def create_module_definition(self, display_id, name=None, descr=None, version='1', mod_role=None):
         try:
             mod_def = ModuleDefinition(display_id, version)
@@ -331,7 +328,7 @@ class XDocument(Document):
     def create_gate(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
         return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://edamontology.org/data_2133')
 
-    def create_composite_media(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
+    def create_media(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
         return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://purl.obolibrary.org/obo/OBI_0000079')
 
     def create_system(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1', mod_role=None):
