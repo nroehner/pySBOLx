@@ -467,48 +467,48 @@ class XDocument(Document):
                 id_arr.append(child.displayId)
         act_id = ''.join(id_arr)
 
-        try:
-            act = Activity(act_id, '', version)
-            self.addActivity(act)
+        # try:
+        act = Activity(act_id, '', version)
+        self.addActivity(act)
 
-            if name is not None:
-                act.name = name
+        if name is not None:
+            act.name = name
+        else:
+            act.name = act_id
+        if descr is not None:
+            act.description = descr
+
+        for parent in parents:
+            if isinstance(parent, Activity):
+                act.wasInformedBy = act.wasInformedBy + [parent.identity]
             else:
-                act.name = act_id
-            if descr is not None:
-                act.description = descr
+                use = act.usages.create(parent.displayId)
+                try:
+                    use.entity = parent.identity
 
-            for parent in parents:
-                if isinstance(parent, Activity):
-                    act.wasInformedBy = act.wasInformedBy + [parent.identity]
-                else:
-                    use = act.usages.create(parent.displayId)
-                    try:
-                        use.entity = parent.identity
-
-                        if isinstance(parent, Implementation):
-                            use.roles = use.roles + [SBOL_BUILD]
-                        elif isinstance(parent, ComponentDefinition) or isinstance(parent, ModuleDefinition):
-                            use.roles = use.roles + [SBOL_DESIGN]
-                        elif isinstance(parent, Model):
-                            use.roles = use.roles + [SBOL_LEARN]
-                        elif isinstance(parent, ExperimentalData):
-                            use.roles = use.roles + [SBOL_TEST]
-                    except:
-                        use.entity = parent
-
+                    if isinstance(parent, Implementation):
+                        use.roles = use.roles + [SBOL_BUILD]
+                    elif isinstance(parent, ComponentDefinition) or isinstance(parent, ModuleDefinition):
                         use.roles = use.roles + [SBOL_DESIGN]
+                    elif isinstance(parent, Model):
+                        use.roles = use.roles + [SBOL_LEARN]
+                    elif isinstance(parent, ExperimentalData):
+                        use.roles = use.roles + [SBOL_TEST]
+                except:
+                    use.entity = parent
 
-            self.create_custom_property(act, SD2_NS, 'operatorType', SD2_NS + operator) 
+                    use.roles = use.roles + [SBOL_DESIGN]
 
-            for i in range(0, len(custom) - 1, 2):
-                self.create_custom_property(act, SD2_NS, custom[i + 1], custom[i])
-            
-            if child is not None:
-                child.wasGeneratedBy = child.wasGeneratedBy + [act.identity]
-                self.addExtensionObject(child)
-        except:
-            act = self.activities.get(act_id)
+        self.create_custom_property(act, SD2_NS, 'operatorType', SD2_NS + operator) 
+
+        for i in range(0, len(custom) - 1, 2):
+            self.create_custom_property(act, SD2_NS, custom[i + 1], custom[i])
+        
+        if child is not None:
+            child.wasGeneratedBy = child.wasGeneratedBy + [act.identity]
+            self.addExtensionObject(child)
+        # except:
+        #     act = self.activities.get(act_id)
             
         return act
 
