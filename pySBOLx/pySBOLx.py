@@ -1,5 +1,5 @@
 import rdflib
-from urllib.parse import urlparse
+import urlparse3
 from sbol import *
 
 SBOL_NS = 'http://sbols.org/v2#'
@@ -91,7 +91,7 @@ class XDocument(Document):
         super(XDocument, self).__init__()
 
     def parse_display_id(self, uri):
-        return urlparse(uri).path.split('/')[-2]
+        return urlparse3.parse_url(uri).path.split('/')[-2]
 
     def generate_uri(self, prefix, display_id, version=None):
         uri_arr = [prefix]
