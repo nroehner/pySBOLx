@@ -120,10 +120,12 @@ class XDocument(Document):
         for top_level in top_levels:
             collect.members = collect.members + [top_level.identity]
 
-    def configure_options(self, homespace, is_validated, is_typed):
-        setHomespace(homespace)
+    def configure_options(self, is_validated, is_typed):
         Config.setOption('validate', is_validated)
         Config.setOption('sbol_typed_uris', is_typed)
+
+    def configure_namespace(self, namespace):
+        setHomespace(namespace)
 
     def create_collection(self, display_id, name=None, version='1'):
         try:
