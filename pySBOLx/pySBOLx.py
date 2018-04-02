@@ -457,7 +457,7 @@ class XDocument(Document):
                     try:
                         parent_id_arr.append(parent.displayId)
                     except:
-                        parent_id_arr.append(extract_display_id(parent))
+                        parent_id_arr.append(self.extract_display_id(parent))
             if len(parent_id_arr) > 0:
                 id_arr.extend(parent_id_arr)
                 if child is not None:
