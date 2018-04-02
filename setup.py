@@ -1,6 +1,6 @@
 from setuptools import setup
 
-install_requires=['rdflib', 'urlparse3', 'pysbol']
+install_requires=['rdflib', 'pysbol']
 
 setup(name='pySBOLx',
       version='0.1',
