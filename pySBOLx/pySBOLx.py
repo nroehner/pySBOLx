@@ -1,4 +1,5 @@
 import rdflib
+from urllib.parse import urlparse
 from sbol import *
 
 SBOL_NS = 'http://sbols.org/v2#'
@@ -88,6 +89,9 @@ class XDocument(Document):
 
     def __init__(self):
         super(XDocument, self).__init__()
+
+    def parse_display_id(self, uri):
+        return urlparse(uri).path.split('/')[-2]
 
     def generate_uri(self, prefix, display_id, version=None):
         uri_arr = [prefix]
@@ -428,10 +432,7 @@ class XDocument(Document):
         return system
 
     def create_flow_cytometry_activity(self, operator, channels=[], parents=[], name=None, descr=None, custom=[], child=None, display_id=None, version='1'):
-        if name is not None:
-            act = create_activity(operator, parents, name, descr, custom, child, display_id, version)
-        else:
-            act = create_activity(operator, parents, display_id, descr, custom, child, display_id, version)
+        act = create_activity(operator, parents, name, descr, custom, child, display_id, version)
 
         if len(channels) > 0 and not hasattr(act, 'channels'):
             act.channels = OwnedPythonObject(act, SD2_NS + 'channel', Channel, '0', '*')
@@ -453,7 +454,10 @@ class XDocument(Document):
                         parent_id_arr.append(entity.displayId)
                 else:
                     parent_id_arr.append('_')
-                    parent_id_arr.append(parent.displayId)
+                    try:
+                        parent_id_arr.append(parent.displayId)
+                    except:
+                        parent_id_arr.append(parse_display_id(parent))
             if len(parent_id_arr) > 0:
                 id_arr.extend(parent_id_arr)
                 if child is not None:
@@ -464,7 +468,7 @@ class XDocument(Document):
         act_id = ''.join(id_arr)
 
         try:
-            act = Activity(act_id, version)
+            act = Activity(act_id, '', version)
             self.addActivity(act)
 
             if name is not None:
@@ -479,15 +483,22 @@ class XDocument(Document):
                     act.wasInformedBy = act.wasInformedBy + [parent.identity]
                 else:
                     use = act.usages.create(parent.displayId)
-                    use.entity = parent.identity
-                    if isinstance(parent, Implementation):
-                        use.roles = use.roles + [SBOL_BUILD]
-                    elif isinstance(parent, ComponentDefinition) or isinstance(parent, ModuleDefinition):
-                        use.roles = use.roles + [SBOL_DESIGN]
-                    elif isinstance(parent, Model):
-                        use.roles = use.roles + [SBOL_LEARN]
-                    elif isinstance(parent, ExperimentalData):
-                        use.roles = use.roles + [SBOL_TEST]
+                    try:
+                        use.entity = parent.identity
+
+                        if isinstance(parent, Implementation):
+                            use.roles = use.roles + [SBOL_BUILD]
+                        elif isinstance(parent, ComponentDefinition) or isinstance(parent, ModuleDefinition):
+                            use.roles = use.roles + [SBOL_DESIGN]
+                        elif isinstance(parent, Model):
+                            use.roles = use.roles + [SBOL_LEARN]
+                        elif isinstance(parent, ExperimentalData):
+                            use.roles = use.roles + [SBOL_TEST]
+                    except:
+                        use.entity = parent
+
+                        if parent.startswith('https://hub.sd2e.org/user/sd2e/design'):
+                            use.roles = use.roles + [SBOL_DESIGN]
 
             self.create_custom_property(act, SD2_NS, 'operatorType', SD2_NS + operator) 
 
@@ -516,18 +527,6 @@ class XDocument(Document):
             act.channels.get(generate_uri(act.persistentIdentity.get(), display_id, act.version))
 
     def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
-        # try:
-        #     attach = self.attachments.create(display_id)
-        #     attach.version = version
-        #     if name is not None:
-        #         attach.name = name
-        #     else:
-        #         attach.name = display_id
-        #     attach.source = source
-        #     if attach_format is not None:
-        #         attach.format = attach_format
-        # except:
-        #     attach = self.getAttachment(self.generate_uri(getHomespace(), display_id, version))
         attach = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
         if attach is not None:
@@ -580,21 +579,6 @@ class XDocument(Document):
         return exp_datum
 
     def create_implementation(self, display_id, built=None, parents=[], measures=[], name=None, version='1'):
-        # try:
-        #     imp = self.implementations.create(display_id)
-        #     imp.version = version
-        #     if name is not None:
-        #         imp.name = name
-        #     else:
-        #         imp.name = display_id
-
-        #     if built is not None:
-        #         imp.built = built
-            
-        #     for parent in parents:
-        #         imp.wasDerivedFrom.append(parent.identity)
-        # except:
-        #     imp = self.getImplementation(self.generate_uri(getHomespace(), display_id, version))
         imp = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
         if imp is not None:
@@ -606,7 +590,10 @@ class XDocument(Document):
                 imp = Implementation(display_id, display_id, built, version)
 
             for parent in parents:
-                imp.wasDerivedFrom = imp.wasDerivedFrom + [parent.identity]
+                try:
+                    imp.wasDerivedFrom = imp.wasDerivedFrom + [parent.identity]
+                except:
+                    imp.wasDerivedFrom = imp.wasDerivedFrom + [parent]
 
             for measure in measures:
                 self.create_measure(measure['mag'], imp, measure['unit'], measure['id'])
@@ -615,7 +602,7 @@ class XDocument(Document):
 
         return imp
 
-    def create_sample(self, sample_id, built=None, parent_samples=[], measures=[], well_id=None, plate_id=None, name=None, version='1'):
+    def create_sample(self, sample_id, built=None, parents=[], measures=[], well_id=None, plate_id=None, name=None, version='1'):
         id_arr = []
         if plate_id is not None:
             id_arr.append(plate_id)
@@ -626,10 +613,7 @@ class XDocument(Document):
         id_arr.append(sample_id)
         sample_id = ''.join(id_arr)
         
-        if name is not None:
-            sample = self.create_implementation(sample_id, built, parent_samples, measures, name, version)
-        else:
-            sample = self.create_implementation(sample_id, built, parent_samples, measures, sample_id, version)
+        sample = self.create_implementation(sample_id, built, parents, measures, name, version)
 
         return sample
 
@@ -698,7 +682,8 @@ class XDocument(Document):
                 for uri in curr_act.getPropertyValues(PROV_NS + 'used'):
                     parent_entities.append(self.getTopLevel(uri))
             except:
-                pass
+                for use in curr_act.usages:
+                    parent_entities.append(self.getTopLevel(use.entity))
 
             for uri in curr_act.wasInformedBy:
                 if len(uri) > 0:
