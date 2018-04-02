@@ -497,8 +497,7 @@ class XDocument(Document):
                     except:
                         use.entity = parent
 
-                        if parent.startswith('https://hub.sd2e.org/user/sd2e/design'):
-                            use.roles = use.roles + [SBOL_DESIGN]
+                        use.roles = use.roles + [SBOL_DESIGN]
 
             self.create_custom_property(act, SD2_NS, 'operatorType', SD2_NS + operator) 
 
