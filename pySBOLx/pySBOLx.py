@@ -702,7 +702,7 @@ class XDocument(Document):
     def write(self, sbol_path):
         super(XDocument, self).write(sbol_path)
 
-    def upload(self, sbh_address, sbh_email, sbh_password):
+    def upload(self, sbh_address, sbh_email, sbh_password, overwrite):
         part_shop = PartShop(sbh_address)
         part_shop.login(sbh_email, sbh_password)
-        part_shop.submit(self)
+        part_shop.submit(self, overwrite)
