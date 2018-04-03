@@ -543,7 +543,7 @@ class XDocument(Document):
         
         return attach
 
-    def create_experimental_data(self, attachs, imp, exp=None, operator=None, replicate_id=None, display_id=None, name=None, version='1'):
+    def create_experimental_data(self, attachs, imp, operator=None, replicate_id=None, display_id=None, name=None, version='1'):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -572,9 +572,6 @@ class XDocument(Document):
                 exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, attach_uris, version)
 
             exp_datum.wasDerivedFrom = exp_datum.wasDerivedFrom + [imp.identity]
-
-            if exp is not None:
-                exp.experimentalData.add(exp_datum.identity)
 
             self.addExtensionObject(exp_datum)
         
