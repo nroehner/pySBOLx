@@ -51,7 +51,7 @@ class ExperimentalData(TopLevel, PythonicInterface):
         if name is not None:
             self.name = name
         if len(attachs) > 0:
-            self.attachs = URIProperty(self.this, SD2_NS + 'attached', '0', '*')
+            self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
             for attach in attachs:
                 self.attachs.add(attach)
         self.register_extension_class(ExperimentalData, 'sd2')
