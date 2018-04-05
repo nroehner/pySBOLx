@@ -41,6 +41,7 @@ class Experiment(TopLevel, PythonicInterface):
         if name is not None:
             self.name = name
         self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
+        self.experimentalData.clear()
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
@@ -51,6 +52,7 @@ class ExperimentalData(TopLevel, PythonicInterface):
             self.name = name
         if len(attachments) > 0:
             self.attachments = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
+            self.attachments.clear()
             for attachment in attachments:
                 self.attachments.add(attachment)
         self.register_extension_class(ExperimentalData, 'sd2')
@@ -673,8 +675,6 @@ class XDocument(Document):
                 exp = Experiment(display_id, name, version)
             else:
                 exp = Experiment(display_id, display_id, version)
-
-            exp.experimentalData.clear()
 
             self.addExtensionObject(exp)
 
