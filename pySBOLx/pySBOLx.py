@@ -752,6 +752,6 @@ class XDocument(Document):
         part_shop = PartShop(sbh_address)
         part_shop.login(sbh_email, sbh_password)
         if collection_uri is None:
-            part_shop.submit(self)
+            return part_shop.submit(self)
         else:
-            part_shop.submit(self, collection_uri, overwrite)
+            return part_shop.submit(self, collection_uri, overwrite)
