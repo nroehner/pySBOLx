@@ -12,27 +12,27 @@ PROV_NS = 'http://www.w3.org/ns/prov#'
 
 DC_NS = 'http://purl.org/dc/terms/'
 
-class Implementation(TopLevel, PythonicInterface):
+# class Implementation(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, built=None, version='1'):
-        TopLevel.__init__(self, SD2_NS + 'Implementation', display_id, version)
-        if name is not None:
-            self.name = name
-        if built is not None:
-            self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1', built)
-        self.register_extension_class(Implementation, 'sd2')
+#     def __init__(self, display_id='example', name=None, built=None, version='1'):
+#         TopLevel.__init__(self, SD2_NS + 'Implementation', display_id, version)
+#         if name is not None:
+#             self.name = name
+#         if built is not None:
+#             self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1', built)
+#         self.register_extension_class(Implementation, 'sd2')
 
-class Attachment(TopLevel, PythonicInterface):
+# class Attachment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, source=None, attach_format=None, version='1'):
-        TopLevel.__init__(self, SD2_NS + 'Attachment', display_id, version)
-        if name is not None:
-            self.name = name
-        if source is not None:
-            self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1', source)
-        if attach_format is not None:
-            self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1', attach_format)
-        self.register_extension_class(Attachment, 'sd2')
+#     def __init__(self, display_id='example', name=None, source=None, attach_format=None, version='1'):
+#         TopLevel.__init__(self, SD2_NS + 'Attachment', display_id, version)
+#         if name is not None:
+#             self.name = name
+#         if source is not None:
+#             self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1', source)
+#         if attach_format is not None:
+#             self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1', attach_format)
+#         self.register_extension_class(Attachment, 'sd2')
 
 class Experiment(TopLevel, PythonicInterface):
     
@@ -528,19 +528,36 @@ class XDocument(Document):
         except:
             act.channels.get(generate_uri(act.persistentIdentity.get(), display_id, act.version))
 
-    def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
-        attach = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+    # def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
+    #     attach = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
-        if attach is not None:
-            attach = attach.cast(Attachment)
-        else:
-            if name is not None:
-                attach = Attachment(display_id, name, source, attach_format, version)
-            else:
-                attach = Attachment(display_id, display_id, source, attach_format, version)
+    #     if attach is not None:
+    #         attach = attach.cast(Attachment)
+    #     else:
+    #         if name is not None:
+    #             attach = Attachment(display_id, name, source, attach_format, version)
+    #         else:
+    #             attach = Attachment(display_id, display_id, source, attach_format, version)
             
-            self.addExtensionObject(attach)
+    #         self.addExtensionObject(attach)
         
+    #     return attach
+
+    def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
+        try:
+            attach = Attachment(display_id, source, version)
+            self.addAttachment(attach)
+
+            if name is not None:
+                attach.name = name
+            else:
+                attach.name = display_id
+
+            if attach_format is not None:
+                attach.format = attach_format
+        except:
+            attach = self.getAttachment(self.generate_uri(getHomespace(), display_id, version))
+
         return attach
 
     def create_experimental_data(self, attachs, imp, operator=None, replicate_id=None, display_id=None, name=None, version='1'):
@@ -577,16 +594,42 @@ class XDocument(Document):
         
         return exp_datum
 
-    def create_implementation(self, display_id, built=None, parents=[], measures=[], name=None, version='1'):
-        imp = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+    # def create_implementation(self, display_id, built=None, parents=[], measures=[], name=None, version='1'):
+    #     imp = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
-        if imp is not None:
-            imp = imp.cast(Implementation)
-        else:
+    #     if imp is not None:
+    #         imp = imp.cast(Implementation)
+    #     else:
+    #         if name is not None:
+    #             imp = Implementation(display_id, name, built, version)
+    #         else:
+    #             imp = Implementation(display_id, display_id, built, version)
+
+    #         for parent in parents:
+    #             try:
+    #                 imp.wasDerivedFrom = imp.wasDerivedFrom + [parent.identity]
+    #             except:
+    #                 imp.wasDerivedFrom = imp.wasDerivedFrom + [parent]
+
+    #         for measure in measures:
+    #             self.create_measure(measure['mag'], imp, measure['unit'], measure['id'])
+            
+    #         self.addExtensionObject(imp)
+
+    #     return imp
+
+    def create_implementation(self, display_id, built=None, parents=[], measures=[], name=None, version='1'):
+        try:
+            imp = Implementation(display_id, version)
+            self.addImplementation(imp)
+
             if name is not None:
-                imp = Implementation(display_id, name, built, version)
+                imp.name = name
             else:
-                imp = Implementation(display_id, display_id, built, version)
+                imp.name = display_id
+
+            if built is not None:
+                imp.built = built
 
             for parent in parents:
                 try:
@@ -596,8 +639,8 @@ class XDocument(Document):
 
             for measure in measures:
                 self.create_measure(measure['mag'], imp, measure['unit'], measure['id'])
-            
-            self.addExtensionObject(imp)
+        except:
+            imp = self.getImplementation(self.generate_uri(getHomespace(), display_id, version))
 
         return imp
 
