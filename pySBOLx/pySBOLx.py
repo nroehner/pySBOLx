@@ -46,15 +46,14 @@ class Experiment(TopLevel, PythonicInterface):
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, attachments=[], version='1'):
+    def __init__(self, display_id='example', name=None, attachs=[], version='1'):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
         if name is not None:
             self.name = name
-        if len(attachments) > 0:
-            self.attachments = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
-            self.attachments.clear()
-            for attachment in attachments:
-                self.attachments.add(attachment)
+        if len(attachs) > 0:
+            self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
+            for attach in attachs:
+                self.attachs.add(attach)
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Measure(Identified, PythonicInterface):
