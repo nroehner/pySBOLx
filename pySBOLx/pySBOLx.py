@@ -22,17 +22,17 @@ DC_NS = 'http://purl.org/dc/terms/'
 #             self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1', built)
 #         self.register_extension_class(Implementation, 'sd2')
 
-class Attachment(TopLevel, PythonicInterface):
+# class Attachment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, source=None, attach_format=None, version='1'):
-        TopLevel.__init__(self, SD2_NS + 'Attachment', display_id, version)
-        if name is not None:
-            self.name = name
-        if source is not None:
-            self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1', source)
-        if attach_format is not None:
-            self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1', attach_format)
-        self.register_extension_class(Attachment, 'sd2')
+#     def __init__(self, display_id='example', name=None, source=None, attach_format=None, version='1'):
+#         TopLevel.__init__(self, SD2_NS + 'Attachment', display_id, version)
+#         if name is not None:
+#             self.name = name
+#         if source is not None:
+#             self.source = URIProperty(self.this, SD2_NS + 'source', '0', '1', source)
+#         if attach_format is not None:
+#             self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1', attach_format)
+#         self.register_extension_class(Attachment, 'sd2')
 
 class Experiment(TopLevel, PythonicInterface):
     
@@ -50,10 +50,12 @@ class ExperimentalData(TopLevel, PythonicInterface):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
         if name is not None:
             self.name = name
-        if len(attachs) > 0:
-            self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
-            for attach in attachs:
-                self.attachs.add(attach)
+        # if len(attachs) > 0:
+        #     self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
+        #     for attach in attachs:
+        #         self.attachs.add(attach)
+        for attach in attachs:
+            self.attachments = self.attachments + [attach]
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Measure(Identified, PythonicInterface):
@@ -531,39 +533,39 @@ class XDocument(Document):
         except:
             act.channels.get(generate_uri(act.persistentIdentity.get(), display_id, act.version))
 
-    def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
-        attach = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+    # def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
+    #     attach = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
-        if attach is not None:
-            attach = attach.cast(Attachment)
-        else:
-            if name is not None:
-                attach = Attachment(display_id, name, source, attach_format, version)
-            else:
-                attach = Attachment(display_id, display_id, source, attach_format, version)
+    #     if attach is not None:
+    #         attach = attach.cast(Attachment)
+    #     else:
+    #         if name is not None:
+    #             attach = Attachment(display_id, name, source, attach_format, version)
+    #         else:
+    #             attach = Attachment(display_id, display_id, source, attach_format, version)
             
-            self.addExtensionObject(attach)
+    #         self.addExtensionObject(attach)
         
-        return attach
+    #     return attach
 
     # Create method for SBOL attachment class
 
-    # def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
-    #     try:
-    #         attach = Attachment(display_id, source, version)
-    #         self.addAttachment(attach)
+    def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
+        try:
+            attach = Attachment(display_id, source, version)
+            self.addAttachment(attach)
 
-    #         if name is not None:
-    #             attach.name = name
-    #         else:
-    #             attach.name = display_id
+            if name is not None:
+                attach.name = name
+            else:
+                attach.name = display_id
 
-    #         if attach_format is not None:
-    #             attach.format = attach_format
-    #     except:
-    #         attach = self.getAttachment(self.generate_uri(getHomespace(), display_id, version))
+            if attach_format is not None:
+                attach.format = attach_format
+        except:
+            attach = self.getAttachment(self.generate_uri(getHomespace(), display_id, version))
 
-    #     return attach
+        return attach
 
     def create_experimental_data(self, attachs, imp, operator=None, replicate_id=None, display_id=None, name=None, version='1'):
         id_arr = []
