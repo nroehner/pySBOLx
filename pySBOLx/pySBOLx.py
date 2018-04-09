@@ -679,27 +679,19 @@ class XDocument(Document):
 
         return exp
 
-    def get_devices(self, uris):
-        devices = []
+    def get_device(self, uri):
+        device = self.getComponentDefinition(uri)
 
-        for uri in uris:
-            try:
-                devices.append(self.getComponentDefinition(uri))
-            except:
-                pass
+        assert device.getTypeURI() == SBOL_COMPONENT_DEFINITION
 
-        return devices
+        return device
 
-    def get_systems(self, uris):
-        systems = []
+    def get_system(self, uri):
+        system = self.getModuleDefinition(uri)
 
-        for uri in uris:
-            try:
-                systems.append(self.getModuleDefinition(uri))
-            except:
-                pass
+        assert system.getTypeURI() == SBOL_MODULE_DEFINITION
 
-        return systems
+        return system
 
     def get_collection_members(self, collect):
         top_levels = []
