@@ -169,8 +169,20 @@ class XDocument(Document):
 
         return comp_def
 
+    def create_bead(self, display_id, name=None, descr=None, version='1'):
+        return self.create_component_definition(display_id, name, descr, 'http://purl.obolibrary.org/obo/NCIT_C70671', version)
+
     def create_dna(self, display_id, name=None, descr=None, version='1'):
         return self.create_component_definition(display_id, name, descr, BIOPAX_DNA, version)
+
+    def create_enzyme(self, display_id, name=None, descr=None, version='1'):
+        enzyme = self.create_protein(display_id, name, descr, version)
+        enzyme.roles = enzyme.roles + ['http://identifiers.org/biomodels.sbo/SBO:0000014']
+
+        return enzyme
+
+    def create_fluorescent_bead(self, display_id, name=None, descr=None, version='1'):
+        return self.create_component_definition(display_id, name, descr, 'http://purl.obolibrary.org/obo/NCIT_C70671', version, 'http://identifiers.org/chebi/CHEBI:39442')
 
     def create_plasmid(self, display_id, name=None, descr=None, version='1'):
         plasmid = self.create_dna(display_id, name, descr, version)
@@ -183,12 +195,6 @@ class XDocument(Document):
 
     def create_protein(self, display_id, name=None, descr=None, version='1'):
         return self.create_component_definition(display_id, name, descr, BIOPAX_PROTEIN, version)
-
-    def create_enzyme(self, display_id, name=None, descr=None, version='1'):
-        enzyme = self.create_protein(display_id, name, descr, version)
-        enzyme.roles = inducer.roles + ['http://identifiers.org/biomodels.sbo/SBO:0000014']
-
-        return enzyme
 
     def create_small_molecule(self, display_id, name=None, descr=None, version='1'):
         return self.create_component_definition(display_id, name, descr, BIOPAX_SMALL_MOLECULE, version)
@@ -333,6 +339,12 @@ class XDocument(Document):
             self.addExtensionObject(unit)
 
         return unit
+
+    def create_buffer(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
+        return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://identifiers.org/chebi/CHEBI:35225')
+
+    def create_control(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
+        return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://purl.obolibrary.org/obo/NCIT_C28143')
 
     def create_gate(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
         return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://edamontology.org/data_2133')
