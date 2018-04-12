@@ -236,7 +236,7 @@ class XDocument(Document):
             if name is not None:
                 mod.name = name
             else:
-                mod.name = display_id
+                mod.name = mod_def.display_id
 
             mod.definition = mod_def.identity
         except:
@@ -250,7 +250,7 @@ class XDocument(Document):
             if name is not None:
                 fc.name = name
             else:
-                fc.name = display_id
+                fc.name = comp_def.display_id
 
             fc.definition = comp_def.identity
         except:
