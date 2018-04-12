@@ -230,13 +230,16 @@ class XDocument(Document):
 
         return mod_def
 
-    def create_module(self, mod_def, parent_mod_def, name=None):
+    def create_module(self, mod_def, parent_mod_def, display_id=None, name=None):
         try:
-            mod = parent_mod_def.modules.create(mod_def.displayId)
+            if display_id is not None:
+                mod = parent_mod_def.modules.create(display_id)
+            else:
+                mod = parent_mod_def.modules.create(mod_def.displayId)
             if name is not None:
                 mod.name = name
             else:
-                mod.name = mod_def.display_id
+                mod.name = mod_def.displayId
 
             mod.definition = mod_def.identity
         except:
@@ -244,13 +247,16 @@ class XDocument(Document):
 
         return mod
 
-    def create_functional_component(self, comp_def, mod_def, name=None):
+    def create_functional_component(self, comp_def, mod_def, display_id=None, name=None):
         try:
-            fc = mod_def.functionalComponents.create(comp_def.displayId)
+            if display_id is not None:
+                fc = mod_def.functionalComponents.create(display_id)
+            else:
+                fc = mod_def.functionalComponents.create(comp_def.displayId)
             if name is not None:
                 fc.name = name
             else:
-                fc.name = comp_def.display_id
+                fc.name = comp_def.displayId
 
             fc.definition = comp_def.identity
         except:
@@ -258,12 +264,8 @@ class XDocument(Document):
 
         return fc
 
-    def create_input_component(self, comp_def, mod_def, name=None, version='1'):
-        fc = self.create_functional_component(comp_def, mod_def, version)
-        if name is not None:
-            fc.name = name
-        else:
-            fc.name = display_id
+    def create_input_component(self, comp_def, mod_def, display_id=None, name=None):
+        fc = self.create_functional_component(comp_def, mod_def, display_id, name)
 
         fc.direction = SBOL_DIRECTION_IN
 
