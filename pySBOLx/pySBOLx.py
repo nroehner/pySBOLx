@@ -238,6 +238,8 @@ class XDocument(Document):
                 mod = parent_mod_def.modules.create(mod_def.displayId)
             if name is not None:
                 mod.name = name
+            elif mod_def.name is not None:
+                mod.name = mod_def.name
             else:
                 mod.name = mod_def.displayId
 
@@ -255,6 +257,8 @@ class XDocument(Document):
                 fc = mod_def.functionalComponents.create(comp_def.displayId)
             if name is not None:
                 fc.name = name
+            elif comp_def.name is not None:
+                fc.name = comp_def.name
             else:
                 fc.name = comp_def.displayId
 
