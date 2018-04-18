@@ -12,19 +12,9 @@ PROV_NS = 'http://www.w3.org/ns/prov#'
 
 DC_NS = 'http://purl.org/dc/terms/'
 
-# class Implementation(TopLevel, PythonicInterface):
-    
-#     def __init__(self, display_id='example', name=None, built=None, version='1'):
-#         TopLevel.__init__(self, SD2_NS + 'Implementation', display_id, version)
-#         if name is not None:
-#             self.name = name
-#         if built is not None:
-#             self.built = URIProperty(self.this, SD2_NS + 'built', '0', '1', built)
-#         self.register_extension_class(Implementation, 'sd2')
-
 class Attachment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, source=None, attach_format=None, version='1'):
+    def __init__(self, display_id='example', name=None, version='1', source=None, attach_format=None):
         TopLevel.__init__(self, SD2_NS + 'Attachment', display_id, version)
         if name is not None:
             self.name = name
@@ -34,31 +24,75 @@ class Attachment(TopLevel, PythonicInterface):
             self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1', attach_format)
         self.register_extension_class(Attachment, 'sd2')
 
+class ExperimentalIntent(TopLevel, PythonicInterface):
+    
+    def __init__(self, display_id='example', name=None, version='1', truth_table_uri=None):
+        TopLevel.__init__(self, SD2_NS + 'ExperimentalIntent', display_id, version)
+        if name is not None:
+            self.name = name
+        self.diagnosticVariables = OwnedPythonObject(self.this, SD2_NS + 'diagnosticVariable', ExperimentalVariable, '0', '*')
+        self.experimentalVariables = OwnedPythonObject(self.this, SD2_NS + 'experimentalVariable', ExperimentalVariable, '0', '*')
+        self.outcomeVariables = OwnedPythonObject(self.this, SD2_NS + 'outcomeVariable', ExperimentalVariable, '0', '*')
+        if truth_table_uri is not None:
+            self.truthTable = URIProperty(self.this, SD2_NS + 'truthTable', '0', '1', truth_table_uri)
+        self.register_extension_class(ExperimentalIntent, 'sd2')
+
+class ExperimentalVariable(Identified, PythonicInterface):
+    
+    def __init__(self, display_id='example', name=None, version='1'):
+        Identified.__init__(self, SD2_NS + 'ExperimentalVariable', display_id, version)
+        if name is not None:
+            self.name = name
+        self.register_extension_class(ExperimentalVariable, 'sd2')
+
+class TruthTable(TopLevel, PythonicInterface):
+    
+    def __init__(self, display_id='example', name=None, version='1', outputs=[]):
+        TopLevel.__init__(self, SD2_NS + 'TruthTable', display_id, version)
+        self.inputs = OwnedPythonObject(self.this, SD2_NS + 'input', TruthTableInput, '0', '*')
+        self.outputs = IntProperty(self.this, SD2_NS + 'output', '0', '*')
+        for output in outputs:
+            self.outputs.add(str(output))
+        self.register_extension_class(TruthTable, 'sd2')
+
+class TruthTableInput(Identified, PythonicInterface):
+    
+    def __init__(self, display_id='example', name=None, version='1', exp_vars=[], strain=None):
+        Identified.__init__(self, SD2_NS + 'TruthTableInput', display_id, version)
+        self.experimentalVariables = IntProperty(self.this, SD2_NS + 'experimentalVariable', '0', '*')
+        for exp_var in exp_vars:
+            self.experimentalVariables.add(str(exp_var))
+        if strain is not None:
+            self.strain = URIProperty(self.this, SD2_NS + 'strain', '0', '1')
+        self.register_extension_class(TruthTableInput, 'sd2')
+
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', exp_data=[]):
+    def __init__(self, display_id='example', name=None, version='1', exp_data_uris=[], exp_intent=None):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
         if name is not None:
             self.name = name
+        if exp_intent is not None:
+            self.experimentalIntent = URIProperty(self.this, SD2_NS + 'experimentalIntent', '0', '1', exp_intent)
         self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
-        self.experimentalData.clear()
+        for exp_data_uri in exp_data_uris:
+            self.experimentalData.add(exp_data_uri)
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, attachs=[], version='1'):
+    def __init__(self, display_id='example', name=None, version='1', attach_uris=[]):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalData', display_id, version)
         if name is not None:
             self.name = name
-        if len(attachs) > 0:
-            self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
-            for attach in attachs:
-                self.attachs.add(attach)
+        self.attachs = URIProperty(self.this, SD2_NS + 'attachment', '0', '*')
+        for attach_uri in attach_uris:
+            self.attachs.add(attach_uri)
         self.register_extension_class(ExperimentalData, 'sd2')
 
 class Measure(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, has_numerical_value=None, has_unit=None, version='1'):
+    def __init__(self, display_id='example', name=None, version='1', has_numerical_value=None, has_unit=None):
         Identified.__init__(self, OM_NS + 'Measure', display_id, version)
         if name is not None:
             self.name = name
@@ -70,7 +104,7 @@ class Measure(Identified, PythonicInterface):
         
 class Unit(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, symbol=None, version='1'):
+    def __init__(self, display_id='example', name=None, version='1', symbol=None):
         TopLevel.__init__(self, OM_NS + 'Unit', display_id, version)
         if name is not None:
             self.name = name
@@ -80,7 +114,7 @@ class Unit(TopLevel, PythonicInterface):
 
 class Channel(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, calibration_file=None, version='1'):
+    def __init__(self, display_id='example', name=None, version='1', calibration_file=None):
         Identified.__init__(self, SD2_NS + 'Channel', display_id, version)
         if name is not None:
             self.name = name
@@ -298,6 +332,8 @@ class XDocument(Document):
                 ms.hasUnit = URIProperty(ms.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
         except:
             ms = identified.measures.get(self.generate_uri(identified.persistentIdentity.get(), ms_id, identified.version))
+
+        return ms
         
     def create_unit(self, om, symbol=None, display_id=None, name=None, descr=None, version='1'):
         try:
@@ -325,12 +361,12 @@ class XDocument(Document):
                     unit_name = unit_id
 
             try:
-                unit = Unit(unit_id, unit_name, result.symbol, version)
+                unit = Unit(unit_id, unit_name, version, result.symbol)
             except:
                 if symbol is not None:
-                    unit = Unit(unit_id, unit_name, symbol, version)
+                    unit = Unit(unit_id, unit_name, version, symbol)
                 else:
-                    unit = Unit(display_id=unit_id, name=unit_name, version=version)
+                    unit = Unit(unit_id, unit_name, version)
             try:
                 unit.description = result.descr
             except:
@@ -466,6 +502,8 @@ class XDocument(Document):
         for channel in channels:
             self.create_channel(channel.display_id, channel.calibration_file, act, channel.name, version)
 
+        return act
+
     def create_activity(self, operator, parents=[], name=None, descr=None, custom=[], child=None, display_id=None, version='1'):
         id_arr = []
         if display_id is not None:
@@ -550,7 +588,9 @@ class XDocument(Document):
             
             channel.calibrationFile = URIProperty(channel.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
         except:
-            act.channels.get(generate_uri(act.persistentIdentity.get(), display_id, act.version))
+            channel = act.channels.get(generate_uri(act.persistentIdentity.get(), display_id, act.version))
+
+        return channel
 
     def create_attachment(self, display_id, source, attach_format=None, name=None, version='1'):
         attach = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
@@ -559,9 +599,9 @@ class XDocument(Document):
             attach = attach.cast(Attachment)
         else:
             if name is not None:
-                attach = Attachment(display_id, name, source, attach_format, version)
+                attach = Attachment(display_id, name, version, source, attach_format)
             else:
-                attach = Attachment(display_id, display_id, source, attach_format, version)
+                attach = Attachment(display_id, display_id, version, source, attach_format)
             
             self.addExtensionObject(attach)
         
@@ -586,7 +626,7 @@ class XDocument(Document):
 
     #     return attach
 
-    def create_experimental_data(self, attachs, imp, operator=None, replicate_id=None, display_id=None, name=None, version='1'):
+    def create_experimental_data(self, attachs, imp, operator=None, replicate_id=None, exp=None, display_id=None, name=None, version='1'):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
@@ -610,13 +650,16 @@ class XDocument(Document):
                 attach_uris.append(attach.identity)
 
             if name is not None:
-                exp_datum = ExperimentalData(exp_datum_id, name, attach_uris, version)
+                exp_datum = ExperimentalData(exp_datum_id, name, version, attach_uris)
             else:
-                exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, attach_uris, version)
+                exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, version, attach_uris)
 
             exp_datum.wasDerivedFrom = exp_datum.wasDerivedFrom + [imp.identity]
 
             self.addExtensionObject(exp_datum)
+
+            if exp is not None:
+                exp.experimentalData.add(exp_datum.identity)
         
         return exp_datum
 
@@ -699,6 +742,87 @@ class XDocument(Document):
             self.addExtensionObject(exp)
 
         return exp
+
+    def create_experimental_intent(self, display_id, exp=None, name=None, version='1'):
+        exp_intent = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+
+        if exp_intent is not None:
+            exp_intent = exp_intent.cast(ExperimentalIntent)
+        else:
+            if name is not None:
+                exp_intent = ExperimentalIntent(display_id, name, version)
+            else:
+                exp_intent = ExperimentalIntent(display_id, display_id, version)
+
+            self.addExtensionObject(exp_intent)
+
+            if exp is not None:
+                exp.experimentalIntent = exp_intent.identity
+
+        return exp_intent
+
+    def create_diagnostic_variable(self, display_id, exp_intent, name=None):
+        try:
+            diag_var = exp_intent.diagnosticVariables.create(display_id)
+            if name is not None:
+                exp_intent.name = name
+        except:
+            diag_var = exp_intent.diagnosticVariables.get(self.generate_uri(exp_intent.persistentIdentity.get(), display_id, exp_intent.version))
+
+        return diag_var
+  
+    def create_experimental_variable(self, exp_intent, display_id=None, name=None):
+        try:
+            exp_var = exp_intent.experimentalVariables.create(display_id)
+            if name is not None:
+                exp_intent.name = name
+        except:
+            exp_var = exp_intent.experimentalVariables.get(self.generate_uri(exp_intent.persistentIdentity.get(), display_id, exp_intent.version))
+
+        return exp_var
+
+    def create_outcome_variable(self, exp_intent, display_id=None, name=None):
+        try:
+            out_var = exp_intent.outcomeVariables.create(display_id)
+            if name is not None:
+                exp_intent.name = name
+        except:
+            out_var = exp_intent.outcomeVariables.get(self.generate_uri(exp_intent.persistentIdentity.get(), display_id, exp_intent.version))
+
+        return out_var
+
+    def create_truth_table(self, display_id, outputs=[], exp_intent=None, name=None, version='1'):
+        truth_table = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+
+        if exp_intent is not None:
+            truth_table = truth_table.cast(TruthTable)
+        else:
+            if name is not None:
+                truth_table = TruthTable(display_id, name, version, outputs)
+            else:
+                truth_table = TruthTable(display_id, display_id, version, outputs)
+
+            self.addExtensionObject(truth_table)
+
+            if exp_intent is not None:
+                exp_intent.truthTable = truth_table.identity
+
+        return truth_table
+
+    def create_truth_table_input(self, display_id, truth_table, exp_vars=[], strain=None, name=None):
+        try:
+            tt_input = truth_table.inputs.create(display_id)
+            if name is not None:
+                tt_input.name = name
+
+            for exp_var in exp_vars:
+                self.experimentalVariables.add(str(exp_var))
+            if strain is not None:
+                tt_input.strain = strain
+        except:
+            tt_input = truth_table.inputs.get(self.generate_uri(truth_table.persistentIdentity.get(), display_id, truth_table.version))
+
+        return tt_input
 
     def get_device(self, uri):
         device = self.getComponentDefinition(uri)
