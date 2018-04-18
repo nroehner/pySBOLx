@@ -816,7 +816,7 @@ class XDocument(Document):
                 tt_input.name = name
 
             for exp_var in exp_vars:
-                self.experimentalVariables.add(str(exp_var))
+                tt_input.experimentalVariables.add(str(exp_var))
             if strain is not None:
                 tt_input.strain = strain
         except:
