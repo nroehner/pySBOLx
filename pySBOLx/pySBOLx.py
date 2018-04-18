@@ -24,56 +24,60 @@ class Attachment(TopLevel, PythonicInterface):
             self.format = URIProperty(self.this, SD2_NS + 'format', '0', '1', attach_format)
         self.register_extension_class(Attachment, 'sd2')
 
-class ExperimentalIntent(TopLevel, PythonicInterface):
+class ExperimentalDesign(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', truth_table_uri=None):
-        TopLevel.__init__(self, SD2_NS + 'ExperimentalIntent', display_id, version)
+    def __init__(self, display_id='example', name=None, version='1'):
+        TopLevel.__init__(self, SD2_NS + 'ExperimentalDesign', display_id, version)
         if name is not None:
             self.name = name
-        self.diagnosticVariables = OwnedPythonObject(self.this, SD2_NS + 'diagnosticVariable', ExperimentalVariable, '0', '*')
         self.experimentalVariables = OwnedPythonObject(self.this, SD2_NS + 'experimentalVariable', ExperimentalVariable, '0', '*')
+        self.diagnosticVariables = OwnedPythonObject(self.this, SD2_NS + 'diagnosticVariable', ExperimentalVariable, '0', '*')
         self.outcomeVariables = OwnedPythonObject(self.this, SD2_NS + 'outcomeVariable', ExperimentalVariable, '0', '*')
-        if truth_table_uri is not None:
-            self.truthTable = URIProperty(self.this, SD2_NS + 'truthTable', '0', '1', truth_table_uri)
-        self.register_extension_class(ExperimentalIntent, 'sd2')
+        self.experimentalConditions = OwnedPythonObject(self.this, SD2_NS + 'experimentalCondition', ExperimentalCondition, '0', '*')
+        self.register_extension_class(ExperimentalDesign, 'sd2')
 
 class ExperimentalVariable(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1'):
+    def __init__(self, display_id='example', name=None, version='1', definition_uri=None):
         Identified.__init__(self, SD2_NS + 'ExperimentalVariable', display_id, version)
         if name is not None:
             self.name = name
+        if definition_uri is not None:
+            self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition_uri)
         self.register_extension_class(ExperimentalVariable, 'sd2')
 
-class TruthTable(TopLevel, PythonicInterface):
+class ExperimentalCondition(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', outputs=[]):
-        TopLevel.__init__(self, SD2_NS + 'TruthTable', display_id, version)
-        self.inputs = OwnedPythonObject(self.this, SD2_NS + 'input', TruthTableInput, '0', '*')
-        self.outputs = IntProperty(self.this, SD2_NS + 'output', '0', '*')
-        for output in outputs:
-            self.outputs.add(str(output))
-        self.register_extension_class(TruthTable, 'sd2')
+    def __init__(self, display_id='example', name=None, version='1', definition_uri=None):
+        Identified.__init__(self, SD2_NS + 'ExperimentalCondition', display_id, version)
+        if name is not None:
+            self.name = name
+        if definition_uri is not None:
+            self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition_uri)
+        self.experimentalLevels = OwnedPythonObject(self.this, SD2_NS + 'experimentalLevel', ExperimentalLevel, '0', '*')
+        self.outcomeLevels = OwnedPythonObject(self.this, SD2_NS + 'outcomeLevel', ExperimentalLevel, '0', '*')
+        self.register_extension_class(ExperimentalCondition, 'sd2')
 
-class TruthTableInput(Identified, PythonicInterface):
+class ExperimentalLevel(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', exp_vars=[], strain=None):
-        Identified.__init__(self, SD2_NS + 'TruthTableInput', display_id, version)
-        self.experimentalVariables = IntProperty(self.this, SD2_NS + 'experimentalVariable', '0', '*')
-        for exp_var in exp_vars:
-            self.experimentalVariables.add(str(exp_var))
-        if strain is not None:
-            self.strain = URIProperty(self.this, SD2_NS + 'strain', '0', '1')
-        self.register_extension_class(TruthTableInput, 'sd2')
+    def __init__(self, display_id='example', name=None, version='1', exp_var_uri=None, level=None):
+        Identified.__init__(self, SD2_NS + 'ExperimentalLevel', display_id, version)
+        if name is not None:
+            self.name = name
+        if exp_var_uri is not None:
+            self.experimentalVariable = URIProperty(self.this, SD2_NS + 'experimentalVariable', '0', '1', exp_var_uri)
+        if level is not None:
+            self.level = IntProperty(self.this, SD2_NS + 'level', '0', '1', level)
+        self.register_extension_class(ExperimentalLevel, 'sd2')
 
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', exp_data_uris=[], exp_intent=None):
+    def __init__(self, display_id='example', name=None, version='1', exp_data_uris=[], exp_design_uri=None):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
         if name is not None:
             self.name = name
-        if exp_intent is not None:
-            self.experimentalIntent = URIProperty(self.this, SD2_NS + 'experimentalIntent', '0', '1', exp_intent)
+        if exp_design_uri is not None:
+            self.experimentalDesign = URIProperty(self.this, SD2_NS + 'experimentalDesign', '0', '1', exp_design_uri)
         self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
         for exp_data_uri in exp_data_uris:
             self.experimentalData.add(exp_data_uri)
@@ -92,14 +96,14 @@ class ExperimentalData(TopLevel, PythonicInterface):
 
 class Measure(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', has_numerical_value=None, has_unit=None):
+    def __init__(self, display_id='example', name=None, version='1', has_numerical_value=None, has_unit_uri=None):
         Identified.__init__(self, OM_NS + 'Measure', display_id, version)
         if name is not None:
             self.name = name
         if has_numerical_value is not None:
             self.hasNumericalValue = FloatProperty(self.this, OM_NS + 'hasNumericalValue', '0', '1', has_numerical_value)
-        if has_unit is not None:
-            self.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1', has_unit)
+        if has_unit_uri is not None:
+            self.hasUnit = URIProperty(self.this, OM_NS + 'hasUnit', '0', '1', has_unit_uri)
         self.register_extension_class(Measure, 'om')
         
 class Unit(TopLevel, PythonicInterface):
@@ -114,12 +118,12 @@ class Unit(TopLevel, PythonicInterface):
 
 class Channel(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', calibration_file=None):
+    def __init__(self, display_id='example', name=None, version='1', cal_file_uri=None):
         Identified.__init__(self, SD2_NS + 'Channel', display_id, version)
         if name is not None:
             self.name = name
-        if calibration_file is not None:
-            self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', calibration_file)
+        if cal_file_uri is not None:
+            self.calibrationFile = URIProperty(self.this, SD2_NS + 'calibrationFile', '0', '1', cal_file_uri)
         self.register_extension_class(Channel, 'sd2')
 
 class XDocument(Document):
@@ -743,86 +747,91 @@ class XDocument(Document):
 
         return exp
 
-    def create_experimental_intent(self, display_id, exp=None, name=None, version='1'):
-        exp_intent = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+    def create_experimental_design(self, display_id, exp=None, name=None, version='1'):
+        exp_design = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
-        if exp_intent is not None:
-            exp_intent = exp_intent.cast(ExperimentalIntent)
+        if exp_design is not None:
+            exp_design = exp_design.cast(ExperimentalDesign)
         else:
             if name is not None:
-                exp_intent = ExperimentalIntent(display_id, name, version)
+                exp_design = ExperimentalDesign(display_id, name, version)
             else:
-                exp_intent = ExperimentalIntent(display_id, display_id, version)
+                exp_design = ExperimentalDesign(display_id, display_id, version)
 
-            self.addExtensionObject(exp_intent)
+            self.addExtensionObject(exp_design)
 
             if exp is not None:
-                exp.experimentalIntent = exp_intent.identity
+                exp.experimentalDesign = exp_design.identity
 
-        return exp_intent
+        return exp_design
 
-    def create_diagnostic_variable(self, display_id, exp_intent, name=None):
+    def create_diagnostic_variable(self, display_id, exp_design, definition=None, name=None):
         try:
-            diag_var = exp_intent.diagnosticVariables.create(display_id)
+            diag_var = exp_design.diagnosticVariables.create(display_id)
             if name is not None:
-                exp_intent.name = name
+                diag_var.name = name
+            diag_var.definition = definition
         except:
-            diag_var = exp_intent.diagnosticVariables.get(self.generate_uri(exp_intent.persistentIdentity.get(), display_id, exp_intent.version))
+            diag_var = exp_design.diagnosticVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
         return diag_var
   
-    def create_experimental_variable(self, exp_intent, display_id=None, name=None):
+    def create_experimental_variable(self, display_id, exp_design, definition=None, name=None):
         try:
-            exp_var = exp_intent.experimentalVariables.create(display_id)
+            exp_var = exp_design.experimentalVariables.create(display_id)
             if name is not None:
-                exp_intent.name = name
+                exp_var.name = name
+            exp_var.definition = definition
         except:
-            exp_var = exp_intent.experimentalVariables.get(self.generate_uri(exp_intent.persistentIdentity.get(), display_id, exp_intent.version))
+            exp_var = exp_design.experimentalVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
         return exp_var
 
-    def create_outcome_variable(self, exp_intent, display_id=None, name=None):
+    def create_outcome_variable(self, display_id, exp_design, definition=None, name=None):
         try:
-            out_var = exp_intent.outcomeVariables.create(display_id)
+            out_var = exp_design.outcomeVariables.create(display_id)
             if name is not None:
-                exp_intent.name = name
+                out_var.name = name
+            out_var.definition = definition
         except:
-            out_var = exp_intent.outcomeVariables.get(self.generate_uri(exp_intent.persistentIdentity.get(), display_id, exp_intent.version))
+            out_var = exp_design.outcomeVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
         return out_var
 
-    def create_truth_table(self, display_id, outputs=[], exp_intent=None, name=None, version='1'):
-        truth_table = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
-
-        if exp_intent is not None:
-            truth_table = truth_table.cast(TruthTable)
-        else:
-            if name is not None:
-                truth_table = TruthTable(display_id, name, version, outputs)
-            else:
-                truth_table = TruthTable(display_id, display_id, version, outputs)
-
-            self.addExtensionObject(truth_table)
-
-            if exp_intent is not None:
-                exp_intent.truthTable = truth_table.identity
-
-        return truth_table
-
-    def create_truth_table_input(self, display_id, truth_table, exp_vars=[], strain=None, name=None):
+    def create_experimental_condition(self, display_id, exp_design, definition=None, name=None):
         try:
-            tt_input = truth_table.inputs.create(display_id)
+            exp_condition = exp_design.experimentalConditions.create(display_id)
             if name is not None:
-                tt_input.name = name
-
-            for exp_var in exp_vars:
-                tt_input.experimentalVariables.add(str(exp_var))
-            if strain is not None:
-                tt_input.strain = strain
+                exp_condition.name = name
+            exp_condition.definition = definition
         except:
-            tt_input = truth_table.inputs.get(self.generate_uri(truth_table.persistentIdentity.get(), display_id, truth_table.version))
+            exp_condition = exp_design.experimentalConditions.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
-        return tt_input
+        return exp_condition
+
+    def create_experimental_level(self, display_id, exp_condition, exp_var, level, name=None):
+        try:
+            exp_level = exp_condition.experimentalLevels.create(display_id)
+            if name is not None:
+                exp_level.name = name
+            exp_level.experimentalVariable = exp_var
+            exp_level.level = level
+        except:
+            exp_level = exp_condition.experimentalLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
+
+        return exp_level
+
+    def create_outcome_level(self, display_id, exp_condition, exp_var, level, name=None):
+        try:
+            out_level = exp_condition.outcomeLevels.create(display_id)
+            if name is not None:
+                out_level.name = name
+            out_level.experimentalVariable = exp_var
+            out_level.level = level
+        except:
+            out_level = exp_condition.outcomeLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
+
+        return out_level
 
     def get_device(self, uri):
         device = self.getComponentDefinition(uri)
