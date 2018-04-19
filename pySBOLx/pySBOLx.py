@@ -781,10 +781,11 @@ class XDocument(Document):
                 diag_var.name = name
             else:
                 diag_var.name = display_id
-            try:
-                diag_var.definition.add(definition.identity)
-            except:
-                diag_var.definition.add(definition)
+            if definition is not None:
+                try:
+                    diag_var.definition.add(definition.identity)
+                except:
+                    diag_var.definition.add(definition)
         except:
             diag_var = exp_design.diagnosticVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
@@ -797,10 +798,11 @@ class XDocument(Document):
                 exp_var.name = name
             else:
                 exp_var.name = display_id
-            try:
-                exp_var.definition.add(definition.identity)
-            except:
-                exp_var.definition.add(definition)
+            if definition is not None:
+                try:
+                    exp_var.definition.add(definition.identity)
+                except:
+                    exp_var.definition.add(definition)
         except:
             exp_var = exp_design.experimentalVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
@@ -813,10 +815,11 @@ class XDocument(Document):
                 out_var.name = name
             else:
                 out_var.name = display_id
-            try:
-                out_var.definition.add(definition.identity)
-            except:
-                out_var.definition.add(definition)
+            if definition is not None:
+                try:
+                    out_var.definition.add(definition.identity)
+                except:
+                    out_var.definition.add(definition)
         except:
             out_var = exp_design.outcomeVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
@@ -829,10 +832,11 @@ class XDocument(Document):
                 exp_condition.name = name
             else:
                 exp_condition.name = display_id
-            try:
-                exp_condition.definition.add(definition.identity)
-            except:
-                exp_condition.definition.add(definition)
+            if definition is not None:
+                try:
+                    exp_condition.definition.add(definition.identity)
+                except:
+                    exp_condition.definition.add(definition)
         except:
             exp_condition = exp_design.experimentalConditions.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
