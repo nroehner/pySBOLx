@@ -44,6 +44,8 @@ class ExperimentalVariable(Identified, PythonicInterface):
             self.name = name
         if definition_uri is not None:
             self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition_uri)
+        else:
+            self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1')
         self.register_extension_class(ExperimentalVariable, 'sd2')
 
 class ExperimentalCondition(Identified, PythonicInterface):
@@ -54,6 +56,8 @@ class ExperimentalCondition(Identified, PythonicInterface):
             self.name = name
         if definition_uri is not None:
             self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition_uri)
+        else:
+            self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1')
         self.experimentalLevels = OwnedPythonObject(self.this, SD2_NS + 'experimentalLevel', ExperimentalLevel, '0', '*')
         self.outcomeLevels = OwnedPythonObject(self.this, SD2_NS + 'outcomeLevel', ExperimentalLevel, '0', '*')
         self.register_extension_class(ExperimentalCondition, 'sd2')
@@ -69,6 +73,8 @@ class ExperimentalLevel(Identified, PythonicInterface):
             self.experimentalVariables.add(exp_var_uri)
         if level is not None:
             self.level = IntProperty(self.this, SD2_NS + 'level', '0', '1', level)
+        else:
+            self.level = IntProperty(self.this, SD2_NS + 'level', '0', '1')
         self.register_extension_class(ExperimentalLevel, 'sd2')
 
 class Experiment(TopLevel, PythonicInterface):
@@ -79,6 +85,8 @@ class Experiment(TopLevel, PythonicInterface):
             self.name = name
         if exp_design_uri is not None:
             self.experimentalDesign = URIProperty(self.this, SD2_NS + 'experimentalDesign', '0', '1', exp_design_uri)
+        else:
+            self.experimentalDesign = URIProperty(self.this, SD2_NS + 'experimentalDesign', '0', '1')
         self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
         for exp_data_uri in exp_data_uris:
             self.experimentalData.add(exp_data_uri)
