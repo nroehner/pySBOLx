@@ -60,12 +60,13 @@ class ExperimentalCondition(Identified, PythonicInterface):
 
 class ExperimentalLevel(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', exp_var_uri=None, level=None):
+    def __init__(self, display_id='example', name=None, version='1', exp_var_uris=[], level=None):
         Identified.__init__(self, SD2_NS + 'ExperimentalLevel', display_id, version)
         if name is not None:
             self.name = name
-        if exp_var_uri is not None:
-            self.experimentalVariable = URIProperty(self.this, SD2_NS + 'experimentalVariable', '0', '1', exp_var_uri)
+        self.experimentalVariables = URIProperty(self.this, SD2_NS + 'experimentalVariable', '0', '*')
+        for exp_var_uri in exp_var_uris:
+            self.experimentalVariables.add(exp_var_uri)
         if level is not None:
             self.level = IntProperty(self.this, SD2_NS + 'level', '0', '1', level)
         self.register_extension_class(ExperimentalLevel, 'sd2')
@@ -765,68 +766,82 @@ class XDocument(Document):
 
         return exp_design
 
-    def create_diagnostic_variable(self, display_id, exp_design, definition=None, name=None):
+    def create_diagnostic_variable(self, exp_design, display_id, name=None, definition=None):
         try:
             diag_var = exp_design.diagnosticVariables.create(display_id)
             if name is not None:
                 diag_var.name = name
+            else:
+                diag_var.name = display_id
             diag_var.definition = definition
         except:
             diag_var = exp_design.diagnosticVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
         return diag_var
   
-    def create_experimental_variable(self, display_id, exp_design, definition=None, name=None):
+    def create_experimental_variable(self, exp_design, display_id, name=None, definition=None):
         try:
             exp_var = exp_design.experimentalVariables.create(display_id)
             if name is not None:
                 exp_var.name = name
+            else:
+                exp_var.name = display_id
             exp_var.definition = definition
         except:
             exp_var = exp_design.experimentalVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
         return exp_var
 
-    def create_outcome_variable(self, display_id, exp_design, definition=None, name=None):
+    def create_outcome_variable(self, exp_design, display_id, name=None, definition=None):
         try:
             out_var = exp_design.outcomeVariables.create(display_id)
             if name is not None:
                 out_var.name = name
+            else:
+                out_var.name = display_id
             out_var.definition = definition
         except:
             out_var = exp_design.outcomeVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
         return out_var
 
-    def create_experimental_condition(self, display_id, exp_design, definition=None, name=None):
+    def create_experimental_condition(self, exp_design, display_id, name=None, definition=None):
         try:
             exp_condition = exp_design.experimentalConditions.create(display_id)
             if name is not None:
                 exp_condition.name = name
+            else:
+                exp_condition.name = display_id
             exp_condition.definition = definition
         except:
             exp_condition = exp_design.experimentalConditions.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
         return exp_condition
 
-    def create_experimental_level(self, display_id, exp_condition, exp_var, level, name=None):
+    def create_experimental_level(self, exp_condition, exp_var_uris, level, display_id, name=None):
         try:
             exp_level = exp_condition.experimentalLevels.create(display_id)
             if name is not None:
                 exp_level.name = name
-            exp_level.experimentalVariable = exp_var
+            else:
+                exp_level.name = display_id
+            for exp_var_uri in exp_var_uris:
+                exp_level.experimentalVariables.add(exp_var_uri)
             exp_level.level = level
         except:
             exp_level = exp_condition.experimentalLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
 
         return exp_level
 
-    def create_outcome_level(self, display_id, exp_condition, exp_var, level, name=None):
+    def create_outcome_level(self, exp_condition, exp_var_uris, level, display_id, name=None):
         try:
             out_level = exp_condition.outcomeLevels.create(display_id)
             if name is not None:
                 out_level.name = name
-            out_level.experimentalVariable = exp_var
+            else:
+                out_level.name = display_id
+            for exp_var_uri in exp_var_uris:
+                out_level.experimentalVariables.add(exp_var_uri)
             out_level.level = level
         except:
             out_level = exp_condition.outcomeLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
