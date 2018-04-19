@@ -770,7 +770,7 @@ class XDocument(Document):
             self.addExtensionObject(exp_design)
 
             if exp is not None:
-                exp.experimentalDesign = exp_design.identity
+                exp.experimentalDesign.add(exp_design.identity)
 
         return exp_design
 
@@ -781,7 +781,10 @@ class XDocument(Document):
                 diag_var.name = name
             else:
                 diag_var.name = display_id
-            diag_var.definition = definition
+            try:
+                diag_var.definition.add(definition.identity)
+            except:
+                diag_var.definition.add(definition)
         except:
             diag_var = exp_design.diagnosticVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
@@ -794,7 +797,10 @@ class XDocument(Document):
                 exp_var.name = name
             else:
                 exp_var.name = display_id
-            exp_var.definition = definition
+            try:
+                exp_var.definition.add(definition.identity)
+            except:
+                exp_var.definition.add(definition)
         except:
             exp_var = exp_design.experimentalVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
@@ -807,7 +813,10 @@ class XDocument(Document):
                 out_var.name = name
             else:
                 out_var.name = display_id
-            out_var.definition = definition
+            try:
+                out_var.definition.add(definition.identity)
+            except:
+                out_var.definition.add(definition)
         except:
             out_var = exp_design.outcomeVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
@@ -820,37 +829,40 @@ class XDocument(Document):
                 exp_condition.name = name
             else:
                 exp_condition.name = display_id
-            exp_condition.definition = definition
+            try:
+                exp_condition.definition.add(definition.identity)
+            except:
+                exp_condition.definition.add(definition)
         except:
             exp_condition = exp_design.experimentalConditions.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
 
         return exp_condition
 
-    def create_experimental_level(self, exp_condition, exp_var_uris, level, display_id, name=None):
+    def create_experimental_level(self, exp_condition, exp_vars, level, display_id, name=None):
         try:
             exp_level = exp_condition.experimentalLevels.create(display_id)
             if name is not None:
                 exp_level.name = name
             else:
                 exp_level.name = display_id
-            for exp_var_uri in exp_var_uris:
-                exp_level.experimentalVariables.add(exp_var_uri)
-            exp_level.level = level
+            for exp_vars in exp_vars:
+                exp_level.experimentalVariables.add(exp_var.identity)
+            exp_level.level.add(level)
         except:
             exp_level = exp_condition.experimentalLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
 
         return exp_level
 
-    def create_outcome_level(self, exp_condition, exp_var_uris, level, display_id, name=None):
+    def create_outcome_level(self, exp_condition, exp_vars, level, display_id, name=None):
         try:
             out_level = exp_condition.outcomeLevels.create(display_id)
             if name is not None:
                 out_level.name = name
             else:
                 out_level.name = display_id
-            for exp_var_uri in exp_var_uris:
-                out_level.experimentalVariables.add(exp_var_uri)
-            out_level.level = level
+            for exp_var in exp_vars:
+                out_level.experimentalVariables.add(exp_var.identity)
+            out_level.level.add(level)
         except:
             out_level = exp_condition.outcomeLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
 
