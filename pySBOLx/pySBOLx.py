@@ -849,8 +849,11 @@ class XDocument(Document):
                 exp_level.name = name
             else:
                 exp_level.name = display_id
-            for exp_vars in exp_vars:
-                exp_level.experimentalVariables.add(exp_var.identity)
+            for exp_var in exp_vars:
+                try:
+                    exp_level.experimentalVariables.add(exp_var.identity)
+                except:
+                    exp_level.experimentalVariables.add(exp_var)
             exp_level.level.add(level)
         except:
             exp_level = exp_condition.experimentalLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
@@ -865,7 +868,10 @@ class XDocument(Document):
             else:
                 out_level.name = display_id
             for exp_var in exp_vars:
-                out_level.experimentalVariables.add(exp_var.identity)
+                try:
+                    out_level.experimentalVariables.add(exp_var.identity)
+                except:
+                    out_level.experimentalVariables.add(exp_var)
             out_level.level.add(level)
         except:
             out_level = exp_condition.outcomeLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
