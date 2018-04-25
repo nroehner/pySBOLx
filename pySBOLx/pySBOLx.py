@@ -68,9 +68,9 @@ class ExperimentalLevel(Identified, PythonicInterface):
         Identified.__init__(self, SD2_NS + 'ExperimentalLevel', display_id, version)
         if name is not None:
             self.name = name
-        self.experimentalVariables = URIProperty(self.this, SD2_NS + 'experimentalVariable', '0', '*')
+        self.levelVariables = URIProperty(self.this, SD2_NS + 'levelVariable', '0', '*')
         for exp_var_uri in exp_var_uris:
-            self.experimentalVariables.add(exp_var_uri)
+            self.levelVariables.add(exp_var_uri)
         if level is not None:
             self.level = IntProperty(self.this, SD2_NS + 'level', '0', '1', level)
         else:
@@ -851,9 +851,9 @@ class XDocument(Document):
                 exp_level.name = display_id
             for exp_var in exp_vars:
                 try:
-                    exp_level.experimentalVariables.add(exp_var.identity)
+                    exp_level.levelVariables.add(exp_var.identity)
                 except:
-                    exp_level.experimentalVariables.add(exp_var)
+                    exp_level.levelVariables.add(exp_var)
             exp_level.level.add(level)
         except:
             exp_level = exp_condition.experimentalLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
@@ -869,9 +869,9 @@ class XDocument(Document):
                 out_level.name = display_id
             for exp_var in exp_vars:
                 try:
-                    out_level.experimentalVariables.add(exp_var.identity)
+                    out_level.levelVariables.add(exp_var.identity)
                 except:
-                    out_level.experimentalVariables.add(exp_var)
+                    out_level.levelVariables.add(exp_var)
             out_level.level.add(level)
         except:
             out_level = exp_condition.outcomeLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
