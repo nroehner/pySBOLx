@@ -817,8 +817,7 @@ class XDocument(Document):
 
             self.addExtensionObject(exp_var)
 
-            if exp is not None:
-                exp.diagnosticVariables.add(exp_var.identity)
+            exp_design.diagnosticVariables.add(exp_var.identity)
 
         return exp_var
   
@@ -835,8 +834,7 @@ class XDocument(Document):
 
             self.addExtensionObject(exp_var)
 
-            if exp is not None:
-                exp.experimentalVariables.add(exp_var.identity)
+            exp_design.experimentalVariables.add(exp_var.identity)
 
         return exp_var
 
@@ -853,8 +851,7 @@ class XDocument(Document):
 
             self.addExtensionObject(exp_var)
 
-            if exp is not None:
-                exp.outcomeVariables.add(exp_var.identity)
+            exp_design.outcomeVariables.add(exp_var.identity)
 
         return exp_var
 
