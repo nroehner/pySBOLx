@@ -804,7 +804,7 @@ class XDocument(Document):
 
         return exp_design
 
-    def create_diagnostic_variable(self, exp_design, display_id, name=None, definition=None):
+    def create_diagnostic_variable(self, exp_design, display_id, name=None, version='1', definition=None):
         exp_var = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
         if exp_var is not None:
@@ -822,7 +822,7 @@ class XDocument(Document):
 
         return exp_var
   
-    def create_experimental_variable(self, exp_design, display_id, name=None, definition=None):
+    def create_experimental_variable(self, exp_design, display_id, name=None, version='1', definition=None):
         exp_var = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
         if exp_var is not None:
@@ -840,7 +840,7 @@ class XDocument(Document):
 
         return exp_var
 
-    def create_outcome_variable(self, exp_design, display_id, name=None, definition=None):
+    def create_outcome_variable(self, exp_design, display_id, name=None, version='1', definition=None):
         exp_var = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
         if exp_var is not None:
