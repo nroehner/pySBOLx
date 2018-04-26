@@ -26,36 +26,57 @@ class Attachment(TopLevel, PythonicInterface):
 
 class ExperimentalDesign(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1'):
+    def __init__(self, display_id='example', name=None, version='1', evars=[], ovars=[], dvars=[]):
         TopLevel.__init__(self, SD2_NS + 'ExperimentalDesign', display_id, version)
         if name is not None:
             self.name = name
-        self.experimentalVariables = OwnedPythonObject(self.this, SD2_NS + 'experimentalVariable', ExperimentalVariable, '0', '*')
-        self.diagnosticVariables = OwnedPythonObject(self.this, SD2_NS + 'diagnosticVariable', ExperimentalVariable, '0', '*')
-        self.outcomeVariables = OwnedPythonObject(self.this, SD2_NS + 'outcomeVariable', ExperimentalVariable, '0', '*')
+        self.experimentalVariables = URIProperty(self.this, SD2_NS + 'experimentalVariable', '0', '*')
+        for evar in evars:
+            try:
+                self.experimentalVariables.add(evar.identity)
+            except:
+                self.experimentalVariables.add(evar)
+        self.outcomeVariables = URIProperty(self.this, SD2_NS + 'outcomeVariable', '0', '*')
+        for ovar in ovars:
+            try:
+                self.outcomeVariables.add(ovar.identity)
+            except:
+                self.outcomeVariables.add(ovar)
+        self.diagnosticVariables = URIProperty(self.this, SD2_NS + 'diagnosticVariable', '0', '*')
+        for dvar in dvars:
+            try:
+                self.diagnosticVariables.add(dvar.identity)
+            except:
+                self.diagnosticVariables.add(dvar)
         self.experimentalConditions = OwnedPythonObject(self.this, SD2_NS + 'experimentalCondition', ExperimentalCondition, '0', '*')
         self.register_extension_class(ExperimentalDesign, 'sd2')
 
-class ExperimentalVariable(Identified, PythonicInterface):
+class ExperimentalVariable(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', definition_uri=None):
-        Identified.__init__(self, SD2_NS + 'ExperimentalVariable', display_id, version)
+    def __init__(self, display_id='example', name=None, version='1', definition=None):
+        TopLevel.__init__(self, SD2_NS + 'ExperimentalVariable', display_id, version)
         if name is not None:
             self.name = name
-        if definition_uri is not None:
-            self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition_uri)
+        if definition is not None:
+            try:
+                self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition.identity)
+            except:
+                self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition)
         else:
             self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1')
         self.register_extension_class(ExperimentalVariable, 'sd2')
 
 class ExperimentalCondition(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', definition_uri=None):
+    def __init__(self, display_id='example', name=None, version='1', definition=None):
         Identified.__init__(self, SD2_NS + 'ExperimentalCondition', display_id, version)
         if name is not None:
             self.name = name
-        if definition_uri is not None:
-            self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition_uri)
+        if definition is not None:
+            try:
+                self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition.identity)
+            except:
+                self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1', definition)
         else:
             self.definition = URIProperty(self.this, SD2_NS + 'definition', '0', '1')
         self.experimentalLevels = OwnedPythonObject(self.this, SD2_NS + 'experimentalLevel', ExperimentalLevel, '0', '*')
@@ -64,13 +85,16 @@ class ExperimentalCondition(Identified, PythonicInterface):
 
 class ExperimentalLevel(Identified, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', exp_var_uris=[], level=None):
+    def __init__(self, display_id='example', name=None, version='1', exp_vars=[], level=None):
         Identified.__init__(self, SD2_NS + 'ExperimentalLevel', display_id, version)
         if name is not None:
             self.name = name
-        self.levelVariables = URIProperty(self.this, SD2_NS + 'levelVariable', '0', '*')
-        for exp_var_uri in exp_var_uris:
-            self.levelVariables.add(exp_var_uri)
+        self.experimentalVariables = URIProperty(self.this, SD2_NS + 'experimentalVariable', '0', '*')
+        for exp_var in exp_vars:
+            try:
+                self.experimentalVariables.add(exp_var.identity)
+            except:
+                self.experimentalVariables.add(exp_var)
         if level is not None:
             self.level = IntProperty(self.this, SD2_NS + 'level', '0', '1', level)
         else:
@@ -79,17 +103,23 @@ class ExperimentalLevel(Identified, PythonicInterface):
 
 class Experiment(TopLevel, PythonicInterface):
     
-    def __init__(self, display_id='example', name=None, version='1', exp_data_uris=[], exp_design_uri=None):
+    def __init__(self, display_id='example', name=None, version='1', exp_data=[], exp_design=None):
         TopLevel.__init__(self, SD2_NS + 'Experiment', display_id, version)
         if name is not None:
             self.name = name
-        if exp_design_uri is not None:
-            self.experimentalDesign = URIProperty(self.this, SD2_NS + 'experimentalDesign', '0', '1', exp_design_uri)
+        if exp_design is not None:
+            try:
+                self.experimentalDesign = URIProperty(self.this, SD2_NS + 'experimentalDesign', '0', '1', exp_design.identity)
+            except:
+                self.experimentalDesign = URIProperty(self.this, SD2_NS + 'experimentalDesign', '0', '1', exp_design)
         else:
             self.experimentalDesign = URIProperty(self.this, SD2_NS + 'experimentalDesign', '0', '1')
         self.experimentalData = URIProperty(self.this, SD2_NS + 'experimentalData', '0', '*')
-        for exp_data_uri in exp_data_uris:
-            self.experimentalData.add(exp_data_uri)
+        for exp_datum in exp_data:
+            try:
+                self.experimentalData.add(exp_datum.identity)
+            except:
+                self.experimentalData.add(exp_datum)
         self.register_extension_class(Experiment, 'sd2')
 
 class ExperimentalData(TopLevel, PythonicInterface):
@@ -775,55 +805,58 @@ class XDocument(Document):
         return exp_design
 
     def create_diagnostic_variable(self, exp_design, display_id, name=None, definition=None):
-        try:
-            diag_var = exp_design.diagnosticVariables.create(display_id)
-            if name is not None:
-                diag_var.name = name
-            else:
-                diag_var.name = display_id
-            if definition is not None:
-                try:
-                    diag_var.definition.add(definition.identity)
-                except:
-                    diag_var.definition.add(definition)
-        except:
-            diag_var = exp_design.diagnosticVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
+        exp_var = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
-        return diag_var
+        if exp_var is not None:
+            exp_var = exp_var.cast(ExperimentalVariable)
+        else:
+            if name is not None:
+                exp_var = ExperimentalVariable(display_id, name, version, definition)
+            else:
+                exp_var = ExperimentalVariable(display_id, display_id, version, definition)
+
+            self.addExtensionObject(exp_var)
+
+            if exp is not None:
+                exp.diagnosticVariables.add(exp_var.identity)
+
+        return exp_var
   
     def create_experimental_variable(self, exp_design, display_id, name=None, definition=None):
-        try:
-            exp_var = exp_design.experimentalVariables.create(display_id)
+        exp_var = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
+
+        if exp_var is not None:
+            exp_var = exp_var.cast(ExperimentalVariable)
+        else:
             if name is not None:
-                exp_var.name = name
+                exp_var = ExperimentalVariable(display_id, name, version, definition)
             else:
-                exp_var.name = display_id
-            if definition is not None:
-                try:
-                    exp_var.definition.add(definition.identity)
-                except:
-                    exp_var.definition.add(definition)
-        except:
-            exp_var = exp_design.experimentalVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
+                exp_var = ExperimentalVariable(display_id, display_id, version, definition)
+
+            self.addExtensionObject(exp_var)
+
+            if exp is not None:
+                exp.experimentalVariables.add(exp_var.identity)
 
         return exp_var
 
     def create_outcome_variable(self, exp_design, display_id, name=None, definition=None):
-        try:
-            out_var = exp_design.outcomeVariables.create(display_id)
-            if name is not None:
-                out_var.name = name
-            else:
-                out_var.name = display_id
-            if definition is not None:
-                try:
-                    out_var.definition.add(definition.identity)
-                except:
-                    out_var.definition.add(definition)
-        except:
-            out_var = exp_design.outcomeVariables.get(self.generate_uri(exp_design.persistentIdentity.get(), display_id, exp_design.version))
+        exp_var = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
-        return out_var
+        if exp_var is not None:
+            exp_var = exp_var.cast(ExperimentalVariable)
+        else:
+            if name is not None:
+                exp_var = ExperimentalVariable(display_id, name, version, definition)
+            else:
+                exp_var = ExperimentalVariable(display_id, display_id, version, definition)
+
+            self.addExtensionObject(exp_var)
+
+            if exp is not None:
+                exp.outcomeVariables.add(exp_var.identity)
+
+        return exp_var
 
     def create_experimental_condition(self, exp_design, display_id, name=None, definition=None):
         try:
@@ -851,9 +884,9 @@ class XDocument(Document):
                 exp_level.name = display_id
             for exp_var in exp_vars:
                 try:
-                    exp_level.levelVariables.add(exp_var.identity)
+                    exp_level.experimentalVariables.add(exp_var.identity)
                 except:
-                    exp_level.levelVariables.add(exp_var)
+                    exp_level.experimentalVariables.add(exp_var)
             exp_level.level.add(level)
         except:
             exp_level = exp_condition.experimentalLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
@@ -869,9 +902,9 @@ class XDocument(Document):
                 out_level.name = display_id
             for exp_var in exp_vars:
                 try:
-                    out_level.levelVariables.add(exp_var.identity)
+                    out_level.experimentalVariables.add(exp_var.identity)
                 except:
-                    out_level.levelVariables.add(exp_var)
+                    out_level.experimentalVariables.add(exp_var)
             out_level.level.add(level)
         except:
             out_level = exp_condition.outcomeLevels.get(self.generate_uri(exp_condition.persistentIdentity.get(), display_id, exp_condition.version))
