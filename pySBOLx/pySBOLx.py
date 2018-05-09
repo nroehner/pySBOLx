@@ -259,7 +259,7 @@ class XDocument(Document):
         return enzyme
 
     def create_fluorescent_bead(self, display_id, name=None, descr=None, version='1'):
-        return self.create_component_definition(display_id, name, descr, 'http://purl.obolibrary.org/obo/NCIT_C70671', version, 'http://identifiers.org/chebi/CHEBI:39442')
+        return self.create_component_definition(display_id, name, descr, 'http://purl.obolibrary.org/obo/NCIT_C70671', version, 'http://purl.obolibrary.org/obo/NCIT_C16586')
 
     def create_plasmid(self, display_id, name=None, descr=None, version='1'):
         plasmid = self.create_dna(display_id, name, descr, version)
