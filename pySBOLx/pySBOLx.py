@@ -283,7 +283,7 @@ class XDocument(Document):
         return inducer
 
     def create_strain(self, display_id, name=None, descr=None, version='1'):
-        return self.create_component_definition(display_id, display_id, descr, 'http://purl.obolibrary.org/obo/NCIT_C14419', version)
+        return self.create_component_definition(display_id, name, descr, 'http://purl.obolibrary.org/obo/NCIT_C14419', version)
 
     def create_module_definition(self, display_id, name=None, descr=None, version='1', mod_role=None):
         try:
