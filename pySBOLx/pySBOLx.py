@@ -536,8 +536,8 @@ class XDocument(Document):
 
         return system
 
-    def create_flow_cytometry_activity(self, operator, channels=[], parents=[], name=None, descr=None, custom=[], child=None, display_id=None, version='1'):
-        act = create_activity(operator, parents, name, descr, custom, child, display_id, version)
+    def create_flow_cytometry_activity(self, operator, replicate_id=None, channels=[], parents=[], name=None, descr=None, custom=[], child=None, display_id=None, version='1'):
+        act = create_activity(operator, replicate_id, parents, name, descr, custom, child, display_id, version)
 
         if len(channels) > 0 and not hasattr(act, 'channels'):
             act.channels = OwnedPythonObject(act, SD2_NS + 'channel', Channel, '0', '*')
@@ -547,32 +547,34 @@ class XDocument(Document):
 
         return act
 
-    def create_activity(self, operator, parents=[], name=None, descr=None, custom=[], child=None, display_id=None, version='1'):
+    def create_activity(self, operator, replicate_id=None, parents=[], name=None, descr=None, custom=[], child=None, display_id=None, version='1'):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
         else:
             id_arr.append(operator)
+            if replicate_id is not None:
+                id_arr.append(replicate_id)
             parent_id_arr = []
             for parent in parents:
                 if isinstance(parent, Activity):
                     for entity in self.get_parent_entities(parent):
-                        parent_id_arr.append('_')
                         parent_id_arr.append(entity.displayId)
                 else:
-                    parent_id_arr.append('_')
                     try:
                         parent_id_arr.append(parent.displayId)
                     except:
                         parent_id_arr.append(self.extract_display_id(parent))
             if len(parent_id_arr) > 0:
-                id_arr.extend(parent_id_arr)
+                if len(parent_id_arr) < 3:
+                    id_arr.extend(parent_id_arr)
+                else:
+                    id_arr.append('samples')
                 if child is not None:
-                    id_arr.append('_to')
+                    id_arr.append('to')
             if child is not None:
-                id_arr.append('_')
                 id_arr.append(child.displayId)
-        act_id = ''.join(id_arr)
+        act_id = '_'.join(id_arr)
 
         try:
             act = Activity(act_id, '', version)
@@ -669,19 +671,15 @@ class XDocument(Document):
 
     #     return attach
 
-    def create_experimental_data(self, attachs, imp, operator=None, replicate_id=None, exp=None, display_id=None, name=None, version='1'):
+    def create_experimental_data(self, attachs, imps, replicate_id=None, exp=None, display_id=None, name=None, version='1'):
         id_arr = []
         if display_id is not None:
             id_arr.append(display_id)
         else:
-            id_arr.append(imp.displayId)
-            if operator is not None:
-                id_arr.append('_')
-                id_arr.append(operator)
+            id_arr.append('data')
             if replicate_id is not None:
-                id_arr.append('_')
-                id_arr.append(replicate_id) 
-        exp_datum_id = ''.join(id_arr)
+                id_arr.append(replicate_id)
+        exp_datum_id = '_'.join(id_arr)
         
         exp_datum = self.getTopLevel(self.generate_uri(getHomespace(), exp_datum_id, version))
 
@@ -697,7 +695,8 @@ class XDocument(Document):
             else:
                 exp_datum = ExperimentalData(exp_datum_id, exp_datum_id, version, attach_uris)
 
-            exp_datum.wasDerivedFrom = exp_datum.wasDerivedFrom + [imp.identity]
+            for imp in imps:
+                exp_datum.wasDerivedFrom = exp_datum.wasDerivedFrom + [imp.identity]
 
             self.addExtensionObject(exp_datum)
 
