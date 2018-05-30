@@ -740,7 +740,10 @@ class XDocument(Document):
                 imp.name = display_id
 
             if built is not None:
-                imp.built = built
+                if isinstance(built, str):
+                    imp.built = built
+                else:
+                    imp.built = built.identity
 
             for parent in parents:
                 try:
