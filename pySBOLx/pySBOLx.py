@@ -440,6 +440,9 @@ class XDocument(Document):
     def create_solution(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
         return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://identifiers.org/chebi/CHEBI:75958')
 
+    def create_stain(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1'):
+        return self.create_system(devices, sub_systems, inputs, measures, display_id, name, descr, version, 'http://purl.obolibrary.org/obo/NCIT_C841')
+
     def create_system(self, devices=[], sub_systems=[], inputs=[], measures={}, display_id=None, name=None, descr=None, version='1', mod_role=None):
         id_arr = []
         if display_id is not None:
