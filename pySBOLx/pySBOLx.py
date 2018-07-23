@@ -200,9 +200,11 @@ class XDocument(Document):
         for top_level in top_levels:
             collect.members = collect.members + [top_level.identity]
 
-    def configure_options(self, is_validated, is_typed):
+    def configure_options(self, is_validated=True, is_typed=False, serial_format='sbol', verbose=False):
         Config.setOption('validate', is_validated)
         Config.setOption('sbol_typed_uris', is_typed)
+        Config.setOption('serialization_format', serial_format)
+        Config.setOption('verbose', verbose)
 
     def configure_namespace(self, namespace):
         setHomespace(namespace)
@@ -580,7 +582,10 @@ class XDocument(Document):
         act_id = '_'.join(id_arr)
 
         try:
-            act = Activity(act_id, '', version)
+            try:
+                act = Activity(act_id, '', version)
+            except:
+                act = Activity(act_id, version)
             self.addActivity(act)
 
             if name is not None:
