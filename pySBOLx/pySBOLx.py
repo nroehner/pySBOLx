@@ -374,54 +374,33 @@ class XDocument(Document):
 
             ms.hasNumericalValue = FloatProperty(ms.this, OM_NS + 'hasNumericalValue', '0', '1', mag)
             if unit is not None:
-                ms.hasUnit = URIProperty(ms.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
+                try:
+                    ms.hasUnit = URIProperty(ms.this, OM_NS + 'hasUnit', '0', '1', unit.identity)
+                except:
+                    ms.hasUnit = URIProperty(ms.this, OM_NS + 'hasUnit', '0', '1', unit)
         except:
             ms = identified.measures.get(self.generate_uri(identified.persistentIdentity.get(), ms_id, identified.version))
 
         return ms
         
-    def create_unit(self, om, symbol=None, display_id=None, name=None, descr=None, version='1'):
-        try:
-            uri = ''.join(['<', OM_NS[:-1], '/', display_id, '>'])
-            result = next(iter(om.query(''.join(["SELECT ?symbol ?name ?descr WHERE { ", uri, " om:symbol ?symbol ; rdfs:label ?name . OPTIONAL { ", uri, " rdfs:comment ?descr . FILTER (lang(?descr) = 'en') . } FILTER (lang(?name) = 'en') }"]))))
-        except:
-            try:
-                result = next(iter(om.query(''.join(["SELECT ?uri ?name ?descr WHERE { ?uri om:symbol '", symbol, "' ; rdfs:label ?name . OPTIONAL { ?uri rdfs:comment ?descr . FILTER (lang(?descr) = 'en') . } FILTER (lang(?name) = 'en') }"]))))
-            except:
-                result = next(iter(om.query(''.join(["SELECT ?uri ?symbol ?descr WHERE { ?uri om:symbol ?symbol . {?uri rdfs:label '", name, "'@en . } UNION {?uri rdfs:label '", name, "'@nl } }"]))))
-
-        unit_id = result.uri.split('/')[-1]
-
-        unit = self.getTopLevel(self.generate_uri(getHomespace(), unit_id, version))
+    def create_unit(self, display_id, symbol=None, name=None, descr=None, version='1'):
+        unit = self.getTopLevel(self.generate_uri(getHomespace(), display_id, version))
 
         if unit is not None:
             unit = unit.cast(Unit)
         else:
-            try:
-                unit_name = result.name
-            except:
-                if name is not None:
-                    unit_name = name
-                else:
-                    unit_name = unit_id
+            if name is None:
+                unit_name = display_id
+            else:
+                unit_name = name
 
-            try:
-                unit = Unit(unit_id, unit_name, version, result.symbol)
-            except:
-                if symbol is not None:
-                    unit = Unit(unit_id, unit_name, version, symbol)
-                else:
-                    unit = Unit(unit_id, unit_name, version)
-            try:
-                unit.description = result.descr
-            except:
-                if descr is not None:
-                    unit.description = descr
+            if symbol is None:
+                unit = Unit(display_id, unit_name, version)
+            else:
+                unit = Unit(display_id, unit_name, version, symbol)
 
-            try:
-                unit.wasDerivedFrom = unit.wasDerivedFrom + [result.uri]
-            except:
-                unit.wasDerivedFrom = unit.wasDerivedFrom + [self.generate_uri(OM_NS[:-1], display_id)]
+            if descr is not None:
+                unit.description = descr
 
             self.addExtensionObject(unit)
 
